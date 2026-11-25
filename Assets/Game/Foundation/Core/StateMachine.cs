@@ -1,0 +1,42 @@
+using System;
+using System.Collections.Generic;
+
+namespace Chromacolony.Foundation
+{
+    public sealed class StateMachine<TState> where TState : struct
+    {
+        private readonly HashSet<(TState From, TState To)> _allowed = new HashSet<(TState, TState)>();
+
+        public StateMachine(TState initial)
+        {
+            Current = initial;
+        }
+
+        public event Action<TState, TState> Changed;
+
+        public TState Current { get; private set; }
+
+        public StateMachine<TState> Allow(TState from, TState to)
+        {
+            _allowed.Add((from, to));
+            return this;
+        }
+
+        public bool CanGo(TState to)
+        {
+            return _allowed.Contains((Current, to));
+        }
+
+        public void Go(TState to)
+        {
+            if (!CanGo(to))
+            {
+                throw new InvalidOperationException($"no transition from {Current} to {to}");
+            }
+
+            var from = Current;
+            Current = to;
+            Changed?.Invoke(from, to);
+        }
+    }
+}

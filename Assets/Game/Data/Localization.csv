@@ -1,0 +1,45 @@
+key,en,ru
+title,Chromacolony,Хромоколония
+play,Play,Играть
+play_board,Play board {0},Играть доску {0}
+board,Board {0},Доска {0}
+won,The picture is done!,Картинка готова!
+won_coins,+{0} coins,+{0} монет
+all_done,All the pictures are done! Play them again?,Все картинки готовы! Сыграть ещё раз?
+stuck,The crabs are stuck,Крабики застряли
+stuck_hint,Every place waits for a colour it cannot reach. A helper frees the way.,"Все места ждут цвет, до которого не добраться. Помощник откроет путь."
+stuck_retry,Every place waits for a colour it cannot reach. Try the board again.,"Все места ждут цвет, до которого не добраться. Попробуйте доску заново."
+use_helper,Use a helper,Взять помощника
+next,Next,Дальше
+play_again,Play again,Сыграть ещё раз
+retry,Retry,Заново
+to_menu,To the menu,В меню
+pause,Pause,Пауза
+settings,Settings,Настройки
+language,Language,Язык
+music,Music,Музыка
+sounds,Sounds,Звуки
+voice,Crab's voice,Голос краба
+done,Done,Готово
+language_ru,Русский,Русский
+language_en,English,English
+resume,Resume,Продолжить
+helper_slot,+1 place for this board,+1 место на эту доску
+helper_shuffle,Shuffle the queue,Перемешать очередь
+helper_back,Send a crew back to the queue,Вернуть бригаду в очередь
+buy_title,Buy a helper?,Купить помощника?
+buy_text,"{0} for {1} coins. You have {2}, you will have {3}.","{0} за {1} монет. У вас {2}, останется {3}."
+buy,Buy,Купить
+ok,OK,Хорошо
+cancel,Cancel,Отмена
+no_coins,Not enough coins: win a board to earn more.,Не хватает монет: выиграйте доску.
+lesson_tap,Tap a bucket: its crew of crabs carries pebbles of its colour home.,Коснитесь ведёрка: его бригада крабиков унесёт домой камешки его цвета.
+lesson_slots,Only five places: a crew keeps its place until its last crab sets off.,"Мест всего пять: бригада занимает место, пока не уйдёт последний крабик."
+lesson_inside,A colour inside waits until the way to it is open: take the outside first.,"Цвет внутри ждёт, пока к нему не откроется путь: сначала снаружи."
+lesson_rope,Crews on a rope go together and need two free places.,Бригады на верёвке идут вместе и занимают два места.
+lesson_cover,A covered crew shows its colour when it comes to the front.,"Накрытая бригада покажет цвет, когда выйдет вперёд."
+pick_crew,Tap a crew in its place to send it back.,"Коснитесь бригады на месте, чтобы вернуть её."
+line_hello,Hi! Tap a bucket and we'll carry the pebbles home!,Привет! Коснись ведёрка — мы унесём камешки домой!
+line_hooray,Hooray! The picture is done!,Ура! Картинка готова!
+line_oops,Oops! We're stuck…,Ой! Мы застряли…
+line_thanks,All the pictures are done! Thank you!,Все картинки готовы! Спасибо!

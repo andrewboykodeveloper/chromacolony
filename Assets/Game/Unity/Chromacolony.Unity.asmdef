@@ -1,0 +1,18 @@
+{
+  "name": "Chromacolony.Unity",
+  "rootNamespace": "Chromacolony.Unity",
+  "references": [
+    "Chromacolony.Core",
+    "Chromacolony.Foundation",
+    "Chromacolony.Foundation.Unity"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

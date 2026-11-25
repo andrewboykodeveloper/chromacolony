@@ -1,0 +1,27 @@
+* text=auto
+
+*.cs     text eol=lf diff=csharp
+*.uss    text eol=lf
+*.tss    text eol=lf
+*.uxml   text eol=lf
+*.shader text eol=lf
+*.asmdef text eol=lf
+*.json   text eol=lf
+*.csv    text eol=lf
+*.md     text eol=lf
+
+*.unity  text=auto eol=lf merge=unityyamlmerge linguist-generated
+*.prefab text=auto eol=lf merge=unityyamlmerge linguist-generated
+*.asset  text=auto eol=lf merge=unityyamlmerge linguist-generated
+*.mat    text=auto eol=lf merge=unityyamlmerge linguist-generated
+*.meta   text=auto eol=lf merge=unityyamlmerge linguist-generated
+
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.ttf   binary
+*.otf   binary
+*.wav   binary
+*.ogg   binary
+*.mp3   binary
+*.bytes binary
