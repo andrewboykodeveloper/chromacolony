@@ -191,6 +191,25 @@ namespace Chromacolony.Tests
             return Components<AudioListener>().Count > 0;
         }
 
+        public int LoopingSources()
+        {
+            int looping = 0;
+            foreach (AudioSource source in Components<AudioSource>())
+            {
+                looping += source.loop && source.isPlaying ? 1 : 0;
+            }
+
+            return looping;
+        }
+
+        public T Single<T>()
+            where T : Component
+        {
+            List<T> found = Components<T>();
+            Assert.That(found.Count, Is.EqualTo(1), $"the scene has one {typeof(T).Name}");
+            return found[0];
+        }
+
         // A hidden element must also be hidden by its resolved style: a class that no style sheet applies hides nothing.
         private static bool IsShown(VisualElement element)
         {

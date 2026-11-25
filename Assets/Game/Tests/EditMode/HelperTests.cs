@@ -105,6 +105,21 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
+        public void BackAfterAShuffleReturnsACrewToTheColumnItWasSentFrom()
+        {
+            GameModel model = Start("board s\nRRYY\n= R1 Y1\n= R1 Y1\n", slots: 5);
+            // Crews 0 and 1 start in column 0, crews 2 and 3 in column 1; these draws swap the two front crews.
+            model.Shuffle(new ScriptedRandom(3, 0, 1));
+            Assert.That(model.Column(1)[0].Id, Is.EqualTo(0));
+
+            model.TrySend(1);
+            model.Back(0);
+
+            Assert.That(model.Column(1)[0].Id, Is.EqualTo(0), "the crew is back at the front of column 1");
+            Assert.That(model.Column(0), Has.Count.EqualTo(2), "column 0 keeps the two crews the shuffle left there");
+        }
+
+        [Test]
         public void BackCutsTheRopeOfACrewWhosePartnerHasGone()
         {
             GameModel model = Start("board rope\nRRYY\n= R2~1\n= Y2~1\n", slots: 5);

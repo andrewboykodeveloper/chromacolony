@@ -40,7 +40,7 @@ namespace Chromacolony.Core
 
         public bool Waiting { get; internal set; }
 
-        public int Column { get; }
+        public int Column { get; internal set; }
 
         internal float Cooldown { get; set; }
     }
