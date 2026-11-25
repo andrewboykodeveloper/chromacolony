@@ -6,20 +6,29 @@ using Chromacolony.Foundation.Ports;
 
 namespace Chromacolony.Foundation
 {
+    /// <summary>
+    /// Writes saves with a version line and migrates older ones on load. A save without a version line is copied to a free
+    /// <c>&lt;key&gt;.unreadable</c> name before the game starts afresh. A save from a newer version, one this version cannot
+    /// migrate, or one the storage fails to read stays where it is and is not written over for the rest of the session. Each
+    /// problem goes to the report callback, a failing write once until a write succeeds.
+    /// </summary>
     public sealed class SaveStore
     {
+        private const string UnreadableSuffix = ".unreadable";
+
         private readonly ISaveStorage _storage;
         private readonly int _version;
+        private readonly Action<string> _report;
         private readonly Dictionary<int, Func<string, string>> _migrations = new Dictionary<int, Func<string, string>>();
         private readonly HashSet<string> _kept = new HashSet<string>();
+        private readonly HashSet<string> _failing = new HashSet<string>();
 
-        public SaveStore(ISaveStorage storage, int version)
+        public SaveStore(ISaveStorage storage, int version, Action<string> report)
         {
             _storage = storage;
             _version = version;
+            _report = report;
         }
-
-        public string LastProblem { get; private set; }
 
         public SaveStore Migrate(int fromVersion, Func<string, string> migration)
         {
@@ -29,26 +38,27 @@ namespace Chromacolony.Foundation
 
         public void Save(string key, string payload)
         {
-            LastProblem = null;
             if (_kept.Contains(key))
             {
-                LastProblem = $"{key}: not written, as this run could not use the save that is there";
                 return;
             }
 
             try
             {
                 _storage.Write(key, "v" + _version.ToString(CultureInfo.InvariantCulture) + "\n" + payload);
+                _failing.Remove(key);
             }
             catch (Exception e) when (IsStorageFailure(e))
             {
-                LastProblem = $"{key}: could not be written: {e.Message}";
+                if (_failing.Add(key))
+                {
+                    _report($"{key}: could not be written: {e.Message}");
+                }
             }
         }
 
         public string Load(string key)
         {
-            LastProblem = null;
             _kept.Remove(key);
             string text;
             try
@@ -68,8 +78,7 @@ namespace Chromacolony.Foundation
             var newline = text.IndexOf('\n');
             if (newline < 2 || text[0] != 'v' || !int.TryParse(text.Substring(1, newline - 1), NumberStyles.None, CultureInfo.InvariantCulture, out var version))
             {
-                LastProblem = $"{key}: no version line";
-                return null;
+                return SetAside(key, text, $"{key}: no version line");
             }
 
             if (version > _version)
@@ -103,10 +112,42 @@ namespace Chromacolony.Foundation
             return e is IOException || e is UnauthorizedAccessException;
         }
 
+        // An earlier copy may hold the player's older progress, so a different file goes to the next free name.
+        private string SetAside(string key, string text, string problem)
+        {
+            try
+            {
+                string aside = key + UnreadableSuffix;
+                for (int copy = 2; ; copy++)
+                {
+                    string earlier = _storage.Read(aside);
+                    if (earlier == null)
+                    {
+                        _storage.Write(aside, text);
+                        break;
+                    }
+
+                    if (earlier == text)
+                    {
+                        break;
+                    }
+
+                    aside = key + UnreadableSuffix + "-" + copy.ToString(CultureInfo.InvariantCulture);
+                }
+
+                _report($"{problem}; set aside as {aside}, and the game starts afresh");
+                return null;
+            }
+            catch (Exception e) when (IsStorageFailure(e))
+            {
+                return Keep(key, $"{problem}; it could not be set aside: {e.Message}");
+            }
+        }
+
         private string Keep(string key, string problem)
         {
-            LastProblem = problem;
             _kept.Add(key);
+            _report($"{problem}; kept, and not written over in this session");
             return null;
         }
     }

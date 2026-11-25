@@ -91,7 +91,7 @@ namespace Chromacolony.Unity
             _boards = BoardText.Parse(boardsText.text);
             _prices = new Prices(config.Int(ConfigKeys.CoinsPerWin), config.Int(ConfigKeys.StartStock), config.Int(ConfigKeys.PriceSlot),
                 config.Int(ConfigKeys.PriceShuffle), config.Int(ConfigKeys.PriceBack));
-            _saves = new SaveStore(new FileSaveStorage(), SaveVersion);
+            _saves = new SaveStore(new FileSaveStorage(), SaveVersion, problem => Debug.LogWarning("Saves: " + problem));
             _progress = Progress.FromText(_saves.Load(SaveKey), _prices, _boards.Count);
             _text = new Localization(localizationCsv.text, StartLanguage());
             _model = new GameModel(_events, new Rules(config.Int(ConfigKeys.Slots), config.Float(ConfigKeys.CrabInterval)));
