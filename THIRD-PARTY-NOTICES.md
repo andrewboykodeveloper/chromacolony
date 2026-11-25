@@ -1,6 +1,13 @@
 # Third-party notices
 
-The fonts below keep their own licenses.
+The parts below keep their own licenses and are not covered by this repository's license.
+
+## Unity web template
+
+- `Assets/WebGLTemplates/Chromacolony/`
+
+The web build's page is the Default web template of Unity 6000.6.7f1, with two changes: the page title, and the line that
+keeps saved files in the browser's storage. Its files, the Unity logo among them, belong to Unity Technologies.
 
 ## Inter
 
