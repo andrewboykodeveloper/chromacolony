@@ -94,7 +94,7 @@ namespace Chromacolony.Core
 
                 if (line.StartsWith("=", StringComparison.Ordinal))
                 {
-                    columns.Add(Column(name, line.Substring(1)));
+                    columns.Add(Column(name, columns.Count + 1, line.Substring(1)));
                 }
                 else if (columns.Count > 0)
                 {
@@ -114,7 +114,7 @@ namespace Chromacolony.Core
             return boards;
         }
 
-        private static IReadOnlyList<CrewSpec> Column(string board, string line)
+        private static IReadOnlyList<CrewSpec> Column(string board, int column, string line)
         {
             var crews = new List<CrewSpec>();
             foreach (var token in line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))
@@ -147,6 +147,11 @@ namespace Chromacolony.Core
                 }
 
                 crews.Add(new CrewSpec(color, crabs, link, hidden));
+            }
+
+            if (crews.Count == 0)
+            {
+                throw new FormatException($"board {board}: column {column} of its queue has no crews");
             }
 
             return crews;

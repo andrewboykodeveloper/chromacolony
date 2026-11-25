@@ -51,6 +51,8 @@ namespace Chromacolony.Tests.EditMode
         [TestCase("board x\nR\n= R0\n", TestName = "{m}(a crew without crabs)")]
         [TestCase("RR\nboard x\n= R2\n", TestName = "{m}(a row before the board line)")]
         [TestCase("board x\n= R1\nR\n", TestName = "{m}(a row after the queue)")]
+        [TestCase("board x\n...\n=\n", TestName = "{m}(no pebbles, so an empty column)")]
+        [TestCase("board x\nRY\n= R1 Y1\n=\n", TestName = "{m}(a column without crews)")]
         public void ABoardThatDoesNotAddUpIsRejected(string text)
         {
             Assert.Throws<FormatException>(() => BoardText.Parse(text));
