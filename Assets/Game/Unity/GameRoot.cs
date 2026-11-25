@@ -3,13 +3,12 @@ using Chromacolony.Core;
 using Chromacolony.Foundation;
 using Chromacolony.Foundation.Ports;
 using Chromacolony.Foundation.Unity;
-using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Chromacolony.Unity
 {
-    public sealed partial class GameRoot : MonoBehaviour
+    public sealed class GameRoot : MonoBehaviour
     {
         private const string OnClass = "on";
         private const string OffClass = "off";
@@ -86,34 +85,13 @@ namespace Chromacolony.Unity
         private Button _soundsSwitch;
         private Button _voiceSwitch;
 
-        public GamePhase Phase => _model.Phase;
-
-        public GameModel Model => _model;
-
-        public BoardView Board => _board;
-
-        public ScreenHost Screens => _screens;
-
-        public Progress Progress => _progress;
-
-        public bool Paused => _paused;
-
-        public string Saved => _saves.Load(SaveKey);
-
-        public bool PickingCrew => _picking;
-
-        public string Language => _text.Language;
-
-        [AutoStaticsCleanup]
-        internal static ISaveStorage StorageOverride { get; set; }
-
         private void OnEnable()
         {
             var config = new ConfigTable(configCsv.text);
             _boards = BoardText.Parse(boardsText.text);
             _prices = new Prices(config.Int(ConfigKeys.CoinsPerWin), config.Int(ConfigKeys.StartStock), config.Int(ConfigKeys.PriceSlot),
                 config.Int(ConfigKeys.PriceShuffle), config.Int(ConfigKeys.PriceBack));
-            _saves = new SaveStore(StorageOverride ?? new FileSaveStorage(), SaveVersion);
+            _saves = new SaveStore(new FileSaveStorage(), SaveVersion);
             _progress = Progress.FromText(_saves.Load(SaveKey), _prices, _boards.Count);
             _text = new Localization(localizationCsv.text, StartLanguage());
             _model = new GameModel(_events, new Rules(config.Int(ConfigKeys.Slots), config.Float(ConfigKeys.CrabInterval)));
@@ -608,7 +586,7 @@ namespace Chromacolony.Unity
             _screens.CloseDialog();
         }
 
-        public void Back()
+        private void Back()
         {
             if (_screens.CurrentDialog == UiNames.Settings)
             {

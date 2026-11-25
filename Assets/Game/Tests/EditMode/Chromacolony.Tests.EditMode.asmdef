@@ -1,0 +1,26 @@
+{
+  "name": "Chromacolony.Tests.EditMode",
+  "rootNamespace": "Chromacolony.Tests.EditMode",
+  "references": [
+    "Chromacolony.Core",
+    "Chromacolony.Foundation",
+    "Chromacolony.Unity",
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "nunit.framework.dll"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
