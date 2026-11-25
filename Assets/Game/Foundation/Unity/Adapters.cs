@@ -12,9 +12,11 @@ namespace Chromacolony.Foundation.Unity
     {
         private readonly string _folder;
 
+        public static string DefaultFolder => Path.Combine(Application.persistentDataPath, "saves");
+
         public FileSaveStorage(string folder = null)
         {
-            _folder = folder ?? Path.Combine(Application.persistentDataPath, "saves");
+            _folder = folder ?? DefaultFolder;
         }
 
         public string Read(string key)

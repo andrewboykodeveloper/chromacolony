@@ -127,8 +127,6 @@ namespace Chromacolony.Unity
 
         public bool Busy => _crabs.Walking > 0 || _crews.Count > 0 && AnyLeaving() || _celebration > 0f;
 
-        public int CrabsWalking => _crabs.Walking;
-
         public int ColumnAt(Vector2 world)
         {
             if (_layout == null)
