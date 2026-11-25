@@ -6,6 +6,7 @@ namespace Chromacolony.Unity
     {
         public const float HalfWidth = 5.4f;
         public const float HalfHeight = 9.6f;
+        public const int VisibleDepth = 3;
         private const float MosaicCenterY = 4.48f;
         private const float MosaicMaxWidth = 9.4f;
         private const float MosaicMaxHeight = 6.3f;

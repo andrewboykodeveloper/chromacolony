@@ -9,7 +9,6 @@ namespace Chromacolony.Unity
 {
     public sealed class BoardView
     {
-        private const int VisibleDepth = 3;
         private const float Glide = 12f;
         private const float LeaveSeconds = 0.3f;
         private const float ShakeSeconds = 0.35f;
@@ -138,7 +137,7 @@ namespace Chromacolony.Unity
             }
 
             var top = _layout.QueueAt(0, 0).y + _layout.BucketSize * 0.75f;
-            var bottom = _layout.QueueAt(0, VisibleDepth - 1).y - _layout.BucketSize * 0.75f;
+            var bottom = _layout.QueueAt(0, BoardLayout.VisibleDepth - 1).y - _layout.BucketSize * 0.75f;
             if (world.y > top || world.y < bottom)
             {
                 return -1;
@@ -290,11 +289,11 @@ namespace Chromacolony.Unity
 
             for (var c = 0; c < _more.Count; c++)
             {
-                var hidden = _model.Column(c).Count - VisibleDepth;
+                var hidden = _model.Column(c).Count - BoardLayout.VisibleDepth;
                 _more[c].text = hidden > 0 ? "+" + hidden : string.Empty;
                 _more[c].style.display = hidden > 0 ? DisplayStyle.Flex : DisplayStyle.None;
-                var back = _layout.BucketSize * _layout.QueueScale(VisibleDepth - 1);
-                var corner = WorldToPanel.Point(_camera, _layout.QueueAt(c, VisibleDepth - 1) + new Vector2(back * 0.48f, -back * 0.34f), _panelRoot);
+                var back = _layout.BucketSize * _layout.QueueScale(BoardLayout.VisibleDepth - 1);
+                var corner = WorldToPanel.Point(_camera, _layout.QueueAt(c, BoardLayout.VisibleDepth - 1) + new Vector2(back * 0.48f, -back * 0.34f), _panelRoot);
                 _more[c].style.left = corner.x;
                 _more[c].style.top = corner.y;
             }
@@ -802,7 +801,7 @@ namespace Chromacolony.Unity
             visual.Target = _layout.QueueAt(column, depth);
             visual.Scale = Scale(visual.Renderer.sprite, _layout.BucketSize * _layout.QueueScale(depth));
             visual.LabelTarget = _layout.QueueScale(depth);
-            visual.Visible = depth < VisibleDepth;
+            visual.Visible = depth < BoardLayout.VisibleDepth;
             visual.Renderer.enabled = visual.Visible;
             visual.Renderer.sortingOrder = 10 - depth;
             visual.Sign.enabled = visual.Visible && !visual.Crew.Hidden;
