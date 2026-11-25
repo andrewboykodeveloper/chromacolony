@@ -85,7 +85,7 @@ namespace Chromacolony.Unity
         private Button _soundsSwitch;
         private Button _voiceSwitch;
 
-        private void OnEnable()
+        private void Awake()
         {
             var config = new ConfigTable(configCsv.text);
             _boards = BoardText.Parse(boardsText.text);
