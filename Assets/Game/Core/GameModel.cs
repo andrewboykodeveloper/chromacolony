@@ -291,6 +291,7 @@ namespace Chromacolony.Core
             for (var i = 0; i < places.Count; i++)
             {
                 _columns[places[i].Column][places[i].Depth] = crews[i];
+                crews[i].Column = places[i].Column;
             }
 
             _events.Publish(new QueueShuffled());
