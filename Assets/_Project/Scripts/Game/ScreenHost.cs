@@ -14,6 +14,10 @@ namespace Chromacolony.Game
         private readonly Dictionary<string, VisualElement> _screens = new Dictionary<string, VisualElement>();
         private readonly Dictionary<string, VisualElement> _dialogs = new Dictionary<string, VisualElement>();
 
+        public string CurrentScreen { get; private set; }
+
+        public string CurrentDialog { get; private set; }
+
         public ScreenHost(VisualElement root)
         {
             root.Query<VisualElement>(className: ScreenClass).ForEach(e => Add(_screens, e));
@@ -28,10 +32,6 @@ namespace Chromacolony.Game
                 element.AddToClassList(HiddenClass);
             }
         }
-
-        public string CurrentScreen { get; private set; }
-
-        public string CurrentDialog { get; private set; }
 
         public void Show(string screen)
         {

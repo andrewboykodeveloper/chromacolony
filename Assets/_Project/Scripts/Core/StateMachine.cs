@@ -7,12 +7,12 @@ namespace Chromacolony.Core
     {
         private readonly HashSet<(TState From, TState To)> _allowed = new HashSet<(TState, TState)>();
 
+        public TState Current { get; private set; }
+
         public StateMachine(TState initial)
         {
             Current = initial;
         }
-
-        public TState Current { get; private set; }
 
         public StateMachine<TState> Allow(TState from, TState to)
         {

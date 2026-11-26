@@ -7,6 +7,47 @@ namespace Chromacolony.Game
 {
     public sealed class BoardView
     {
+        private sealed class CrewVisual
+        {
+            public Crew Crew;
+            public SpriteRenderer Renderer;
+            public Label Count;
+
+            public Vector3 Target;
+            public Vector3 Scale;
+            public Vector3 Place;
+            public Vector3 Size;
+            public bool Visible;
+            public bool InSlot;
+            public int Slot;
+            public bool Leaving;
+            public float Left;
+
+            public float Shake;
+            public float Pop;
+
+            public SpriteRenderer Sitter;
+
+            public SpriteRenderer Sign;
+
+            public float Label = 1f;
+            public float LabelTarget = 1f;
+        }
+
+        private sealed class Piece
+        {
+            public SpriteRenderer Renderer;
+            public float Delay;
+            public bool Twinkled;
+        }
+
+        private sealed class Rope
+        {
+            public int A;
+            public int B;
+            public SpriteRenderer Renderer;
+        }
+
         private const float Glide = 12f;
         private const float LeaveSeconds = 0.3f;
         private const float ShakeSeconds = 0.35f;
@@ -25,6 +66,8 @@ namespace Chromacolony.Game
         private const float TrayPixelsPerUnit = 340f;
 
         private const float TrayAlpha = 0.55f;
+
+        private const float PointerTurn = 32f;
 
         private readonly Camera _camera;
         private readonly GameModel _model;
@@ -64,6 +107,14 @@ namespace Chromacolony.Game
         private SpriteRenderer[] _pebbles = new SpriteRenderer[0];
         private SpriteRenderer[] _glows = new SpriteRenderer[0];
         private BoardLayout _layout;
+
+        public BoardLayout Layout => _layout;
+
+        public System.Action<string> Sound { get; set; }
+
+        private static Color Gold => new Color(1f, 0.88f, 0.55f);
+
+        public bool Busy => _crabs.Walking > 0 || _crews.Count > 0 && AnyLeaving() || _celebration > 0f;
 
         public BoardView(Camera camera, GameModel model, Material crewMaterial, Material spriteMaterial, Color[] colors, VisualElement panelRoot,
             VisualElement labels, EventBus events, Effects effects, GameContent content)
@@ -112,18 +163,10 @@ namespace Chromacolony.Game
             events.Subscribe<CrewRevealed>(OnRevealed);
         }
 
-        public BoardLayout Layout => _layout;
-
-        public System.Action<string> Sound { get; set; }
-
-        private static Color Gold => new Color(1f, 0.88f, 0.55f);
-
         public void ShowOff(Vector2 at, bool on)
         {
             _crabs.ShowOff(at, on);
         }
-
-        public bool Busy => _crabs.Walking > 0 || _crews.Count > 0 && AnyLeaving() || _celebration > 0f;
 
         public int ColumnAt(Vector2 world)
         {
@@ -332,8 +375,6 @@ namespace Chromacolony.Game
 
             _pointer.enabled = column >= 0;
         }
-
-        private const float PointerTurn = 32f;
 
         private void Aim(float dt)
         {
@@ -825,47 +866,6 @@ namespace Chromacolony.Game
         {
             float s = height / Mathf.Max(sprite.bounds.size.y, 0.0001f);
             return new Vector3(s, s, 1f);
-        }
-
-        private sealed class CrewVisual
-        {
-            public Crew Crew;
-            public SpriteRenderer Renderer;
-            public Label Count;
-
-            public Vector3 Target;
-            public Vector3 Scale;
-            public Vector3 Place;
-            public Vector3 Size;
-            public bool Visible;
-            public bool InSlot;
-            public int Slot;
-            public bool Leaving;
-            public float Left;
-
-            public float Shake;
-            public float Pop;
-
-            public SpriteRenderer Sitter;
-
-            public SpriteRenderer Sign;
-
-            public float Label = 1f;
-            public float LabelTarget = 1f;
-        }
-
-        private sealed class Piece
-        {
-            public SpriteRenderer Renderer;
-            public float Delay;
-            public bool Twinkled;
-        }
-
-        private sealed class Rope
-        {
-            public int A;
-            public int B;
-            public SpriteRenderer Renderer;
         }
     }
 }

@@ -25,6 +25,10 @@ namespace Chromacolony.Game
         private readonly SpriteRenderer[] _shadows = new SpriteRenderer[2];
         private float _rise;
 
+        public bool OnBoard { get; set; }
+
+        private static Color BackdropTint => new Color(0.55f, 0.57f, 0.7f);
+
         public BeachView(Camera camera, Material material, float shore, Sprite sprite)
         {
             _camera = camera;
@@ -42,8 +46,6 @@ namespace Chromacolony.Game
                 _shadows[i].flipX = i == 0;
             }
         }
-
-        public bool OnBoard { get; set; }
 
         public void Update(float dt)
         {
@@ -96,8 +98,6 @@ namespace Chromacolony.Game
                 shadow.transform.localScale = new Vector3(ShadowWidth / unit.x, halfHeight * 2f / unit.y, 1f);
             }
         }
-
-        private static Color BackdropTint => new Color(0.55f, 0.57f, 0.7f);
 
         private static Sprite Shadow()
         {

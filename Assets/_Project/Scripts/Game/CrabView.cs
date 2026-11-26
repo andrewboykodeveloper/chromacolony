@@ -5,6 +5,100 @@ namespace Chromacolony.Game
 {
     public sealed class CrabView
     {
+        private enum Leg
+        {
+            Out,
+            Lift,
+            Home,
+            In,
+        }
+
+        private sealed class Crab
+        {
+            public readonly Transform[] Claws = new Transform[2];
+            public readonly Transform[] Legs = new Transform[6];
+            public Transform Root;
+            public Transform Body;
+            public SpriteRenderer Pebble;
+            public bool Carrying;
+            public Vector2 Target;
+            public Vector2 Gate;
+            public Leg Leg;
+            public float Size;
+            public float Time;
+            public float Phase;
+            public float Facing = 1f;
+            private Vector3 _pebbleFrom;
+            private Vector3 _pebbleScaleFrom;
+            private Vector3 _pebbleScale;
+
+            public void Paint(Color color)
+            {
+                foreach (SpriteRenderer renderer in Body.GetComponentsInChildren<SpriteRenderer>(true))
+                {
+                    renderer.color = color;
+                }
+            }
+
+            public void Stride()
+            {
+                for (int i = 0; i < 6; i++)
+                {
+                    float tripod = (i + i / 3) % 2 == 0 ? 0f : Mathf.PI;
+                    float swing = Mathf.Sin(Phase + tripod) * 22f;
+                    Legs[i].localRotation = Quaternion.Euler(0f, 0f, -10f + swing - 12f * (i % 3));
+                }
+
+                Body.localPosition = new Vector3(0f, Mathf.Abs(Mathf.Sin(Phase)) * 0.04f, 0f);
+                Body.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(Phase) * 4f);
+                Root.localScale = new Vector3(Size * Facing, Size, 1f);
+            }
+
+            public void Pose(float raise)
+            {
+                float wave = Mathf.Sin(Phase * 0.5f) * 6f * (1f - raise);
+                Claws[0].localRotation = Quaternion.Euler(0f, 0f, 35f - 45f * raise + wave);
+                Claws[1].localRotation = Quaternion.Euler(0f, 0f, 35f - 45f * raise - wave);
+            }
+
+            public void Wave(float beat)
+            {
+                float swing = Mathf.Sin(beat) * 28f;
+                Claws[0].localRotation = Quaternion.Euler(0f, 0f, -12f + swing);
+                Claws[1].localRotation = Quaternion.Euler(0f, 0f, -12f - swing);
+            }
+
+            public void Take(int order, float height)
+            {
+                Carrying = true;
+                Pebble.transform.SetParent(Root, true);
+                Pebble.sortingOrder = order;
+                _pebbleFrom = Pebble.transform.localPosition;
+                _pebbleScaleFrom = Pebble.transform.localScale;
+                float s = height / Mathf.Max(Pebble.sprite.bounds.size.y, 0.0001f);
+                _pebbleScale = new Vector3(Mathf.Sign(_pebbleScaleFrom.x) * s, s, 1f);
+            }
+
+            public void Lift(float lift)
+            {
+                Pebble.transform.localPosition = Vector3.Lerp(_pebbleFrom, new Vector3(0f, 0.62f, 0f), lift);
+                Pebble.transform.localScale = Vector3.Lerp(_pebbleScaleFrom, _pebbleScale, lift);
+            }
+
+            public void Drop()
+            {
+                if (Carrying)
+                {
+                    Pebble.enabled = false;
+                    Pebble.transform.SetParent(null, true);
+                    Object.Destroy(Pebble.gameObject);
+                }
+
+                Carrying = false;
+                Pebble = null;
+            }
+        }
+
         private const float Speed = 5.5f;
         private const float StepsPerUnit = 2.6f;
         private const float LiftSeconds = 0.18f;
@@ -12,6 +106,8 @@ namespace Chromacolony.Game
 
         private const float PebbleHeight = 0.36f;
         private const int Order = 40;
+
+        private const float StarSize = 2.9f;
 
         private readonly Transform _holder;
         private readonly Material _crewMaterial;
@@ -27,6 +123,14 @@ namespace Chromacolony.Game
         private float _danceLeft;
         private Crab _star;
 
+        public int Walking => _walking.Count;
+
+        public System.Action<Vector2> Lifted { get; set; }
+
+        public System.Action<Vector2> Entered { get; set; }
+
+        private static Color StarColor => new Color(0.847f, 0.373f, 0.298f);
+
         public CrabView(Material crewMaterial, Material spriteMaterial, GameContent content)
         {
             _holder = new GameObject("Crabs").transform;
@@ -37,12 +141,6 @@ namespace Chromacolony.Game
             _leg = content.CrabLeg;
             _shadow = SoftOval();
         }
-
-        public int Walking => _walking.Count;
-
-        public System.Action<Vector2> Lifted { get; set; }
-
-        public System.Action<Vector2> Entered { get; set; }
 
         public void ShowOff(Vector2 at, bool on)
         {
@@ -68,10 +166,6 @@ namespace Chromacolony.Game
             _star.Gate = at;
             _star.Target = at;
         }
-
-        private const float StarSize = 2.9f;
-
-        private static Color StarColor => new Color(0.847f, 0.373f, 0.298f);
 
         public void Dance(Vector2 gate, Color[] colors, Vector2[] spots, float size, float seconds)
         {
@@ -349,100 +443,6 @@ namespace Chromacolony.Game
             renderer.sprite = sprite;
             renderer.sharedMaterial = _crewMaterial;
             renderer.sortingOrder = order;
-        }
-
-        private enum Leg
-        {
-            Out,
-            Lift,
-            Home,
-            In,
-        }
-
-        private sealed class Crab
-        {
-            public readonly Transform[] Claws = new Transform[2];
-            public readonly Transform[] Legs = new Transform[6];
-            public Transform Root;
-            public Transform Body;
-            public SpriteRenderer Pebble;
-            public bool Carrying;
-            public Vector2 Target;
-            public Vector2 Gate;
-            public Leg Leg;
-            public float Size;
-            public float Time;
-            public float Phase;
-            public float Facing = 1f;
-            private Vector3 _pebbleFrom;
-            private Vector3 _pebbleScaleFrom;
-            private Vector3 _pebbleScale;
-
-            public void Paint(Color color)
-            {
-                foreach (SpriteRenderer renderer in Body.GetComponentsInChildren<SpriteRenderer>(true))
-                {
-                    renderer.color = color;
-                }
-            }
-
-            public void Stride()
-            {
-                for (int i = 0; i < 6; i++)
-                {
-                    float tripod = (i + i / 3) % 2 == 0 ? 0f : Mathf.PI;
-                    float swing = Mathf.Sin(Phase + tripod) * 22f;
-                    Legs[i].localRotation = Quaternion.Euler(0f, 0f, -10f + swing - 12f * (i % 3));
-                }
-
-                Body.localPosition = new Vector3(0f, Mathf.Abs(Mathf.Sin(Phase)) * 0.04f, 0f);
-                Body.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(Phase) * 4f);
-                Root.localScale = new Vector3(Size * Facing, Size, 1f);
-            }
-
-            public void Pose(float raise)
-            {
-                float wave = Mathf.Sin(Phase * 0.5f) * 6f * (1f - raise);
-                Claws[0].localRotation = Quaternion.Euler(0f, 0f, 35f - 45f * raise + wave);
-                Claws[1].localRotation = Quaternion.Euler(0f, 0f, 35f - 45f * raise - wave);
-            }
-
-            public void Wave(float beat)
-            {
-                float swing = Mathf.Sin(beat) * 28f;
-                Claws[0].localRotation = Quaternion.Euler(0f, 0f, -12f + swing);
-                Claws[1].localRotation = Quaternion.Euler(0f, 0f, -12f - swing);
-            }
-
-            public void Take(int order, float height)
-            {
-                Carrying = true;
-                Pebble.transform.SetParent(Root, true);
-                Pebble.sortingOrder = order;
-                _pebbleFrom = Pebble.transform.localPosition;
-                _pebbleScaleFrom = Pebble.transform.localScale;
-                float s = height / Mathf.Max(Pebble.sprite.bounds.size.y, 0.0001f);
-                _pebbleScale = new Vector3(Mathf.Sign(_pebbleScaleFrom.x) * s, s, 1f);
-            }
-
-            public void Lift(float lift)
-            {
-                Pebble.transform.localPosition = Vector3.Lerp(_pebbleFrom, new Vector3(0f, 0.62f, 0f), lift);
-                Pebble.transform.localScale = Vector3.Lerp(_pebbleScaleFrom, _pebbleScale, lift);
-            }
-
-            public void Drop()
-            {
-                if (Carrying)
-                {
-                    Pebble.enabled = false;
-                    Pebble.transform.SetParent(null, true);
-                    Object.Destroy(Pebble.gameObject);
-                }
-
-                Carrying = false;
-                Pebble = null;
-            }
         }
     }
 }

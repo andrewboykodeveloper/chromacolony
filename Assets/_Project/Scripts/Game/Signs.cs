@@ -6,6 +6,7 @@ namespace Chromacolony.Game
     {
         private const int Size = 64;
         private const int Samples = 4;
+
         private readonly Sprite[] _sprites = new Sprite[8];
 
         public Signs()

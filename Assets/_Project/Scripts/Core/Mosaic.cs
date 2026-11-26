@@ -9,6 +9,12 @@ namespace Chromacolony.Core
         private readonly bool[] _open;
         private readonly Queue<int> _flood = new Queue<int>();
 
+        public int Width { get; }
+
+        public int Height { get; }
+
+        public int Left { get; private set; }
+
         public Mosaic(int width, int height, IReadOnlyList<int> cells)
         {
             Width = width;
@@ -41,12 +47,6 @@ namespace Chromacolony.Core
             _open = (bool[])other._open.Clone();
             Left = other.Left;
         }
-
-        public int Width { get; }
-
-        public int Height { get; }
-
-        public int Left { get; private set; }
 
         public int ColorAt(int cell)
         {

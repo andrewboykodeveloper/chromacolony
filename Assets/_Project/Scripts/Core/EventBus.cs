@@ -5,6 +5,22 @@ namespace Chromacolony.Core
 {
     public sealed class EventBus
     {
+        private sealed class Subscription : IDisposable
+        {
+            private Action _remove;
+
+            public Subscription(Action remove)
+            {
+                _remove = remove;
+            }
+
+            public void Dispose()
+            {
+                _remove?.Invoke();
+                _remove = null;
+            }
+        }
+
         private readonly Dictionary<Type, List<Delegate>> _handlers = new Dictionary<Type, List<Delegate>>();
 
         public IDisposable Subscribe<T>(Action<T> handler)
@@ -28,22 +44,6 @@ namespace Chromacolony.Core
             foreach (Delegate handler in list.ToArray())
             {
                 ((Action<T>)handler)(message);
-            }
-        }
-
-        private sealed class Subscription : IDisposable
-        {
-            private Action _remove;
-
-            public Subscription(Action remove)
-            {
-                _remove = remove;
-            }
-
-            public void Dispose()
-            {
-                _remove?.Invoke();
-                _remove = null;
             }
         }
     }

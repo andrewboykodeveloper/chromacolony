@@ -8,10 +8,6 @@ namespace Chromacolony.Core
     {
         private readonly int[] _stock = new int[3];
 
-        private Progress()
-        {
-        }
-
         public int Board { get; private set; }
 
         public int Coins { get; private set; }
@@ -27,6 +23,10 @@ namespace Chromacolony.Core
         public bool Voice { get; set; } = true;
 
         public bool Fast { get; set; }
+
+        private Progress()
+        {
+        }
 
         public static Progress New(Prices prices)
         {

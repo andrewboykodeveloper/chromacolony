@@ -19,6 +19,8 @@ namespace Chromacolony.Game
         private const string English = "en";
         private const int SaveVersion = 1;
 
+        private const float MenuCrabShare = 0.44f;
+
         [SerializeField] private UIDocument _document;
         [SerializeField] private TextAsset _configCsv;
         [SerializeField] private TextAsset _localizationCsv;
@@ -390,8 +392,6 @@ namespace Chromacolony.Game
             var spot = new Vector2(_camera.transform.position.x, top - _camera.orthographicSize * 2f * MenuCrabShare);
             _board.ShowOff(spot, onMenu);
         }
-
-        private const float MenuCrabShare = 0.44f;
 
         private void OnApplicationPause(bool paused)
         {

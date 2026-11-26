@@ -20,15 +20,15 @@ namespace Chromacolony.Game
         private int _end;
         private float _time = -1f;
 
+        public bool Flying => _time >= 0f;
+
+        public System.Action Landed { get; set; }
+
         public CoinFlight(VisualElement layer, Label counter)
         {
             _layer = layer;
             _counter = counter;
         }
-
-        public bool Flying => _time >= 0f;
-
-        public System.Action Landed { get; set; }
 
         public void Fly(Vector2 from, Vector2 to, int start, int end)
         {

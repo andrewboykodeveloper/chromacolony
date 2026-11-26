@@ -14,13 +14,13 @@ namespace Chromacolony.Tests.EditMode
             private readonly Func<string, bool> _failsToRead;
             private readonly Func<string, bool> _failsToWrite;
 
+            public int Writes { get; private set; }
+
             public FailingStorage(Func<string, bool> failsToRead, Func<string, bool> failsToWrite)
             {
                 _failsToRead = failsToRead;
                 _failsToWrite = failsToWrite;
             }
-
-            public int Writes { get; private set; }
 
             public string Read(string key)
             {

@@ -6,6 +6,20 @@ namespace Chromacolony.Game
 {
     public sealed class Effects
     {
+        private sealed class Bit
+        {
+            public SpriteRenderer Renderer;
+            public Vector2 From;
+            public Vector2 Way;
+            public float SizeFrom;
+            public float SizeTo;
+            public float Life;
+            public float Alpha;
+            public float Spin;
+            public Color Tint;
+            public float Age;
+        }
+
         private const int Order = 55;
 
         private readonly Transform _holder;
@@ -126,20 +140,6 @@ namespace Chromacolony.Game
         {
             float s = height / Mathf.Max(sprite.bounds.size.y, 0.0001f);
             return new Vector3(s, s, 1f);
-        }
-
-        private sealed class Bit
-        {
-            public SpriteRenderer Renderer;
-            public Vector2 From;
-            public Vector2 Way;
-            public float SizeFrom;
-            public float SizeTo;
-            public float Life;
-            public float Alpha;
-            public float Spin;
-            public Color Tint;
-            public float Age;
         }
     }
 }

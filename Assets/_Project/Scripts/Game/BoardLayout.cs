@@ -22,15 +22,6 @@ namespace Chromacolony.Game
         private readonly int _slots;
         private readonly int _columns;
 
-        public BoardLayout(int width, int height, int slots, int columns)
-        {
-            _width = width;
-            _height = height;
-            _slots = slots;
-            _columns = columns;
-            Cell = Mathf.Min(MosaicMaxWidth / width, MosaicMaxHeight / height);
-        }
-
         public float Cell { get; }
 
         public Vector2 MosaicSize => new Vector2(_width * Cell, _height * Cell);
@@ -48,6 +39,15 @@ namespace Chromacolony.Game
         public float SlotSize => Mathf.Min(1.7f, RowWidth / _slots * 0.92f);
 
         public float BucketSize => Mathf.Min(1.25f, RowWidth / Mathf.Max(_columns, 1) * 0.7f);
+
+        public BoardLayout(int width, int height, int slots, int columns)
+        {
+            _width = width;
+            _height = height;
+            _slots = slots;
+            _columns = columns;
+            Cell = Mathf.Min(MosaicMaxWidth / width, MosaicMaxHeight / height);
+        }
 
         public Vector2 PebbleAt(int cell)
         {

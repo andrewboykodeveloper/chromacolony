@@ -20,12 +20,6 @@ namespace Chromacolony.Core
         private readonly List<List<Crew>> _columns = new List<List<Crew>>();
         private Crew[] _slots = new Crew[0];
 
-        public GameModel(EventBus events, Rules rules)
-        {
-            _events = events;
-            _rules = rules;
-        }
-
         public GamePhase Phase => _phase.Current;
 
         public BoardSpec Board { get; private set; }
@@ -37,6 +31,18 @@ namespace Chromacolony.Core
         public int SlotCount { get; private set; }
 
         public int ColumnCount => _columns.Count;
+
+        public bool CanAddSlot => InPlay && SlotCount < _slots.Length;
+
+        public bool CanShuffle => Phase == GamePhase.Playing && Shufflable().Count >= 2;
+
+        private bool InPlay => Phase == GamePhase.Playing || Phase == GamePhase.Stuck;
+
+        public GameModel(EventBus events, Rules rules)
+        {
+            _events = events;
+            _rules = rules;
+        }
 
         public Crew SlotAt(int slot)
         {
@@ -210,10 +216,6 @@ namespace Chromacolony.Core
             }
         }
 
-        public bool CanAddSlot => InPlay && SlotCount < _slots.Length;
-
-        public bool CanShuffle => Phase == GamePhase.Playing && Shufflable().Count >= 2;
-
         public bool CanBack(int slot)
         {
             return InPlay && slot >= 0 && slot < SlotCount && _slots[slot] != null;
@@ -308,8 +310,6 @@ namespace Chromacolony.Core
 
             return free;
         }
-
-        private bool InPlay => Phase == GamePhase.Playing || Phase == GamePhase.Stuck;
 
         private void PlayOn()
         {

@@ -2,6 +2,22 @@ namespace Chromacolony.Core
 {
     public sealed class Crew
     {
+        public int Id { get; }
+
+        public int Color { get; }
+
+        public int Remaining { get; internal set; }
+
+        public int Link { get; internal set; }
+
+        public bool Hidden { get; internal set; }
+
+        public bool Waiting { get; internal set; }
+
+        public int Column { get; internal set; }
+
+        internal float Cooldown { get; set; }
+
         internal Crew(int id, CrewSpec spec, int column)
         {
             Id = id;
@@ -23,21 +39,5 @@ namespace Chromacolony.Core
             Column = other.Column;
             Cooldown = other.Cooldown;
         }
-
-        public int Id { get; }
-
-        public int Color { get; }
-
-        public int Remaining { get; internal set; }
-
-        public int Link { get; internal set; }
-
-        public bool Hidden { get; internal set; }
-
-        public bool Waiting { get; internal set; }
-
-        public int Column { get; internal set; }
-
-        internal float Cooldown { get; set; }
     }
 }
