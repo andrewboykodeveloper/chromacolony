@@ -10,7 +10,7 @@ using TouchPhase = UnityEngine.InputSystem.TouchPhase;
 
 namespace Chromacolony.Tests.PlayMode
 {
-    public sealed class PointerInputTest
+    public sealed class InputTests
     {
         private InputSettings.BackgroundBehavior _background;
         private InputSettings.EditorInputBehaviorInPlayMode _editorInput;
