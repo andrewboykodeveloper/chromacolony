@@ -13,6 +13,7 @@ namespace Chromacolony.Game
 
         private readonly Dictionary<string, VisualElement> _screens = new Dictionary<string, VisualElement>();
         private readonly Dictionary<string, VisualElement> _dialogs = new Dictionary<string, VisualElement>();
+        private IVisualElementScheduledItem _fadeIn;
 
         public string CurrentScreen { get; private set; }
 
@@ -51,7 +52,8 @@ namespace Chromacolony.Game
             CloseDialog();
             target.RemoveFromClassList(HiddenClass);
 
-            target.schedule.Execute(() => target.AddToClassList(OpenClass)).StartingIn(16);
+            // A transition runs only from a style the dialog has already shown with, so the open class waits a frame.
+            _fadeIn = target.schedule.Execute(() => target.AddToClassList(OpenClass)).StartingIn(16);
             CurrentDialog = dialog;
         }
 
@@ -62,6 +64,7 @@ namespace Chromacolony.Game
                 return;
             }
 
+            _fadeIn.Pause();
             VisualElement element = _dialogs[CurrentDialog];
             element.RemoveFromClassList(OpenClass);
             element.AddToClassList(HiddenClass);
