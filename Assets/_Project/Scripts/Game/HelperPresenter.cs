@@ -58,7 +58,7 @@ namespace Chromacolony.Game
             _save = save;
         }
 
-        public void Bind(VisualElement root)
+        public void Bind(VisualElement root, ButtonBindings bindings)
         {
             _buttons[(int)Helper.Slot] = root.Q<Button>(UiNames.HelperSlot);
             _buttons[(int)Helper.Shuffle] = root.Q<Button>(UiNames.HelperShuffle);
@@ -73,13 +73,19 @@ namespace Chromacolony.Game
             _noteText = root.Q<Label>(UiNames.NoteText);
             _ok = root.Q<Button>(UiNames.NoteOk);
 
-            _buy.clicked += OnBuyConfirmed;
-            _cancel.clicked += _screens.CloseDialog;
-            _ok.clicked += _screens.CloseDialog;
-            _buttons[(int)Helper.Slot].clicked += () => OnHelperPressed(Helper.Slot);
-            _buttons[(int)Helper.Shuffle].clicked += () => OnHelperPressed(Helper.Shuffle);
-            _buttons[(int)Helper.Back].clicked += () => OnHelperPressed(Helper.Back);
+            bindings.Click(_buy, OnBuyConfirmed);
+            bindings.Click(_cancel, _screens.CloseDialog);
+            bindings.Click(_ok, _screens.CloseDialog);
+            bindings.Click(_buttons[(int)Helper.Slot], () => OnHelperPressed(Helper.Slot));
+            bindings.Click(_buttons[(int)Helper.Shuffle], () => OnHelperPressed(Helper.Shuffle));
+            bindings.Click(_buttons[(int)Helper.Back], () => OnHelperPressed(Helper.Back));
             ShowTexts();
+            Refresh();
+            _buttons[(int)Helper.Back].EnableInClassList(OnClass, Picking);
+            if (_screens.CurrentDialog == UiNames.Buy)
+            {
+                ShowBuyText();
+            }
         }
 
         public void ShowTexts()
@@ -88,6 +94,7 @@ namespace Chromacolony.Game
             _buy.text = _text.Get(TextKeys.Buy);
             _cancel.text = _text.Get(TextKeys.Cancel);
             _ok.text = _text.Get(TextKeys.Ok);
+            _noteText.text = _text.Get(TextKeys.NoCoins);
         }
 
         public void Refresh()
@@ -134,12 +141,10 @@ namespace Chromacolony.Game
                     break;
                 case Payment.Coins:
                     _buying = helper;
-                    int price = _prices.Of(helper);
-                    _buyText.text = _text.Format(TextKeys.BuyText, NameOf(helper), price, _progress.Coins, _progress.Coins - price);
+                    ShowBuyText();
                     _screens.Open(UiNames.Buy);
                     break;
                 default:
-                    _noteText.text = _text.Get(TextKeys.NoCoins);
                     _screens.Open(UiNames.Note);
                     break;
             }
@@ -176,6 +181,12 @@ namespace Chromacolony.Game
 
             _save();
             Used?.Invoke();
+        }
+
+        private void ShowBuyText()
+        {
+            int price = _prices.Of(_buying);
+            _buyText.text = _text.Format(TextKeys.BuyText, NameOf(_buying), price, _progress.Coins, _progress.Coins - price);
         }
 
         private void SetPicking(bool on)

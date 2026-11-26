@@ -34,7 +34,8 @@ namespace Chromacolony.Tests.PlayMode
             dialog.AddToClassList(ScreenHost.DialogClass);
             host.Add(dialog);
             _game.Single<UIDocument>().rootVisualElement.Add(host);
-            var screens = new ScreenHost(host);
+            var screens = new ScreenHost();
+            screens.Bind(host);
 
             screens.Open(DialogName);
             screens.CloseDialog();

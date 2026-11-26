@@ -19,18 +19,25 @@ namespace Chromacolony.Game
 
         public string CurrentDialog { get; private set; }
 
-        public ScreenHost(VisualElement root)
+        /// <summary>
+        /// Takes the screens and dialogs of a tree, and shows on it the screen and the dialog shown before, if any.
+        /// </summary>
+        public void Bind(VisualElement root)
         {
+            _fadeIn?.Pause();
+            _screens.Clear();
+            _dialogs.Clear();
             root.Query<VisualElement>(className: ScreenClass).ForEach(e => Add(_screens, e));
             root.Query<VisualElement>(className: DialogClass).ForEach(e => Add(_dialogs, e));
-            foreach (VisualElement element in _screens.Values)
+            foreach (KeyValuePair<string, VisualElement> screen in _screens)
             {
-                element.AddToClassList(HiddenClass);
+                screen.Value.EnableInClassList(HiddenClass, screen.Key != CurrentScreen);
             }
 
-            foreach (VisualElement element in _dialogs.Values)
+            foreach (KeyValuePair<string, VisualElement> dialog in _dialogs)
             {
-                element.AddToClassList(HiddenClass);
+                dialog.Value.EnableInClassList(HiddenClass, dialog.Key != CurrentDialog);
+                dialog.Value.EnableInClassList(OpenClass, dialog.Key == CurrentDialog);
             }
         }
 

@@ -19,12 +19,15 @@ namespace Chromacolony.Game
         [SerializeField] private Material _spriteMaterial;
         [SerializeField] private GameContent _content;
 
+        private readonly ButtonBindings _bindings = new ButtonBindings();
         private SaveStore _saves;
         private Progress _progress;
         private GameModel _model;
         private GameTicker _ticker;
         private IInput _input;
         private Camera _camera;
+        private ScreenHost _screens;
+        private IVisualElementScheduledItem _safeArea;
         private BeachView _beach;
         private Effects _effects;
         private BoardView _boardView;
@@ -56,36 +59,48 @@ namespace Chromacolony.Game
                 Hex(config.String(ConfigKeys.ColorP)), Hex(config.String(ConfigKeys.ColorK)),
             };
 
-            VisualElement root = _document.rootVisualElement.Q(UiNames.Root);
-            var screens = new ScreenHost(root);
-            SafeAreas.Keep(root.Q(UiNames.Safe), new ScreenSafeArea());
+            _screens = new ScreenHost();
             _input = new PointerInput();
             ulong seed = (ulong)DateTime.Now.Ticks;
             var random = new Pcg32(seed);
             _beach = new BeachView(_camera, _spriteMaterial, config.Float(ConfigKeys.BeachShore), _content.Beach);
             _effects = new Effects(_spriteMaterial, new Pcg32(seed + 2), _content);
-            _boardView = new BoardView(_camera, _model, _crewMaterial, _spriteMaterial, colors, root, root.Q(UiNames.Labels), _effects, _content);
+            _boardView = new BoardView(_camera, _model, _crewMaterial, _spriteMaterial, colors, _effects, _content);
             _audio = new AudioService(new UnityAudio(gameObject, _content.Sounds, _content.VoiceLines, _content.Tracks), _progress, text,
                 config.Float(ConfigKeys.SoundGap), config.Float(ConfigKeys.SoundGapPick), config.Float(ConfigKeys.SoundGapCoin));
             _audio.ApplyMusic();
             _boardView.Sound = _audio.Play;
 
-            _settings = new SettingsPresenter(screens, text, _progress, _audio, Save);
-            _menu = new MenuPresenter(screens, text, _progress, _settings, _camera, _boardView);
-            _result = new ResultPresenter(screens, text, _model, _progress, prices, shop, boards.Count, _boardView, _camera, _audio, Save);
-            _helpers = new HelperPresenter(screens, text, _model, _progress, prices, shop, _boardView, _audio, random, Save);
-            _board = new BoardPresenter(screens, text, _model, boards, _progress, _boardView, _beach, _effects, _audio, _menu, _settings,
+            _settings = new SettingsPresenter(_screens, text, _progress, _audio, Save);
+            _menu = new MenuPresenter(_screens, text, _progress, _settings, _camera, _boardView);
+            _result = new ResultPresenter(_screens, text, _model, _progress, prices, shop, boards.Count, _boardView, _camera, _audio, Save);
+            _helpers = new HelperPresenter(_screens, text, _model, _progress, prices, shop, _boardView, _audio, random, Save);
+            _board = new BoardPresenter(_screens, text, _model, boards, _progress, _boardView, _beach, _effects, _audio, _menu, _settings,
                 _helpers, _result, Save);
             _settings.LanguageChanged += ShowTexts;
+        }
 
-            _settings.Bind(root);
-            _menu.Bind(root);
-            _result.Bind(root);
-            _helpers.Bind(root);
-            _board.Bind(root);
+        // The UI document on this object runs its OnEnable first (Unity gives it execution order -100) and builds its tree anew
+        // each time the object is enabled, so the interface binds here, to the tree it has now. Nothing switches the document off
+        // on its own.
+        private void OnEnable()
+        {
+            VisualElement root = _document.rootVisualElement.Q(UiNames.Root);
+            _screens.Bind(root);
+            _safeArea = SafeAreas.Keep(root.Q(UiNames.Safe), new ScreenSafeArea());
+            _boardView.Attach(root, root.Q(UiNames.Labels));
+            _settings.Bind(root, _bindings);
+            _menu.Bind(root, _bindings);
+            _result.Bind(root, _bindings);
+            _helpers.Bind(root, _bindings);
+            _board.Bind(root, _bindings);
 
             // After every other handler, so that a switch that turns the sounds off is not heard.
-            root.Query<Button>().ForEach(button => button.clicked += () => _audio.Play(SoundKeys.Click));
+            root.Query<Button>().ForEach(button => _bindings.Click(button, () => _audio.Play(SoundKeys.Click)));
+        }
+
+        private void Start()
+        {
             _board.ToMenu();
         }
 
@@ -115,6 +130,13 @@ namespace Chromacolony.Game
             _boardView.Update(Time.deltaTime, speed);
             _effects.Update(Time.deltaTime * speed);
             _result.Update(Time.deltaTime);
+        }
+
+        private void OnDisable()
+        {
+            _bindings.Clear();
+            _safeArea.Pause();
+            _result.Unbind();
         }
 
         private void OnApplicationPause(bool paused)

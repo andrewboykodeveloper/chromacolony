@@ -34,9 +34,12 @@ namespace Chromacolony.Tests.PlayMode
         private InputSettings _settings;
         private Mouse _mouse;
         private Keyboard _keyboard;
-        private VisualElement _ui;
+        private UIDocument _document;
         private Camera _camera;
         private float? _listenerVolume;
+
+        // The document builds its tree anew whenever its game object is enabled again, so the root is read each time.
+        private VisualElement Ui => _document.rootVisualElement;
 
         public GameDriver()
         {
@@ -123,7 +126,7 @@ namespace Chromacolony.Tests.PlayMode
             Vector3 screen = _camera.WorldToScreenPoint(world);
             Assert.That(screen.x >= 0f && screen.x < Screen.width && screen.y >= 0f && screen.y < Screen.height, Is.True,
                 $"column {column} at depth {depth} is off the screen");
-            VisualElement picked = _ui.panel.Pick(WorldToPanel.Point(_camera, world, _ui));
+            VisualElement picked = Ui.panel.Pick(WorldToPanel.Point(_camera, world, Ui));
             Assert.That(picked == null || (!(picked is Button) && picked.GetFirstAncestorOfType<Button>() == null), Is.True,
                 $"column {column} at depth {depth} is under {picked?.name}");
 
@@ -166,7 +169,7 @@ namespace Chromacolony.Tests.PlayMode
         public int CrabsLeftInCrews()
         {
             int crabs = 0;
-            _ui.Query<Label>(className: CrewCountClass).ForEach(label =>
+            Ui.Query<Label>(className: CrewCountClass).ForEach(label =>
             {
                 if (int.TryParse(label.text, NumberStyles.Integer, CultureInfo.InvariantCulture, out int count))
                 {
@@ -179,7 +182,7 @@ namespace Chromacolony.Tests.PlayMode
         public List<string> ShownTexts(string className)
         {
             var texts = new List<string>();
-            _ui.Query<Label>(className: className).ForEach(label =>
+            Ui.Query<Label>(className: className).ForEach(label =>
             {
                 if (IsShown(label))
                 {
@@ -194,6 +197,20 @@ namespace Chromacolony.Tests.PlayMode
             foreach (AudioSource source in Components<AudioSource>())
             {
                 if (source.loop && source.isPlaying)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // The voice is the one source that plays whole clips: the sounds are one-shots, and the music loops.
+        public bool VoiceIsPlaying()
+        {
+            foreach (AudioSource source in Components<AudioSource>())
+            {
+                if (!source.loop && source.clip != null && source.isPlaying)
                 {
                     return true;
                 }
@@ -312,7 +329,7 @@ namespace Chromacolony.Tests.PlayMode
 
         private VisualElement Find(string name)
         {
-            VisualElement element = _ui.Q(name);
+            VisualElement element = Ui.Q(name);
             Assert.That(element, Is.Not.Null, $"no element {name} in the layout");
             return element;
         }
@@ -331,7 +348,7 @@ namespace Chromacolony.Tests.PlayMode
 
         private IEnumerator Load()
         {
-            _ui = null;
+            _document = null;
             _camera = null;
             yield return SceneManager.LoadSceneAsync(ScenePath);
             yield return null;
@@ -339,7 +356,7 @@ namespace Chromacolony.Tests.PlayMode
             {
                 if (root.TryGetComponent(out UIDocument document))
                 {
-                    _ui = document.rootVisualElement;
+                    _document = document;
                 }
 
                 if (root.TryGetComponent(out Camera camera))
@@ -348,7 +365,7 @@ namespace Chromacolony.Tests.PlayMode
                 }
             }
 
-            Assert.That(_ui, Is.Not.Null, "the scene has no UI document");
+            Assert.That(_document != null, Is.True, "the scene has no UI document");
             Assert.That(_camera != null, Is.True, "the scene has no camera");
         }
 

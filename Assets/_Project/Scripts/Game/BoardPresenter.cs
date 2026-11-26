@@ -75,7 +75,7 @@ namespace Chromacolony.Game
             helpers.Used += OnHelperUsed;
         }
 
-        public void Bind(VisualElement root)
+        public void Bind(VisualElement root, ButtonBindings bindings)
         {
             _boardName = root.Q<Label>(UiNames.BoardName);
             _hint = root.Q<Label>(UiNames.Hint);
@@ -86,13 +86,14 @@ namespace Chromacolony.Game
             _pauseRetry = root.Q<Button>(UiNames.PauseRetry);
             _pauseMenu = root.Q<Button>(UiNames.PauseMenu);
 
-            root.Q<Button>(UiNames.HudPause).clicked += Pause;
-            _speed.clicked += ToggleSpeed;
-            _resume.clicked += Resume;
-            _pauseSettings.clicked += () => _settings.Open(fromPause: true);
-            _pauseRetry.clicked += () => StartBoard(_boardIndex);
-            _pauseMenu.clicked += ToMenu;
+            bindings.Click(root.Q<Button>(UiNames.HudPause), Pause);
+            bindings.Click(_speed, ToggleSpeed);
+            bindings.Click(_resume, Resume);
+            bindings.Click(_pauseSettings, () => _settings.Open(fromPause: true));
+            bindings.Click(_pauseRetry, () => StartBoard(_boardIndex));
+            bindings.Click(_pauseMenu, ToMenu);
             ShowTexts();
+            _speed.EnableInClassList(OnClass, _model.Fast);
         }
 
         public void ShowTexts()

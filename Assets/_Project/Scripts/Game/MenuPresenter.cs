@@ -31,12 +31,12 @@ namespace Chromacolony.Game
             _board = board;
         }
 
-        public void Bind(VisualElement root)
+        public void Bind(VisualElement root, ButtonBindings bindings)
         {
             _title = root.Q<Label>(UiNames.Title);
             _play = root.Q<Button>(UiNames.Play);
-            _play.clicked += () => PlayPressed?.Invoke();
-            root.Q<Button>(UiNames.MenuSettings).clicked += () => _settings.Open(fromPause: false);
+            bindings.Click(_play, () => PlayPressed?.Invoke());
+            bindings.Click(root.Q<Button>(UiNames.MenuSettings), () => _settings.Open(fromPause: false));
             ShowTexts();
         }
 

@@ -74,8 +74,6 @@ namespace Chromacolony.Game
         private readonly Material _crewMaterial;
         private readonly Material _spriteMaterial;
         private readonly Color[] _colors;
-        private readonly VisualElement _panelRoot;
-        private readonly VisualElement _labels;
         private readonly Sprite _pebble;
         private readonly Sprite _bucket;
         private readonly Sprite _cover;
@@ -107,6 +105,8 @@ namespace Chromacolony.Game
         private SpriteRenderer[] _pebbles = new SpriteRenderer[0];
         private SpriteRenderer[] _glows = new SpriteRenderer[0];
         private BoardLayout _layout;
+        private VisualElement _panelRoot;
+        private VisualElement _labels;
 
         public BoardLayout Layout => _layout;
 
@@ -116,16 +116,14 @@ namespace Chromacolony.Game
 
         public bool Busy => _crabs.Walking > 0 || _crews.Count > 0 && AnyLeaving() || _celebration > 0f;
 
-        public BoardView(Camera camera, GameModel model, Material crewMaterial, Material spriteMaterial, Color[] colors, VisualElement panelRoot,
-            VisualElement labels, Effects effects, GameContent content)
+        public BoardView(Camera camera, GameModel model, Material crewMaterial, Material spriteMaterial, Color[] colors, Effects effects,
+            GameContent content)
         {
             _camera = camera;
             _model = model;
             _crewMaterial = crewMaterial;
             _spriteMaterial = spriteMaterial;
             _colors = colors;
-            _panelRoot = panelRoot;
-            _labels = labels;
             _effects = effects;
             _pebble = content.Pebble;
             _bucket = content.Bucket;
@@ -161,6 +159,24 @@ namespace Chromacolony.Game
             model.CrewWaiting += e => Tint(e.Crew);
             model.CrewDone += OnCrewDone;
             model.CrewRevealed += OnRevealed;
+        }
+
+        /// <summary>
+        /// Shows the crews' labels in a layer of the interface; called again with the new layer whenever the interface is rebuilt.
+        /// </summary>
+        public void Attach(VisualElement panelRoot, VisualElement labels)
+        {
+            _panelRoot = panelRoot;
+            _labels = labels;
+            foreach (Label more in _more)
+            {
+                AddToLayer(more);
+            }
+
+            foreach (CrewVisual crew in _crews.Values)
+            {
+                AddToLayer(crew.Count);
+            }
         }
 
         public void ShowOff(Vector2 at, bool on)
@@ -772,6 +788,14 @@ namespace Chromacolony.Game
                         _effects.Twinkle(piece.Renderer.transform.position, _layout.Cell * 1.2f);
                     }
                 }
+            }
+        }
+
+        private void AddToLayer(VisualElement label)
+        {
+            if (label.parent != _labels)
+            {
+                _labels.Add(label);
             }
         }
 

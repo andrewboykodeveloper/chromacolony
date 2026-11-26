@@ -37,7 +37,7 @@ namespace Chromacolony.Game
             _save = save;
         }
 
-        public void Bind(VisualElement root)
+        public void Bind(VisualElement root, ButtonBindings bindings)
         {
             _title = root.Q<Label>(UiNames.SettingsTitle);
             _languageName = root.Q<Label>(UiNames.SettingsLanguage);
@@ -51,13 +51,14 @@ namespace Chromacolony.Game
             _voice = root.Q<Button>(UiNames.VoiceSwitch);
             _done = root.Q<Button>(UiNames.SettingsDone);
 
-            _done.clicked += Close;
-            _russian.clicked += () => Choose(Languages.Russian);
-            _english.clicked += () => Choose(Languages.English);
-            _music.clicked += ToggleMusic;
-            _sounds.clicked += ToggleSounds;
-            _voice.clicked += ToggleVoice;
+            bindings.Click(_done, Close);
+            bindings.Click(_russian, () => Choose(Languages.Russian));
+            bindings.Click(_english, () => Choose(Languages.English));
+            bindings.Click(_music, ToggleMusic);
+            bindings.Click(_sounds, ToggleSounds);
+            bindings.Click(_voice, ToggleVoice);
             ShowTexts();
+            ShowChoices();
         }
 
         public void ShowTexts()

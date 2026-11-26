@@ -66,7 +66,7 @@ namespace Chromacolony.Game
             _save = save;
         }
 
-        public void Bind(VisualElement root)
+        public void Bind(VisualElement root, ButtonBindings bindings)
         {
             _root = root;
             _dialog = root.Q(UiNames.Result);
@@ -80,11 +80,21 @@ namespace Chromacolony.Game
             _coinIcon = root.Q(UiNames.CoinIcon);
             _coinFlight = new CoinFlight(root.Q(UiNames.Labels), _coins) { Landed = () => _audio.Play(SoundKeys.Coin) };
 
-            _next.clicked += () => NextPressed?.Invoke();
-            _useHelper.clicked += _screens.CloseDialog;
-            _retry.clicked += () => RetryPressed?.Invoke();
-            _menu.clicked += () => MenuPressed?.Invoke();
+            bindings.Click(_next, () => NextPressed?.Invoke());
+            bindings.Click(_useHelper, _screens.CloseDialog);
+            bindings.Click(_retry, () => RetryPressed?.Invoke());
+            bindings.Click(_menu, () => MenuPressed?.Invoke());
             ShowTexts();
+            ShowCoins();
+            if (_screens.CurrentDialog == UiNames.Result)
+            {
+                ShowContent();
+            }
+        }
+
+        public void Unbind()
+        {
+            _coinFlight.Stop();
         }
 
         public void ShowTexts()
@@ -160,6 +170,22 @@ namespace Chromacolony.Game
 
         private void Show()
         {
+            ShowContent();
+            if (_won)
+            {
+                _audio.Say(_boardIndex == _boards - 1 ? LineKeys.Thanks : LineKeys.Hooray);
+            }
+            else
+            {
+                _audio.Play(SoundKeys.Stuck);
+                _audio.Say(LineKeys.Oops);
+            }
+
+            _screens.Open(UiNames.Result);
+        }
+
+        private void ShowContent()
+        {
             bool helper = !_won && _shop.AnyUsable;
             bool allDone = _won && _boardIndex == _boards - 1;
             _title.text = _text.Get(_won ? TextKeys.Won : TextKeys.Stuck);
@@ -174,18 +200,7 @@ namespace Chromacolony.Game
             _retry.EnableInClassList(PrimaryClass, !_won && !helper);
             _retry.EnableInClassList(SecondaryClass, _won || helper);
             _retry.EnableInClassList(ScreenHost.HiddenClass, _won);
-            if (_won)
-            {
-                _audio.Say(allDone ? LineKeys.Thanks : LineKeys.Hooray);
-            }
-            else
-            {
-                _audio.Play(SoundKeys.Stuck);
-                _audio.Say(LineKeys.Oops);
-            }
-
             _dialog.EnableInClassList(WonClass, _won);
-            _screens.Open(UiNames.Result);
         }
     }
 }
