@@ -94,7 +94,7 @@ namespace Chromacolony.Game
         {
             VisualElement root = _document.rootVisualElement.Q(UiNames.Root);
             _screens.Bind(root);
-            _safeArea = SafeAreas.Keep(root.Q(UiNames.Safe), new ScreenSafeArea());
+            _safeArea = SafeAreas.Keep(root.Q(UiNames.Safe));
             _boardView.Attach(root, root.Q(UiNames.Labels));
             _settings.Bind(root, _bindings);
             _menu.Bind(root, _bindings);
