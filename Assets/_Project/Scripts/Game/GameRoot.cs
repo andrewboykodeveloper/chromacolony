@@ -19,12 +19,12 @@ namespace Chromacolony.Game
         private const string English = "en";
         private const int SaveVersion = 1;
 
-        [SerializeField] private UIDocument document;
-        [SerializeField] private TextAsset configCsv;
-        [SerializeField] private TextAsset localizationCsv;
-        [SerializeField] private TextAsset boardsText;
-        [SerializeField] private Material crewMaterial;
-        [SerializeField] private Material spriteMaterial;
+        [SerializeField] private UIDocument _document;
+        [SerializeField] private TextAsset _configCsv;
+        [SerializeField] private TextAsset _localizationCsv;
+        [SerializeField] private TextAsset _boardsText;
+        [SerializeField] private Material _crewMaterial;
+        [SerializeField] private Material _spriteMaterial;
         [SerializeField] private GameContent _content;
 
         private readonly EventBus _events = new EventBus();
@@ -85,13 +85,13 @@ namespace Chromacolony.Game
 
         private void Awake()
         {
-            var config = new ConfigTable(configCsv.text);
-            _boards = BoardText.Parse(boardsText.text);
+            var config = new ConfigTable(_configCsv.text);
+            _boards = BoardText.Parse(_boardsText.text);
             _prices = new Prices(config.Int(ConfigKeys.CoinsPerWin), config.Int(ConfigKeys.StartStock), config.Int(ConfigKeys.PriceSlot),
                 config.Int(ConfigKeys.PriceShuffle), config.Int(ConfigKeys.PriceBack));
             _saves = new SaveStore(new FileSaveStorage(), SaveVersion, problem => Debug.LogWarning("Saves: " + problem));
             _progress = Progress.FromText(_saves.Load(SaveKey), _prices, _boards.Count);
-            _text = new Localization(localizationCsv.text, StartLanguage());
+            _text = new Localization(_localizationCsv.text, StartLanguage());
             _model = new GameModel(_events, new Rules(config.Int(ConfigKeys.Slots), config.Float(ConfigKeys.CrabInterval)));
             _ticker = new GameTicker(1f / 60f, _model.Tick);
             _camera = Camera.main;
@@ -103,15 +103,15 @@ namespace Chromacolony.Game
                 Hex(config.String(ConfigKeys.ColorP)), Hex(config.String(ConfigKeys.ColorK)),
             };
 
-            VisualElement root = document.rootVisualElement.Q(UiNames.Root);
+            VisualElement root = _document.rootVisualElement.Q(UiNames.Root);
             _screens = new ScreenHost(root);
             SafeAreas.Keep(root.Q(UiNames.Safe), new ScreenSafeArea());
             _input = new PointerInput();
             ulong seed = (ulong)System.DateTime.Now.Ticks;
             _random = new Pcg32(seed);
-            _beach = new BeachView(_camera, spriteMaterial, config.Float(ConfigKeys.BeachShore), _content.Beach);
-            _effects = new Effects(spriteMaterial, new Pcg32(seed + 2), _content);
-            _board = new BoardView(_camera, _model, crewMaterial, spriteMaterial, colors, root, root.Q(UiNames.Labels), _events, _effects, _content);
+            _beach = new BeachView(_camera, _spriteMaterial, config.Float(ConfigKeys.BeachShore), _content.Beach);
+            _effects = new Effects(_spriteMaterial, new Pcg32(seed + 2), _content);
+            _board = new BoardView(_camera, _model, _crewMaterial, _spriteMaterial, colors, root, root.Q(UiNames.Labels), _events, _effects, _content);
             _audio = new UnityAudio(gameObject, _content.Sounds, _content.VoiceLines, _content.Tracks);
             _soundGap = config.Float(ConfigKeys.SoundGap);
             _pickGap = config.Float(ConfigKeys.SoundGapPick);
@@ -279,7 +279,7 @@ namespace Chromacolony.Game
             Save();
             if (_text.Language != language)
             {
-                _text = new Localization(localizationCsv.text, language);
+                _text = new Localization(_localizationCsv.text, language);
                 ShowTexts();
             }
 
@@ -368,8 +368,8 @@ namespace Chromacolony.Game
                 {
                     _celebrated = true;
                     _board.Celebrate();
-                    Vector2 from = WorldToPanel.Point(_camera, _board.Layout.Gate, document.rootVisualElement.Q(UiNames.Root));
-                    Rect icon = document.rootVisualElement.Q(UiNames.CoinIcon).worldBound;
+                    Vector2 from = WorldToPanel.Point(_camera, _board.Layout.Gate, _document.rootVisualElement.Q(UiNames.Root));
+                    Rect icon = _document.rootVisualElement.Q(UiNames.CoinIcon).worldBound;
                     _coinsHeld = false;
                     _coinFlight.Fly(from, icon.center, _coinsFrom, _progress.Coins);
                     return;

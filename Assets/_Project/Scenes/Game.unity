@@ -149,12 +149,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fc96f8d9b5148a49d933ec3af359160, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Chromacolony.Game::Chromacolony.Game.GameRoot
-  document: {fileID: 222943134}
-  configCsv: {fileID: 4900000, guid: 2eada14ad966444ab9641c44be4c8360, type: 3}
-  localizationCsv: {fileID: 4900000, guid: 5af3dfe402a345d9896500f28f70e9d5, type: 3}
-  boardsText: {fileID: 4900000, guid: cda407870c2b4b0eba7a7fc2833eba63, type: 3}
-  crewMaterial: {fileID: 2100000, guid: 0ee42df7ec565d94aba90b71e242b258, type: 2}
-  spriteMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  _document: {fileID: 222943134}
+  _configCsv: {fileID: 4900000, guid: 2eada14ad966444ab9641c44be4c8360, type: 3}
+  _localizationCsv: {fileID: 4900000, guid: 5af3dfe402a345d9896500f28f70e9d5, type: 3}
+  _boardsText: {fileID: 4900000, guid: cda407870c2b4b0eba7a7fc2833eba63, type: 3}
+  _crewMaterial: {fileID: 2100000, guid: 0ee42df7ec565d94aba90b71e242b258, type: 2}
+  _spriteMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   _content: {fileID: 11400000, guid: 39848b8adfcf49f19ddef5c38300522f, type: 2}
 --- !u!114 &222943134
 MonoBehaviour:
