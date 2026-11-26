@@ -13,6 +13,10 @@ namespace Chromacolony.Game
         private readonly Camera _camera;
         private readonly Dictionary<int, Label> _counts = new Dictionary<int, Label>();
         private readonly List<Label> _more = new List<Label>();
+
+        // The counts and the "+N" texts are made once each, not every time a crab sets off or every frame.
+        private readonly List<string> _numbers = new List<string>();
+        private readonly List<string> _moreTexts = new List<string> { string.Empty };
         private VisualElement _panelRoot;
         private VisualElement _layer;
 
@@ -52,9 +56,14 @@ namespace Chromacolony.Game
             _counts.Add(crew, Add(UiClasses.CrewCount));
         }
 
-        public void ShowCount(int crew, string text)
+        public void ShowCount(int crew, int remaining)
         {
-            _counts[crew].text = text;
+            _counts[crew].text = Number(remaining);
+        }
+
+        public void ShowHidden(int crew)
+        {
+            _counts[crew].text = "?";
         }
 
         public void PlaceCount(int crew, Vector3 world, float scale, bool shown)
@@ -70,7 +79,7 @@ namespace Chromacolony.Game
         public void ShowMore(int column, int hidden, Vector3 world)
         {
             Label more = _more[column];
-            more.text = hidden > 0 ? "+" + hidden : string.Empty;
+            more.text = MoreText(hidden);
             more.EnableInClassList(UiClasses.Hidden, hidden <= 0);
             Vector2 corner = WorldToPanel.Point(_camera, world, _panelRoot);
             more.style.left = corner.x;
@@ -97,6 +106,31 @@ namespace Chromacolony.Game
 
             _counts.Clear();
             _more.Clear();
+        }
+
+        private string Number(int value)
+        {
+            while (_numbers.Count <= value)
+            {
+                _numbers.Add(_numbers.Count.ToString());
+            }
+
+            return _numbers[value];
+        }
+
+        private string MoreText(int hidden)
+        {
+            if (hidden <= 0)
+            {
+                return string.Empty;
+            }
+
+            while (_moreTexts.Count <= hidden)
+            {
+                _moreTexts.Add("+" + _moreTexts.Count);
+            }
+
+            return _moreTexts[hidden];
         }
 
         private Label Add(string className)

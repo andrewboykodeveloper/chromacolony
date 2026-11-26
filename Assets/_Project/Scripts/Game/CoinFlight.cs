@@ -17,6 +17,7 @@ namespace Chromacolony.Game
         private Vector2 _to;
         private int _start;
         private int _end;
+        private int _counted;
         private float _time = -1f;
 
         public bool Flying => _time >= 0f;
@@ -47,6 +48,7 @@ namespace Chromacolony.Game
                 _shown.Add(coin);
             }
 
+            _counted = start;
             _counter.text = start.ToString();
         }
 
@@ -84,7 +86,13 @@ namespace Chromacolony.Game
                 coin.style.scale = new Scale(new Vector3(scale, scale, 1f));
             }
 
-            _counter.text = (_start + (_end - _start) * landed / Coins).ToString();
+            int counted = _start + (_end - _start) * landed / Coins;
+            if (counted != _counted)
+            {
+                _counted = counted;
+                _counter.text = counted.ToString();
+            }
+
             if (landed == Coins)
             {
                 Stop();

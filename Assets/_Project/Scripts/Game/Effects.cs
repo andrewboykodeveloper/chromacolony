@@ -8,7 +8,7 @@ namespace Chromacolony.Game
 {
     public sealed class Effects : IDisposable
     {
-        private sealed class Particle
+        private struct Particle
         {
             public SpriteRenderer Renderer;
             public Vector2 From;
@@ -72,6 +72,7 @@ namespace Chromacolony.Game
             {
                 Particle particle = _live[i];
                 particle.Age += dt;
+                _live[i] = particle;
                 float t = Mathf.Clamp01(particle.Age / particle.Life);
                 Transform transform = particle.Renderer.transform;
                 transform.position = (Vector3)(particle.From + particle.Way * (1f - (1f - t) * (1f - t)) * particle.Life / 2f);

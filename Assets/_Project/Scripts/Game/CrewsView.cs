@@ -135,7 +135,7 @@ namespace Chromacolony.Game
         {
             if (_crews.ContainsKey(crew.Id))
             {
-                _labels.ShowCount(crew.Id, crew.Remaining.ToString());
+                _labels.ShowCount(crew.Id, crew.Remaining);
             }
         }
 
@@ -441,14 +441,14 @@ namespace Chromacolony.Game
                 visual.Renderer.sprite = _cover;
                 visual.Renderer.sharedMaterial = _spriteMaterial;
                 visual.Renderer.color = Color.white;
-                _labels.ShowCount(crew.Id, "?");
+                _labels.ShowHidden(crew.Id);
                 visual.Sign.enabled = false;
                 return;
             }
 
             visual.Renderer.sprite = _bucket;
             visual.Renderer.sharedMaterial = _crewMaterial;
-            _labels.ShowCount(crew.Id, crew.Remaining.ToString());
+            _labels.ShowCount(crew.Id, crew.Remaining);
             visual.Sign.enabled = visual.Renderer.enabled;
             Tint(crew);
         }
