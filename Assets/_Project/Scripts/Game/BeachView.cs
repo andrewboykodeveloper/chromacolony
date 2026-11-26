@@ -38,12 +38,13 @@ namespace Chromacolony.Game
             _sprite = sprite;
             _root = new GameObject("Beach").transform;
             _picture = SpriteRenderers.Create(_root, _sprite, _material, "Beach picture", SortingOrder.Beach);
-            _backdrop = SpriteRenderers.Create(_root, _sprite, _material, "Beach picture", SortingOrder.Backdrop);
+            _backdrop = SpriteRenderers.Create(_root, _sprite, _material, "Beach backdrop", SortingOrder.Backdrop);
             _backdrop.color = BackdropTint;
             _shadow = Shadow();
             for (int i = 0; i < _shadows.Length; i++)
             {
-                _shadows[i] = SpriteRenderers.Create(_root, _shadow, _material, "Beach picture", SortingOrder.BeachShadow);
+                _shadows[i] = SpriteRenderers.Create(_root, _shadow, _material, i == 0 ? "Beach shadow left" : "Beach shadow right",
+                    SortingOrder.BeachShadow);
                 _shadows[i].flipX = i == 0;
             }
         }
