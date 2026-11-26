@@ -42,7 +42,8 @@ namespace Chromacolony.Game
         public void Puff(Vector2 at, float size)
         {
             float spin = (_random.Value() - 0.5f) * 60f;
-            Spawn(_puff, at, new Vector2(0f, size * 0.6f), size * 0.5f, size * 1.25f, 0.45f, 0.8f, spin, Color.white);
+            Spawn(_puff, at, way: new Vector2(0f, size * 0.6f), sizeFrom: size * 0.5f, sizeTo: size * 1.25f, life: 0.45f, alpha: 0.8f,
+                spin: spin, tint: Color.white);
         }
 
         public void Sparkles(Vector2 at, float radius, int count, Color tint)
@@ -52,7 +53,8 @@ namespace Chromacolony.Game
                 float angle = (i + _random.Value() * 0.6f) / count * Mathf.PI * 2f;
                 Vector2 way = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius * (0.7f + 0.6f * _random.Value());
                 float size = radius * (0.28f + 0.18f * _random.Value());
-                Spawn(_sparkle, at, way * 2f / 0.55f, size, size * 0.4f, 0.55f, 1f, 220f * (_random.Value() - 0.5f), tint);
+                Spawn(_sparkle, at, way: way * 2f / 0.55f, sizeFrom: size, sizeTo: size * 0.4f, life: 0.55f, alpha: 1f,
+                    spin: 220f * (_random.Value() - 0.5f), tint: tint);
             }
         }
 
@@ -63,7 +65,7 @@ namespace Chromacolony.Game
 
         public void Twinkle(Vector2 at, float size, Color tint)
         {
-            Spawn(_sparkle, at, Vector2.zero, size * 0.2f, size, 0.35f, 1f, 90f, tint);
+            Spawn(_sparkle, at, way: Vector2.zero, sizeFrom: size * 0.2f, sizeTo: size, life: 0.35f, alpha: 1f, spin: 90f, tint: tint);
         }
 
         public void Update(float dt)
