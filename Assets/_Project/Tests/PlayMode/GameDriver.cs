@@ -28,6 +28,10 @@ namespace Chromacolony.Tests.PlayMode
         private const string HiddenClass = "hidden";
         private const string CrewCountClass = "crew-count";
 
+        // The key and the version under which the game root saves the progress.
+        private const string SaveKey = "progress";
+        private const int SaveVersion = 1;
+
         private readonly IReadOnlyList<BoardSpec> _boards;
         private readonly int _slots;
         private readonly List<InputDevice> _disabled = new List<InputDevice>();
@@ -37,6 +41,8 @@ namespace Chromacolony.Tests.PlayMode
         private UIDocument _document;
         private Camera _camera;
         private float? _listenerVolume;
+
+        public int Slots => _slots;
 
         // The document builds its tree anew whenever its game object is enabled again, so the root is read each time.
         private VisualElement Ui => _document.rootVisualElement;
@@ -89,6 +95,15 @@ namespace Chromacolony.Tests.PlayMode
                 AudioListener.volume = _listenerVolume ?? AudioListener.volume;
                 RestoreInput();
             }
+        }
+
+        // Reloads the game as a player who has reached the given board, with nothing else saved.
+        public IEnumerator ReopenAt(int board)
+        {
+            string saves = Path.Combine(Application.temporaryCachePath, "saves at " + Guid.NewGuid().ToString("N"));
+            new SaveStore(new FileSaveStorage(saves), SaveVersion, Assert.Fail)
+                .Save(SaveKey, "board=" + board.ToString(CultureInfo.InvariantCulture) + "\n");
+            yield return Reopen(saves);
         }
 
         public string CopySaves()

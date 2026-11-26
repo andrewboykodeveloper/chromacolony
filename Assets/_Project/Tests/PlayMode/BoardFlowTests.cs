@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Globalization;
 using NUnit.Framework;
 using UnityEngine.TestTools;
 
@@ -7,6 +8,7 @@ namespace Chromacolony.Tests.PlayMode
     public sealed class BoardFlowTests
     {
         private const int FirstBoard = 0;
+        private const int PlacesLessonBoard = 1;
         private const int MaxFramesToWin = 4000;
         private const string MoreClass = "crew-more";
 
@@ -127,6 +129,21 @@ namespace Chromacolony.Tests.PlayMode
             yield return GameDriver.Frames(30);
             Assert.That(_game.IsShown("pause"), Is.False);
             Assert.That(_game.CrabsLeftInCrews(), Is.LessThan(crabs), "the crabs set off again after the pause");
+        }
+
+        [UnityTest]
+        public IEnumerator TheLessonOnPlacesCountsThemAgainWhenOneIsAdded()
+        {
+            yield return _game.ReopenAt(PlacesLessonBoard);
+            _game.Press("play");
+            yield return null;
+            Assert.That(_game.IsShown("hint"), Is.True, "the board teaches the places");
+            Assert.That(_game.Text("hint"), Does.Contain(_game.Slots.ToString(CultureInfo.InvariantCulture)), "the lesson counts the places");
+
+            _game.Press("helper-slot");
+            yield return null;
+            Assert.That(_game.Text("hint"), Does.Contain((_game.Slots + 1).ToString(CultureInfo.InvariantCulture)),
+                "the lesson counts the extra place");
         }
 
         [UnityTest]

@@ -53,7 +53,7 @@ namespace Chromacolony.Game
 
             model.BoardWon += () => OnBoardEnded(true);
             model.BoardStuck += () => OnBoardEnded(false);
-            model.SlotAdded += _ => Refresh();
+            model.SlotAdded += _ => OnSlotAdded();
             model.CrewSent += e => OnCrewSent(e.Crew);
             model.CrewDone += _ => OnCrewDone();
             model.CrewRevealed += _ => OnCrewRevealed();
@@ -207,6 +207,13 @@ namespace Chromacolony.Game
             ShowTutorial();
         }
 
+        // The lesson on places shows their count.
+        private void OnSlotAdded()
+        {
+            ShowHint();
+            Refresh();
+        }
+
         private void OnBoardEnded(bool won)
         {
             _helpers.CancelPick();
@@ -238,7 +245,7 @@ namespace Chromacolony.Game
             return _tutorial.Lesson switch
             {
                 Lesson.Tap => _text.Get(TextKeys.LessonTap),
-                Lesson.Slots => _text.Get(TextKeys.LessonSlots),
+                Lesson.Slots => _text.Format(TextKeys.LessonSlots, _model.SlotCount),
                 Lesson.Inside => _text.Get(TextKeys.LessonInside),
                 Lesson.Rope => _text.Get(TextKeys.LessonRope),
                 Lesson.Cover => _text.Get(TextKeys.LessonCover),
