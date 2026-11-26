@@ -56,6 +56,7 @@ namespace Chromacolony.Game
         private Camera _camera;
         private SaveStore _saves;
         private Prices _prices;
+        private HelperShop _shop;
         private Progress _progress;
         private IReadOnlyList<BoardSpec> _boards;
         private int _boardIndex;
@@ -93,6 +94,7 @@ namespace Chromacolony.Game
             _progress = Progress.FromText(_saves.Load(SaveKey), _prices, _boards.Count);
             _text = new Localization(_localizationCsv.text, StartLanguage());
             _model = new GameModel(new Rules(config.Int(ConfigKeys.Slots), config.Float(ConfigKeys.CrabInterval)));
+            _shop = new HelperShop(_model, _progress, _prices);
             _ticker = new GameTicker(1f / 60f, _model.Tick);
             _camera = Camera.main;
             _camera.backgroundColor = Hex(config.String(ConfigKeys.ColorNight));
@@ -665,19 +667,6 @@ namespace Chromacolony.Game
             _hint.style.display = string.IsNullOrEmpty(text) ? DisplayStyle.None : DisplayStyle.Flex;
         }
 
-        private bool AnyHelperToUse()
-        {
-            for (int h = 0; h < _helpers.Length; h++)
-            {
-                if (_model.CanUse((Helper)h) && _progress.PaymentFor((Helper)h, _prices) != Payment.None)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         private string Name(Helper helper)
         {
             switch (helper)
@@ -704,7 +693,7 @@ namespace Chromacolony.Game
                 int stock = _progress.Stock(helper);
                 _badges[h].text = stock > 0 ? stock.ToString() : _prices.Of(helper).ToString();
                 _badges[h].EnableInClassList(PriceClass, stock == 0);
-                _helpers[h].EnableInClassList(OffClass, !_model.CanUse(helper) || _progress.PaymentFor(helper, _prices) == Payment.None);
+                _helpers[h].EnableInClassList(OffClass, !_shop.Usable(helper));
             }
         }
 
@@ -727,7 +716,7 @@ namespace Chromacolony.Game
         private void ShowResult()
         {
             _resultTitle.text = _text.Get(_resultWon ? TextKeys.Won : TextKeys.Stuck);
-            bool helper = !_resultWon && AnyHelperToUse();
+            bool helper = !_resultWon && _shop.AnyUsable;
             bool allDone = _resultWon && _boardIndex == _boards.Count - 1;
             _resultText.text = _resultWon
                 ? (allDone ? _text.Get(TextKeys.AllDone) : _text.Format(TextKeys.WonCoins, _prices.CoinsPerWin))
