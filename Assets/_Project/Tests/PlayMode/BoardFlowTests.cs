@@ -197,6 +197,23 @@ namespace Chromacolony.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator ASecondPressOnTheWaitingBackHelperCallsThePickOff()
+        {
+            _game.Press("play");
+            yield return null;
+            yield return _game.TapColumn(FirstBoard, 0, 0);
+            int stock = _game.Number("helper-back-badge");
+            _game.Press("helper-back");
+            yield return null;
+            Assert.That(_game.Has("helper-back", GameDriver.OnClass), Is.True, "the back helper waits for a crew to be picked");
+
+            _game.Press("helper-back");
+            yield return null;
+            Assert.That(_game.Has("helper-back", GameDriver.OnClass), Is.False, "a second press calls the pick off");
+            Assert.That(_game.Number("helper-back-badge"), Is.EqualTo(stock), "a pick called off costs nothing");
+        }
+
+        [UnityTest]
         public IEnumerator TheBackKeyStepsBackOneLayerAtATimeAndCancelsAPickLast()
         {
             _game.Press("play");
