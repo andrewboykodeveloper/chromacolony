@@ -614,7 +614,7 @@ namespace Chromacolony.Game
 
         private void Ask(Helper helper)
         {
-            if (!Usable(helper) || _screens.CurrentDialog != null)
+            if (!_model.CanUse(helper) || _screens.CurrentDialog != null)
             {
                 return;
             }
@@ -651,7 +651,7 @@ namespace Chromacolony.Game
                 return;
             }
 
-            if (!Usable(helper) || !_progress.Pay(helper, _prices))
+            if (!_model.CanUse(helper) || !_progress.Pay(helper, _prices))
             {
                 return;
             }
@@ -695,24 +695,11 @@ namespace Chromacolony.Game
             _hint.style.display = string.IsNullOrEmpty(text) ? DisplayStyle.None : DisplayStyle.Flex;
         }
 
-        private bool Usable(Helper helper)
-        {
-            switch (helper)
-            {
-                case Helper.Slot:
-                    return _model.CanAddSlot;
-                case Helper.Shuffle:
-                    return _model.CanShuffle;
-                default:
-                    return _model.AnyToBack();
-            }
-        }
-
         private bool AnyHelperToUse()
         {
             for (int h = 0; h < _helpers.Length; h++)
             {
-                if (Usable((Helper)h) && _progress.PaymentFor((Helper)h, _prices) != Payment.None)
+                if (_model.CanUse((Helper)h) && _progress.PaymentFor((Helper)h, _prices) != Payment.None)
                 {
                     return true;
                 }
@@ -747,7 +734,7 @@ namespace Chromacolony.Game
                 int stock = _progress.Stock(helper);
                 _badges[h].text = stock > 0 ? stock.ToString() : _prices.Of(helper).ToString();
                 _badges[h].EnableInClassList(PriceClass, stock == 0);
-                _helpers[h].EnableInClassList(OffClass, !Usable(helper) || _progress.PaymentFor(helper, _prices) == Payment.None);
+                _helpers[h].EnableInClassList(OffClass, !_model.CanUse(helper) || _progress.PaymentFor(helper, _prices) == Payment.None);
             }
         }
 

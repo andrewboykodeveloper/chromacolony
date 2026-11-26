@@ -56,9 +56,9 @@ namespace Chromacolony.Core
 
         public int ColumnCount => _columns.Count;
 
-        public bool CanAddSlot => InPlay && SlotCount < _slots.Length;
+        private bool CanAddSlot => InPlay && SlotCount < _slots.Length;
 
-        public bool CanShuffle => Phase == GamePhase.Playing && Shufflable().Count >= 2;
+        private bool CanShuffle => Phase == GamePhase.Playing && Shufflable().Count >= 2;
 
         private bool InPlay => Phase == GamePhase.Playing || Phase == GamePhase.Stuck;
 
@@ -244,7 +244,7 @@ namespace Chromacolony.Core
             return InPlay && slot >= 0 && slot < SlotCount && _slots[slot] != null;
         }
 
-        public bool AnyToBack()
+        private bool AnyToBack()
         {
             for (int s = 0; s < SlotCount; s++)
             {
@@ -255,6 +255,17 @@ namespace Chromacolony.Core
             }
 
             return false;
+        }
+
+        public bool CanUse(Helper helper)
+        {
+            return helper switch
+            {
+                Helper.Slot => CanAddSlot,
+                Helper.Shuffle => CanShuffle,
+                Helper.Back => AnyToBack(),
+                _ => throw new ArgumentOutOfRangeException(nameof(helper), helper, "no such helper"),
+            };
         }
 
         public void AddSlot()

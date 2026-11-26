@@ -17,7 +17,7 @@ namespace Chromacolony.Tests.EditMode
             model.TrySend(1);
             model.Tick(Step);
             Assert.That(model.Phase, Is.EqualTo(GamePhase.Stuck));
-            Assert.That(model.CanAddSlot, Is.True);
+            Assert.That(model.CanUse(Helper.Slot), Is.True);
 
             model.AddSlot();
 
@@ -36,14 +36,16 @@ namespace Chromacolony.Tests.EditMode
         public void AStuckBoardOffersTheHelpersThatFreeASlotButNoShuffle()
         {
             GameModel model = Start("board ring\nRRR\nRYR\nRRR\n= R4 R4\n= Y1\n", slots: 1);
-            Assert.That(model.CanShuffle, Is.True);
+            Assert.That(model.CanUse(Helper.Shuffle), Is.True);
+            Assert.That(model.CanUse(Helper.Back), Is.False, "no crew has left its column yet");
 
             model.TrySend(1);
             model.Tick(Step);
 
             Assert.That(model.Phase, Is.EqualTo(GamePhase.Stuck));
-            Assert.That(model.CanShuffle, Is.False);
-            Assert.That(model.CanAddSlot, Is.True);
+            Assert.That(model.CanUse(Helper.Shuffle), Is.False);
+            Assert.That(model.CanUse(Helper.Slot), Is.True);
+            Assert.That(model.CanUse(Helper.Back), Is.True);
             Assert.That(model.CanBack(0), Is.True);
         }
 
@@ -69,7 +71,7 @@ namespace Chromacolony.Tests.EditMode
             GameModel model = Start(Ring, slots: 5);
 
             model.AddSlot();
-            Assert.That(model.CanAddSlot, Is.False);
+            Assert.That(model.CanUse(Helper.Slot), Is.False);
             model.AddSlot();
 
             Assert.That(model.SlotCount, Is.EqualTo(6));
