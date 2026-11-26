@@ -1,4 +1,3 @@
-using Chromacolony.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
