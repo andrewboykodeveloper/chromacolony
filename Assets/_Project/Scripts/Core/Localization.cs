@@ -9,7 +9,7 @@ namespace Chromacolony.Core
         private readonly Dictionary<string, Dictionary<string, string>> _byLanguage = new Dictionary<string, Dictionary<string, string>>();
         private readonly string _fallback;
 
-        public string Language { get; }
+        public string Language { get; private set; }
 
         public Localization(string csv, string language)
         {
@@ -35,6 +35,11 @@ namespace Chromacolony.Core
                 }
             }
 
+            Use(language);
+        }
+
+        public void Use(string language)
+        {
             Language = _byLanguage.ContainsKey(language) ? language : _fallback;
         }
 

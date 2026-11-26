@@ -281,7 +281,7 @@ namespace Chromacolony.Game
             Save();
             if (_text.Language != language)
             {
-                _text = new Localization(_localizationCsv.text, language);
+                _text.Use(language);
                 ShowTexts();
             }
 
