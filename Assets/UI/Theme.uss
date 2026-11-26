@@ -227,6 +227,14 @@
     background-color: var(--accent);
 }
 
+.hud-pause {
+    background-image: resource("Art/icon-pause");
+}
+
+.hud-speed {
+    background-image: resource("Art/icon-speed");
+}
+
 .game {
     padding: 36px;
     width: 100%;
@@ -255,6 +263,7 @@
     width: 64px;
     height: 64px;
     margin-right: 12px;
+    background-image: resource("Art/coin");
     -unity-background-scale-mode: scale-to-fit;
 }
 
@@ -312,6 +321,18 @@
 
 .helper.on {
     background-color: var(--accent);
+}
+
+.helper-slot {
+    background-image: resource("Art/icon-slot");
+}
+
+.helper-shuffle {
+    background-image: resource("Art/icon-shuffle");
+}
+
+.helper-back {
+    background-image: resource("Art/icon-back");
 }
 
 .badge {
@@ -384,6 +405,7 @@
     height: 84px;
     margin-left: -42px;
     margin-top: -42px;
+    background-image: resource("Art/coin");
     -unity-background-scale-mode: scale-to-fit;
 }
 

@@ -172,13 +172,6 @@ namespace Chromacolony.Unity
 
             ShowTexts();
 
-            root.Q(UiNames.CoinIcon).style.backgroundImage = new StyleBackground(Resources.Load<Sprite>(ArtKeys.Coin));
-            root.Q<Button>(UiNames.HudPause).style.backgroundImage = new StyleBackground(Resources.Load<Sprite>(ArtKeys.IconPause));
-            _speed.style.backgroundImage = new StyleBackground(Resources.Load<Sprite>(ArtKeys.IconSpeed));
-            _helpers[(int)Helper.Slot].style.backgroundImage = new StyleBackground(Resources.Load<Sprite>(ArtKeys.IconSlot));
-            _helpers[(int)Helper.Shuffle].style.backgroundImage = new StyleBackground(Resources.Load<Sprite>(ArtKeys.IconShuffle));
-            _helpers[(int)Helper.Back].style.backgroundImage = new StyleBackground(Resources.Load<Sprite>(ArtKeys.IconBack));
-
             _play.clicked += () => StartBoard(_progress.Board);
             _next.clicked += () => StartBoard(_progress.Board);
             _retry.clicked += () => StartBoard(_boardIndex);

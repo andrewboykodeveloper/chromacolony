@@ -132,16 +132,10 @@ namespace Chromacolony.Unity
         public const string BucketCover = "Art/bucket-cover";
         public const string BucketRope = "Art/bucket-rope";
         public const string Castle = "Art/castle";
-        public const string Coin = "Art/coin";
         public const string Crab = "Art/crab";
         public const string CrabClaw = "Art/crab-claw";
         public const string CrabLeg = "Art/crab-leg";
         public const string CrabShell = "Art/crab-shell";
-        public const string IconBack = "Art/icon-back";
-        public const string IconPause = "Art/icon-pause";
-        public const string IconShuffle = "Art/icon-shuffle";
-        public const string IconSlot = "Art/icon-slot";
-        public const string IconSpeed = "Art/icon-speed";
         public const string Panel = "Art/panel";
         public const string Pebble = "Art/pebble";
         public const string Pointer = "Art/pointer";

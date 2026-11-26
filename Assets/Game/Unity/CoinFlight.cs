@@ -13,7 +13,6 @@ namespace Chromacolony.Unity
 
         private readonly UIElements.VisualElement _layer;
         private readonly UIElements.Label _counter;
-        private readonly Sprite _coin;
         private readonly List<UIElements.VisualElement> _shown = new List<UIElements.VisualElement>();
         private Vector2 _from;
         private Vector2 _to;
@@ -25,7 +24,6 @@ namespace Chromacolony.Unity
         {
             _layer = layer;
             _counter = counter;
-            _coin = Resources.Load<Sprite>(ArtKeys.Coin);
         }
 
         public bool Flying => _time >= 0f;
@@ -45,7 +43,6 @@ namespace Chromacolony.Unity
                 var coin = new UIElements.VisualElement();
                 coin.AddToClassList(CoinClass);
                 coin.pickingMode = UIElements.PickingMode.Ignore;
-                coin.style.backgroundImage = new UIElements.StyleBackground(_coin);
                 coin.style.opacity = 0f;
                 _layer.Add(coin);
                 _shown.Add(coin);

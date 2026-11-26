@@ -14,24 +14,24 @@
             </ui:VisualElement>
             <ui:VisualElement name="game" class="screen game" picking-mode="Ignore">
                 <ui:VisualElement class="hud" picking-mode="Ignore">
-                    <ui:Button name="hud-pause" class="btn-icon" />
+                    <ui:Button name="hud-pause" class="btn-icon hud-pause" />
                     <ui:Label name="board-name" class="pill" />
                     <ui:VisualElement class="coins pill" picking-mode="Ignore">
                         <ui:VisualElement name="coin-icon" class="coin-icon" picking-mode="Ignore" />
                         <ui:Label name="coins" class="coins-count" picking-mode="Ignore" />
                     </ui:VisualElement>
-                    <ui:Button name="hud-speed" class="btn-icon" />
+                    <ui:Button name="hud-speed" class="btn-icon hud-speed" />
                 </ui:VisualElement>
                 <ui:VisualElement class="spacer" picking-mode="Ignore" />
                 <ui:Label name="hint" class="hint" picking-mode="Ignore" />
                 <ui:VisualElement class="helpers" picking-mode="Ignore">
-                    <ui:Button name="helper-slot" class="helper">
+                    <ui:Button name="helper-slot" class="helper helper-slot">
                         <ui:Label name="helper-slot-badge" class="badge" picking-mode="Ignore" />
                     </ui:Button>
-                    <ui:Button name="helper-shuffle" class="helper">
+                    <ui:Button name="helper-shuffle" class="helper helper-shuffle">
                         <ui:Label name="helper-shuffle-badge" class="badge" picking-mode="Ignore" />
                     </ui:Button>
-                    <ui:Button name="helper-back" class="helper">
+                    <ui:Button name="helper-back" class="helper helper-back">
                         <ui:Label name="helper-back-badge" class="badge" picking-mode="Ignore" />
                     </ui:Button>
                 </ui:VisualElement>
