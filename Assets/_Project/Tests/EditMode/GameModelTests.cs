@@ -10,22 +10,12 @@ namespace Chromacolony.Tests.EditMode
         private const float Step = 0.125f;
         private const string Ring = "board ring\nRRR\nRYR\nRRR\n= R8\n= Y1\n";
 
-        private EventBus _events;
         private List<string> _log;
 
         [SetUp]
-        public void ListenToTheModel()
+        public void NewLog()
         {
-            _events = new EventBus();
             _log = new List<string>();
-            _events.Subscribe<CrewSent>(e => _log.Add($"sent {e.Crew.Id} col {e.Column} slot {e.Slot}"));
-            _events.Subscribe<CrabSent>(e => _log.Add($"crab {e.Crew.Id} cell {e.Cell}"));
-            _events.Subscribe<CrewWaiting>(e => _log.Add($"waiting {e.Crew.Id} {e.Waiting}"));
-            _events.Subscribe<CrewDone>(e => _log.Add($"done {e.Crew.Id} slot {e.Slot}"));
-            _events.Subscribe<CrewRevealed>(e => _log.Add($"revealed {e.Crew.Id}"));
-            _events.Subscribe<SendRefused>(e => _log.Add($"refused {e.Column} {e.Reason}"));
-            _events.Subscribe<BoardWon>(_ => _log.Add("won"));
-            _events.Subscribe<BoardStuck>(_ => _log.Add("stuck"));
         }
 
         [Test]
@@ -225,7 +215,15 @@ namespace Chromacolony.Tests.EditMode
 
         private GameModel Start(string board, int slots = 5)
         {
-            var model = new GameModel(_events, new Rules(slots, Interval));
+            var model = new GameModel(new Rules(slots, Interval));
+            model.CrewSent += e => _log.Add($"sent {e.Crew.Id} col {e.Column} slot {e.Slot}");
+            model.CrabSent += e => _log.Add($"crab {e.Crew.Id} cell {e.Cell}");
+            model.CrewWaiting += e => _log.Add($"waiting {e.Crew.Id} {e.Waiting}");
+            model.CrewDone += e => _log.Add($"done {e.Crew.Id} slot {e.Slot}");
+            model.CrewRevealed += e => _log.Add($"revealed {e.Crew.Id}");
+            model.SendRefused += e => _log.Add($"refused {e.Column} {e.Reason}");
+            model.BoardWon += () => _log.Add("won");
+            model.BoardStuck += () => _log.Add("stuck");
             model.Start(BoardText.Parse(board)[0]);
             _log.Clear();
             return model;

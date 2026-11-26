@@ -29,7 +29,6 @@ namespace Chromacolony.Game
         [SerializeField] private Material _spriteMaterial;
         [SerializeField] private GameContent _content;
 
-        private readonly EventBus _events = new EventBus();
         private readonly Dictionary<string, float> _played = new Dictionary<string, float>();
         private readonly Button[] _helpers = new Button[3];
         private readonly Label[] _badges = new Label[3];
@@ -94,7 +93,7 @@ namespace Chromacolony.Game
             _saves = new SaveStore(new FileSaveStorage(), SaveVersion, problem => Debug.LogWarning("Saves: " + problem));
             _progress = Progress.FromText(_saves.Load(SaveKey), _prices, _boards.Count);
             _text = new Localization(_localizationCsv.text, StartLanguage());
-            _model = new GameModel(_events, new Rules(config.Int(ConfigKeys.Slots), config.Float(ConfigKeys.CrabInterval)));
+            _model = new GameModel(new Rules(config.Int(ConfigKeys.Slots), config.Float(ConfigKeys.CrabInterval)));
             _ticker = new GameTicker(1f / 60f, _model.Tick);
             _camera = Camera.main;
             _camera.backgroundColor = Hex(config.String(ConfigKeys.ColorNight));
@@ -113,7 +112,7 @@ namespace Chromacolony.Game
             _random = new Pcg32(seed);
             _beach = new BeachView(_camera, _spriteMaterial, config.Float(ConfigKeys.BeachShore), _content.Beach);
             _effects = new Effects(_spriteMaterial, new Pcg32(seed + 2), _content);
-            _board = new BoardView(_camera, _model, _crewMaterial, _spriteMaterial, colors, root, root.Q(UiNames.Labels), _events, _effects, _content);
+            _board = new BoardView(_camera, _model, _crewMaterial, _spriteMaterial, colors, root, root.Q(UiNames.Labels), _effects, _content);
             _audio = new UnityAudio(gameObject, _content.Sounds, _content.VoiceLines, _content.Tracks);
             _soundGap = config.Float(ConfigKeys.SoundGap);
             _pickGap = config.Float(ConfigKeys.SoundGapPick);
@@ -122,13 +121,13 @@ namespace Chromacolony.Game
             _board.Sound = Play;
             Bind(root);
             _coinFlight = new CoinFlight(root.Q(UiNames.Labels), _coins) { Landed = () => Play(SoundKeys.Coin) };
-            _events.Subscribe<BoardWon>(_ => Result(true));
-            _events.Subscribe<BoardStuck>(_ => Result(false));
-            _events.Subscribe<SlotAdded>(_ => Refresh());
-            _events.Subscribe<CrewSent>(e => Sent(e.Crew));
-            _events.Subscribe<CrewDone>(_ => Done());
-            _events.Subscribe<CrewRevealed>(_ => Learned(Lesson.Cover));
-            _events.Subscribe<CrewBack>(_ => Refresh());
+            _model.BoardWon += () => Result(true);
+            _model.BoardStuck += () => Result(false);
+            _model.SlotAdded += _ => Refresh();
+            _model.CrewSent += e => Sent(e.Crew);
+            _model.CrewDone += _ => Done();
+            _model.CrewRevealed += _ => Learned(Lesson.Cover);
+            _model.CrewBack += _ => Refresh();
             ToMenu();
         }
 

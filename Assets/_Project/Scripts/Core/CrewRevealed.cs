@@ -4,12 +4,9 @@ namespace Chromacolony.Core
     {
         public Crew Crew { get; }
 
-        public int Column { get; }
-
-        public CrewRevealed(Crew crew, int column)
+        public CrewRevealed(Crew crew)
         {
             Crew = crew;
-            Column = column;
         }
     }
 }

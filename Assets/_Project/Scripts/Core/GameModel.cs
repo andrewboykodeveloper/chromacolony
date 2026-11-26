@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Chromacolony.Core
@@ -15,10 +16,33 @@ namespace Chromacolony.Core
             .Allow(GamePhase.Stuck, GamePhase.Playing)
             .Allow(GamePhase.Stuck, GamePhase.Menu);
 
-        private readonly EventBus _events;
         private readonly Rules _rules;
         private readonly List<List<Crew>> _columns = new List<List<Crew>>();
         private Crew[] _slots = new Crew[0];
+
+        public event Action<BoardStarted> BoardStarted;
+
+        public event Action<CrewSent> CrewSent;
+
+        public event Action<CrabSent> CrabSent;
+
+        public event Action<CrewWaiting> CrewWaiting;
+
+        public event Action<CrewDone> CrewDone;
+
+        public event Action<CrewRevealed> CrewRevealed;
+
+        public event Action<SendRefused> SendRefused;
+
+        public event Action<SlotAdded> SlotAdded;
+
+        public event Action QueueShuffled;
+
+        public event Action<CrewBack> CrewBack;
+
+        public event Action BoardWon;
+
+        public event Action BoardStuck;
 
         public GamePhase Phase => _phase.Current;
 
@@ -38,9 +62,8 @@ namespace Chromacolony.Core
 
         private bool InPlay => Phase == GamePhase.Playing || Phase == GamePhase.Stuck;
 
-        public GameModel(EventBus events, Rules rules)
+        public GameModel(Rules rules)
         {
-            _events = events;
             _rules = rules;
         }
 
@@ -74,7 +97,7 @@ namespace Chromacolony.Core
                 _columns.Add(column);
             }
 
-            _events.Publish(new BoardStarted(board));
+            BoardStarted?.Invoke(new BoardStarted(board));
             for (int c = 0; c < _columns.Count; c++)
             {
                 RevealFront(c);
@@ -83,7 +106,7 @@ namespace Chromacolony.Core
 
         public GameModel Copy()
         {
-            var copy = new GameModel(new EventBus(), _rules);
+            var copy = new GameModel(_rules);
             if (Phase != GamePhase.Menu)
             {
                 copy._phase.Go(GamePhase.Playing);
@@ -194,25 +217,25 @@ namespace Chromacolony.Core
                     Mosaic.Take(cell);
                     crew.Remaining--;
                     crew.Cooldown += _rules.CrabInterval;
-                    _events.Publish(new CrabSent(crew, s, cell));
+                    CrabSent?.Invoke(new CrabSent(crew, s, cell));
                 }
 
                 if (crew.Remaining == 0)
                 {
                     _slots[s] = null;
-                    _events.Publish(new CrewDone(crew, s));
+                    CrewDone?.Invoke(new CrewDone(crew, s));
                 }
             }
 
             if (Mosaic.Left == 0)
             {
                 _phase.Go(GamePhase.Won);
-                _events.Publish(new BoardWon());
+                BoardWon?.Invoke();
             }
             else if (!CanProgress() && !CanSendAny())
             {
                 _phase.Go(GamePhase.Stuck);
-                _events.Publish(new BoardStuck());
+                BoardStuck?.Invoke();
             }
         }
 
@@ -242,7 +265,7 @@ namespace Chromacolony.Core
             }
 
             SlotCount++;
-            _events.Publish(new SlotAdded(SlotCount - 1));
+            SlotAdded?.Invoke(new SlotAdded(SlotCount - 1));
             PlayOn();
         }
 
@@ -274,7 +297,7 @@ namespace Chromacolony.Core
                 crews[i].Column = places[i].Column;
             }
 
-            _events.Publish(new QueueShuffled());
+            QueueShuffled?.Invoke();
             for (int c = 0; c < _columns.Count; c++)
             {
                 RevealFront(c);
@@ -293,7 +316,7 @@ namespace Chromacolony.Core
             crew.Waiting = false;
             crew.Link = -1;
             _columns[crew.Column].Insert(0, crew);
-            _events.Publish(new CrewBack(crew, slot, crew.Column));
+            CrewBack?.Invoke(new CrewBack(crew));
             PlayOn();
         }
 
@@ -353,7 +376,7 @@ namespace Chromacolony.Core
 
         private bool Refuse(int column, Refusal reason)
         {
-            _events.Publish(new SendRefused(column, reason));
+            SendRefused?.Invoke(new SendRefused(column, reason));
             return false;
         }
 
@@ -370,7 +393,7 @@ namespace Chromacolony.Core
             _slots[slot] = crew;
             crew.Hidden = false;
             crew.Cooldown = 0f;
-            _events.Publish(new CrewSent(crew, column, slot));
+            CrewSent?.Invoke(new CrewSent(crew, column, slot));
             RevealFront(column);
         }
 
@@ -385,7 +408,7 @@ namespace Chromacolony.Core
             if (front.Hidden)
             {
                 front.Hidden = false;
-                _events.Publish(new CrewRevealed(front, column));
+                CrewRevealed?.Invoke(new CrewRevealed(front));
             }
         }
 
@@ -407,7 +430,7 @@ namespace Chromacolony.Core
             if (crew.Waiting != waiting)
             {
                 crew.Waiting = waiting;
-                _events.Publish(new CrewWaiting(crew, waiting));
+                CrewWaiting?.Invoke(new CrewWaiting(crew, waiting));
             }
         }
 

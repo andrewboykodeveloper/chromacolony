@@ -55,7 +55,7 @@ namespace Chromacolony.Tests.EditMode
         [Test]
         public void EveryBoardOpensWithAFrontCrewThatCanStartAtOnce([Range(0, BoardCount - 1)] int index)
         {
-            var model = new GameModel(new EventBus(), _rules);
+            var model = new GameModel(_rules);
             model.Start(_boards[index]);
 
             int ready = Enumerable.Range(0, model.ColumnCount).Count(c => model.Mosaic.AnyInReach(model.Column(c)[0].Color));

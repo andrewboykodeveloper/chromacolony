@@ -10,14 +10,6 @@ namespace Chromacolony.Tests.EditMode
         private const float Step = 0.125f;
         private const string Ring = "board ring\nRRR\nRYR\nRRR\n= R8\n= Y1\n";
 
-        private EventBus _events;
-
-        [SetUp]
-        public void NewEvents()
-        {
-            _events = new EventBus();
-        }
-
         [Test]
         public void AnExtraSlotLetsAStuckBoardPlayOn()
         {
@@ -63,7 +55,7 @@ namespace Chromacolony.Tests.EditMode
             model.Tick(Step);
             Assert.That(model.Phase, Is.EqualTo(GamePhase.Stuck));
             bool shuffled = false;
-            _events.Subscribe<QueueShuffled>(_ => shuffled = true);
+            model.QueueShuffled += () => shuffled = true;
 
             model.Shuffle(new Pcg32(7));
 
@@ -91,7 +83,7 @@ namespace Chromacolony.Tests.EditMode
             model.Tick(Step);
             Assert.That(model.Phase, Is.EqualTo(GamePhase.Stuck));
             var backs = new List<CrewBack>();
-            _events.Subscribe<CrewBack>(backs.Add);
+            model.CrewBack += backs.Add;
             Assert.That(model.CanBack(0), Is.True);
 
             model.Back(0);
@@ -184,7 +176,7 @@ namespace Chromacolony.Tests.EditMode
 
         private GameModel Start(string board, int slots)
         {
-            var model = new GameModel(_events, new Rules(slots, 0.25f));
+            var model = new GameModel(new Rules(slots, 0.25f));
             model.Start(BoardText.Parse(board)[0]);
             return model;
         }

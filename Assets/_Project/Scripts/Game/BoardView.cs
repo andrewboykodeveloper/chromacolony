@@ -117,7 +117,7 @@ namespace Chromacolony.Game
         public bool Busy => _crabs.Walking > 0 || _crews.Count > 0 && AnyLeaving() || _celebration > 0f;
 
         public BoardView(Camera camera, GameModel model, Material crewMaterial, Material spriteMaterial, Color[] colors, VisualElement panelRoot,
-            VisualElement labels, EventBus events, Effects effects, GameContent content)
+            VisualElement labels, Effects effects, GameContent content)
         {
             _camera = camera;
             _model = model;
@@ -151,16 +151,16 @@ namespace Chromacolony.Game
                     _effects.Puff(at, 0.55f);
                 }
             };
-            events.Subscribe<SendRefused>(OnRefused);
-            events.Subscribe<SlotAdded>(OnSlotAdded);
-            events.Subscribe<QueueShuffled>(_ => Requeue());
-            events.Subscribe<CrewBack>(OnCrewBack);
-            events.Subscribe<BoardStarted>(e => Build(e.Board));
-            events.Subscribe<CrewSent>(OnCrewSent);
-            events.Subscribe<CrabSent>(OnCrabSent);
-            events.Subscribe<CrewWaiting>(e => Tint(e.Crew));
-            events.Subscribe<CrewDone>(OnCrewDone);
-            events.Subscribe<CrewRevealed>(OnRevealed);
+            model.SendRefused += OnRefused;
+            model.SlotAdded += OnSlotAdded;
+            model.QueueShuffled += Requeue;
+            model.CrewBack += OnCrewBack;
+            model.BoardStarted += e => Build(e.Board);
+            model.CrewSent += OnCrewSent;
+            model.CrabSent += OnCrabSent;
+            model.CrewWaiting += e => Tint(e.Crew);
+            model.CrewDone += OnCrewDone;
+            model.CrewRevealed += OnRevealed;
         }
 
         public void ShowOff(Vector2 at, bool on)
