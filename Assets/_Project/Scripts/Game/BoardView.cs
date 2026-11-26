@@ -78,7 +78,7 @@ namespace Chromacolony.Game
                 }
             };
             model.SlotAdded += OnSlotAdded;
-            model.BoardStarted += e => Build(e.Board);
+            model.BoardStarted += OnBoardStarted;
             model.CrabSent += OnCrabSent;
         }
 
@@ -140,6 +140,9 @@ namespace Chromacolony.Game
                 Object.Destroy(_root);
             }
 
+            _model.SlotAdded -= OnSlotAdded;
+            _model.BoardStarted -= OnBoardStarted;
+            _model.CrabSent -= OnCrabSent;
             _crabs.Dispose();
             _crews.Dispose();
             if (_softOval != null)
@@ -247,6 +250,11 @@ namespace Chromacolony.Game
             float nod = Mathf.Abs(Mathf.Sin(_pointerTime * 4f)) * _layout.BucketSize * 0.14f;
             var rest = new Vector3(_layout.BucketSize * 0.78f, _layout.BucketSize * 0.5f, 0f);
             _pointer.transform.position = front + rest + toward * nod;
+        }
+
+        private void OnBoardStarted(BoardStarted started)
+        {
+            Build(started.Board);
         }
 
         private void Build(BoardSpec board)
