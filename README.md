@@ -110,4 +110,4 @@ docs/
 
 ## Credits and license
 
-© 2026 Andrew Boyko. The code, art and audio are published for viewing only; see the [license](LICENSE). The Inter font and Unity's web template keep their own licenses; see the [third-party notices](THIRD-PARTY-NOTICES.md).
+© 2026 Andrew Boyko. The code, art and audio are published for viewing and evaluation only; see the [license](LICENSE). The Inter font and Unity's web template keep their own licenses; see the [third-party notices](THIRD-PARTY-NOTICES.md).
