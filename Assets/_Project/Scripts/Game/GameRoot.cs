@@ -29,7 +29,6 @@ namespace Chromacolony.Game
         [SerializeField] private Material _spriteMaterial;
         [SerializeField] private GameContent _content;
 
-        private readonly Dictionary<string, float> _played = new Dictionary<string, float>();
         private readonly Button[] _helpers = new Button[3];
         private readonly Label[] _badges = new Label[3];
         private ScreenHost _screens;
@@ -40,13 +39,9 @@ namespace Chromacolony.Game
         private BeachView _beach;
         private Effects _effects;
         private CoinFlight _coinFlight;
-        private IAudio _audio;
-        private float _soundGap;
-        private float _pickGap;
-        private float _coinGap;
+        private AudioService _audio;
         private VisualElement _ui;
         private VisualElement _resultDialog;
-        private float _time;
         private bool _settingsFromPause;
         private bool _celebrated;
         private bool _coinsHeld;
@@ -114,14 +109,12 @@ namespace Chromacolony.Game
             _beach = new BeachView(_camera, _spriteMaterial, config.Float(ConfigKeys.BeachShore), _content.Beach);
             _effects = new Effects(_spriteMaterial, new Pcg32(seed + 2), _content);
             _board = new BoardView(_camera, _model, _crewMaterial, _spriteMaterial, colors, root, root.Q(UiNames.Labels), _effects, _content);
-            _audio = new UnityAudio(gameObject, _content.Sounds, _content.VoiceLines, _content.Tracks);
-            _soundGap = config.Float(ConfigKeys.SoundGap);
-            _pickGap = config.Float(ConfigKeys.SoundGapPick);
-            _coinGap = config.Float(ConfigKeys.SoundGapCoin);
-            ApplyMusic();
-            _board.Sound = Play;
+            _audio = new AudioService(new UnityAudio(gameObject, _content.Sounds, _content.VoiceLines, _content.Tracks), _progress, _text,
+                config.Float(ConfigKeys.SoundGap), config.Float(ConfigKeys.SoundGapPick), config.Float(ConfigKeys.SoundGapCoin));
+            _audio.ApplyMusic();
+            _board.Sound = _audio.Play;
             Bind(root);
-            _coinFlight = new CoinFlight(root.Q(UiNames.Labels), _coins) { Landed = () => Play(SoundKeys.Coin) };
+            _coinFlight = new CoinFlight(root.Q(UiNames.Labels), _coins) { Landed = () => _audio.Play(SoundKeys.Coin) };
             _model.BoardWon += () => Result(true);
             _model.BoardStuck += () => Result(false);
             _model.SlotAdded += _ => Refresh();
@@ -197,7 +190,7 @@ namespace Chromacolony.Game
             _helpers[(int)Helper.Shuffle].clicked += () => Ask(Helper.Shuffle);
             _helpers[(int)Helper.Back].clicked += () => Ask(Helper.Back);
 
-            root.Query<Button>().ForEach(button => button.clicked += () => Play(SoundKeys.Click));
+            root.Query<Button>().ForEach(button => button.clicked += () => _audio.Play(SoundKeys.Click));
         }
 
         private void ShowTexts()
@@ -291,7 +284,7 @@ namespace Chromacolony.Game
         private void ToggleMusic()
         {
             _progress.Music = !_progress.Music;
-            ApplyMusic();
+            _audio.ApplyMusic();
             ShowSettings();
             Save();
         }
@@ -310,42 +303,10 @@ namespace Chromacolony.Game
             Save();
         }
 
-        private void ApplyMusic()
-        {
-            _audio.PlayMusic(_progress.Music ? MusicKeys.Theme : null);
-        }
-
-        private void Play(string sound)
-        {
-            if (!_progress.Sound)
-            {
-                return;
-            }
-
-            bool pick = sound == SoundKeys.Pick1 || sound == SoundKeys.Pick2 || sound == SoundKeys.Pick3;
-            string group = pick ? SoundKeys.Pick1 : sound;
-            float gap = pick ? _pickGap : sound == SoundKeys.Coin ? _coinGap : _soundGap;
-            if (_played.TryGetValue(group, out float last) && _time - last < gap)
-            {
-                return;
-            }
-
-            _played[group] = _time;
-            _audio.Play(sound);
-        }
-
-        private void Say(string line)
-        {
-            if (_progress.Voice)
-            {
-                _audio.Say(LineKeys.For(line, _text.Language));
-            }
-        }
-
         private void Update()
         {
             WorldView.Fit(_camera, BoardLayout.HalfWidth, BoardLayout.HalfHeight);
-            _time += Time.deltaTime;
+            _audio.Update(Time.deltaTime);
             _beach.Update(Time.deltaTime);
             Bob();
             if (BackKey.WasPressedThisFrame())
@@ -420,7 +381,7 @@ namespace Chromacolony.Game
                 if (slot >= 0 && _model.CanBack(slot) && _progress.Pay(Helper.Back, _prices))
                 {
                     _model.Back(slot);
-                    Play(SoundKeys.Helper);
+                    _audio.Play(SoundKeys.Helper);
                     Save();
                 }
 
@@ -456,7 +417,7 @@ namespace Chromacolony.Game
             _screens.Show(UiNames.Game);
             if (_boardIndex == 0)
             {
-                Say(LineKeys.Hello);
+                _audio.Say(LineKeys.Hello);
             }
 
             // After the model starts, so the reveals of the opening crews cannot teach this board's lesson.
@@ -467,7 +428,7 @@ namespace Chromacolony.Game
 
         private void Sent(Crew crew)
         {
-            Play(SoundKeys.Tap);
+            _audio.Play(SoundKeys.Tap);
             _tutorial.OnCrewSent(crew);
             ShowTutorial();
             Refresh();
@@ -632,7 +593,7 @@ namespace Chromacolony.Game
                 return;
             }
 
-            Play(SoundKeys.Helper);
+            _audio.Play(SoundKeys.Helper);
             if (helper == Helper.Slot)
             {
                 _model.AddSlot();
@@ -731,12 +692,12 @@ namespace Chromacolony.Game
             _retry.EnableInClassList(ScreenHost.HiddenClass, _resultWon);
             if (_resultWon)
             {
-                Say(_boardIndex == _boards.Count - 1 ? LineKeys.Thanks : LineKeys.Hooray);
+                _audio.Say(_boardIndex == _boards.Count - 1 ? LineKeys.Thanks : LineKeys.Hooray);
             }
             else
             {
-                Play(SoundKeys.Stuck);
-                Say(LineKeys.Oops);
+                _audio.Play(SoundKeys.Stuck);
+                _audio.Say(LineKeys.Oops);
             }
 
             _resultDialog.EnableInClassList(WonClass, _resultWon);
