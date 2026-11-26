@@ -1,8 +1,10 @@
+using System;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Chromacolony.Game
 {
-    public sealed class BeachView
+    public sealed class BeachView : IDisposable
     {
         private const int Order = -100;
 
@@ -23,6 +25,7 @@ namespace Chromacolony.Game
         private readonly SpriteRenderer _picture;
         private readonly SpriteRenderer _backdrop;
         private readonly SpriteRenderer[] _shadows = new SpriteRenderer[2];
+        private readonly Sprite _shadow;
         private float _rise;
 
         public bool OnBoard { get; set; }
@@ -39,10 +42,10 @@ namespace Chromacolony.Game
             _picture = Make(_sprite, Order);
             _backdrop = Make(_sprite, Order - 2);
             _backdrop.color = BackdropTint;
-            Sprite shadow = Shadow();
+            _shadow = Shadow();
             for (int i = 0; i < _shadows.Length; i++)
             {
-                _shadows[i] = Make(shadow, Order - 1);
+                _shadows[i] = Make(_shadow, Order - 1);
                 _shadows[i].flipX = i == 0;
             }
         }
@@ -99,12 +102,26 @@ namespace Chromacolony.Game
             }
         }
 
+        public void Dispose()
+        {
+            if (_root != null)
+            {
+                Object.Destroy(_root.gameObject);
+            }
+
+            if (_shadow != null)
+            {
+                Object.Destroy(_shadow.texture);
+                Object.Destroy(_shadow);
+            }
+        }
+
         private static Sprite Shadow()
         {
             const int Size = 64;
             var texture = new Texture2D(Size, 1, TextureFormat.RGBA32, false)
             {
-                name = "Column shadow",
+                name = RuntimeArt.ColumnShadow,
                 wrapMode = TextureWrapMode.Clamp,
                 filterMode = FilterMode.Bilinear,
             };
@@ -115,7 +132,9 @@ namespace Chromacolony.Game
             }
 
             texture.Apply(false, true);
-            return Sprite.Create(texture, new Rect(0, 0, Size, 1), new Vector2(0.5f, 0.5f), Size, 0, SpriteMeshType.FullRect);
+            Sprite sprite = Sprite.Create(texture, new Rect(0, 0, Size, 1), new Vector2(0.5f, 0.5f), Size, 0, SpriteMeshType.FullRect);
+            sprite.name = texture.name;
+            return sprite;
         }
 
         private SpriteRenderer Make(Sprite sprite, int order)

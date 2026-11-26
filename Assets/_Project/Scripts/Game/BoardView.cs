@@ -1,11 +1,13 @@
+using System;
 using System.Collections.Generic;
 using Chromacolony.Core;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
 
 namespace Chromacolony.Game
 {
-    public sealed class BoardView
+    public sealed class BoardView : IDisposable
     {
         private sealed class CrewVisual
         {
@@ -110,7 +112,7 @@ namespace Chromacolony.Game
 
         public BoardLayout Layout => _layout;
 
-        public System.Action<string> Sound { get; set; }
+        public Action<string> Sound { get; set; }
 
         private static Color Gold => new Color(1f, 0.88f, 0.55f);
 
@@ -243,6 +245,27 @@ namespace Chromacolony.Game
             _pebbles = new SpriteRenderer[0];
             _glows = new SpriteRenderer[0];
             _layout = null;
+        }
+
+        public void Dispose()
+        {
+            if (_root != null)
+            {
+                Object.Destroy(_root);
+            }
+
+            _crabs.Dispose();
+            _signs.Dispose();
+            if (_glow != null)
+            {
+                Object.Destroy(_glow.texture);
+                Object.Destroy(_glow);
+            }
+
+            if (_tray != null)
+            {
+                Object.Destroy(_tray);
+            }
         }
 
         public void Celebrate()
@@ -802,8 +825,10 @@ namespace Chromacolony.Game
         private static Sprite Sliced(Sprite sprite)
         {
             Rect rect = sprite.rect;
-            return Sprite.Create(sprite.texture, rect, new Vector2(0.5f, 0.5f), TrayPixelsPerUnit, 0, SpriteMeshType.FullRect,
+            Sprite sliced = Sprite.Create(sprite.texture, rect, new Vector2(0.5f, 0.5f), TrayPixelsPerUnit, 0, SpriteMeshType.FullRect,
                 new Vector4(TrayBorder, TrayBorder, TrayBorder, TrayBorder));
+            sliced.name = RuntimeArt.Tray;
+            return sliced;
         }
 
         private void Dress(Crew crew)

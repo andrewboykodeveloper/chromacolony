@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Chromacolony.Game
 {
-    public sealed class CrabView
+    public sealed class CrabView : IDisposable
     {
         private enum Leg
         {
@@ -125,9 +127,9 @@ namespace Chromacolony.Game
 
         public int Walking => _walking.Count;
 
-        public System.Action<Vector2> Lifted { get; set; }
+        public Action<Vector2> Lifted { get; set; }
 
-        public System.Action<Vector2> Entered { get; set; }
+        public Action<Vector2> Entered { get; set; }
 
         private static Color StarColor => new Color(0.847f, 0.373f, 0.298f);
 
@@ -271,6 +273,20 @@ namespace Chromacolony.Game
             _dancing.Clear();
         }
 
+        public void Dispose()
+        {
+            if (_holder != null)
+            {
+                Object.Destroy(_holder.gameObject);
+            }
+
+            if (_shadow != null)
+            {
+                Object.Destroy(_shadow.texture);
+                Object.Destroy(_shadow);
+            }
+        }
+
         private static void Dance(Crab crab, float dt, float left)
         {
             crab.Time += dt;
@@ -405,7 +421,7 @@ namespace Chromacolony.Game
             const int Size = 32;
             var texture = new Texture2D(Size, Size, TextureFormat.RGBA32, false)
             {
-                name = "Soft oval",
+                name = RuntimeArt.SoftOval,
                 wrapMode = TextureWrapMode.Clamp,
                 filterMode = FilterMode.Bilinear,
             };
@@ -420,7 +436,9 @@ namespace Chromacolony.Game
             }
 
             texture.Apply(false, true);
-            return Sprite.Create(texture, new Rect(0, 0, Size, Size), new Vector2(0.5f, 0.5f), Size, 0, SpriteMeshType.FullRect);
+            Sprite sprite = Sprite.Create(texture, new Rect(0, 0, Size, Size), new Vector2(0.5f, 0.5f), Size, 0, SpriteMeshType.FullRect);
+            sprite.name = texture.name;
+            return sprite;
         }
 
         private static Transform Joint(Transform parent, Vector2 at, float sign)

@@ -235,6 +235,17 @@ namespace Chromacolony.Tests.PlayMode
             return looping;
         }
 
+        public List<string> RootNames()
+        {
+            var names = new List<string>();
+            foreach (GameObject root in SceneManager.GetActiveScene().GetRootGameObjects())
+            {
+                names.Add(root.name);
+            }
+
+            return names;
+        }
+
         public T Single<T>()
             where T : Component
         {

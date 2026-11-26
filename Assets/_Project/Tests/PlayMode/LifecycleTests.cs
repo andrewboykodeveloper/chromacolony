@@ -1,8 +1,12 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Chromacolony.Game;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+using Object = UnityEngine.Object;
 
 namespace Chromacolony.Tests.PlayMode
 {
@@ -84,6 +88,33 @@ namespace Chromacolony.Tests.PlayMode
             _game.Press("resume");
             yield return null;
             Assert.That(_game.IsShown("pause"), Is.False, "the resume button closes the pause");
+        }
+
+        [UnityTest]
+        public IEnumerator DestroyingTheGameLeavesNothingItMadeBehind()
+        {
+            _game.Press("play");
+            yield return null;
+            Assert.That(_game.RootNames(), Is.SupersetOf(new[] { "Beach", "Board", "Crabs", "Effects" }), "the views' own objects");
+            Assert.That(RuntimeArtLeft(), Is.Not.Empty, "the textures and sprites the views drew");
+
+            Object.Destroy(_game.Single<GameRoot>().gameObject);
+            yield return null;
+
+            Assert.That(_game.RootNames(), Is.EqualTo(new[] { "Main Camera" }), "objects left in the scene");
+            Assert.That(RuntimeArtLeft(), Is.Empty, "textures and sprites left");
+        }
+
+        private static List<string> RuntimeArtLeft()
+        {
+            IEnumerable<Object> art = Resources.FindObjectsOfTypeAll<Texture2D>().Cast<Object>().Concat(Resources.FindObjectsOfTypeAll<Sprite>());
+            return art.Select(item => item.name).Where(MadeAtRunTime).ToList();
+        }
+
+        private static bool MadeAtRunTime(string name)
+        {
+            return name == RuntimeArt.SoftOval || name == RuntimeArt.ColumnShadow || name == RuntimeArt.Tray
+                || name.StartsWith(RuntimeArt.Sign + " ", StringComparison.Ordinal);
         }
 
         private IEnumerator SwitchTheGameOffAndOn()

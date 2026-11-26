@@ -139,6 +139,14 @@ namespace Chromacolony.Game
             _result.Unbind();
         }
 
+        // The views made their objects, sprites and textures at run time, and a texture made so outlives the scene.
+        private void OnDestroy()
+        {
+            _boardView.Dispose();
+            _effects.Dispose();
+            _beach.Dispose();
+        }
+
         private void OnApplicationPause(bool paused)
         {
             if (paused)
