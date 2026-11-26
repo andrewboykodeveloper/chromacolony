@@ -8,6 +8,7 @@ namespace Chromacolony.Tests.PlayMode
     {
         private const int FirstBoard = 0;
         private const int MaxFramesToWin = 4000;
+        private const string MoreClass = "crew-more";
 
         private GameDriver _game;
 
@@ -89,6 +90,22 @@ namespace Chromacolony.Tests.PlayMode
 
             Assert.That(_game.IsShown("hint"), Is.False, "the tap sent a crew, which ends the first lesson");
             Assert.That(_game.CrabsLeftInCrews(), Is.LessThan(crabs), "the sent crew's crabs set off");
+        }
+
+        [UnityTest]
+        public IEnumerator AColumnCountsOnlyTheCrewsWaitingBehindItsVisibleOnes()
+        {
+            _game.Press("play");
+            yield return null;
+            Assert.That(_game.ShownTexts(MoreClass), Is.EqualTo(new[] { "+1", "+1" }), "each column of four shows one more crew");
+
+            yield return _game.TapColumn(FirstBoard, 0, 0);
+            yield return null;
+            Assert.That(_game.ShownTexts(MoreClass), Is.EqualTo(new[] { "+1" }), "a column of three shows no count");
+
+            yield return _game.TapColumn(FirstBoard, 0, 0);
+            yield return null;
+            Assert.That(_game.ShownTexts(MoreClass), Is.EqualTo(new[] { "+1" }), "a column of two shows no count");
         }
 
         [UnityTest]

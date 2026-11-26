@@ -330,7 +330,7 @@ namespace Chromacolony.Game
             {
                 int hidden = _model.Column(c).Count - BoardLayout.VisibleDepth;
                 _more[c].text = hidden > 0 ? "+" + hidden : string.Empty;
-                _more[c].style.display = hidden > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+                _more[c].EnableInClassList(ScreenHost.HiddenClass, hidden <= 0);
                 float back = _layout.BucketSize * _layout.QueueScale(BoardLayout.VisibleDepth - 1);
                 Vector2 corner = WorldToPanel.Point(_camera, _layout.QueueAt(c, BoardLayout.VisibleDepth - 1) + new Vector2(back * 0.48f, -back * 0.34f), _panelRoot);
                 _more[c].style.left = corner.x;

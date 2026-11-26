@@ -664,7 +664,7 @@ namespace Chromacolony.Game
         private void Hint(string text)
         {
             _hint.text = text ?? string.Empty;
-            _hint.style.display = string.IsNullOrEmpty(text) ? DisplayStyle.None : DisplayStyle.Flex;
+            _hint.EnableInClassList(ScreenHost.HiddenClass, string.IsNullOrEmpty(text));
         }
 
         private string Name(Helper helper)
@@ -723,12 +723,12 @@ namespace Chromacolony.Game
                 : _text.Get(helper ? TextKeys.StuckHint : TextKeys.StuckRetry);
 
             _next.text = _text.Get(allDone ? TextKeys.PlayAgain : TextKeys.Next);
-            _next.style.display = _resultWon ? DisplayStyle.Flex : DisplayStyle.None;
-            _useHelper.style.display = helper ? DisplayStyle.Flex : DisplayStyle.None;
+            _next.EnableInClassList(ScreenHost.HiddenClass, !_resultWon);
+            _useHelper.EnableInClassList(ScreenHost.HiddenClass, !helper);
 
             _retry.EnableInClassList(PrimaryClass, !_resultWon && !helper);
             _retry.EnableInClassList(SecondaryClass, _resultWon || helper);
-            _retry.style.display = _resultWon ? DisplayStyle.None : DisplayStyle.Flex;
+            _retry.EnableInClassList(ScreenHost.HiddenClass, _resultWon);
             if (_resultWon)
             {
                 Say(_boardIndex == _boards.Count - 1 ? LineKeys.Thanks : LineKeys.Hooray);

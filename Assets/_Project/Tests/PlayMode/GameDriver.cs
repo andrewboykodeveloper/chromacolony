@@ -176,6 +176,19 @@ namespace Chromacolony.Tests.PlayMode
             return crabs;
         }
 
+        public List<string> ShownTexts(string className)
+        {
+            var texts = new List<string>();
+            _ui.Query<Label>(className: className).ForEach(label =>
+            {
+                if (IsShown(label))
+                {
+                    texts.Add(label.text);
+                }
+            });
+            return texts;
+        }
+
         public bool MusicIsPlaying()
         {
             foreach (AudioSource source in Components<AudioSource>())
