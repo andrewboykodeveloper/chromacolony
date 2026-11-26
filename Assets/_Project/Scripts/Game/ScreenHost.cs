@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine.UIElements;
 
-namespace Chromacolony.Foundation.Unity
+namespace Chromacolony.Game
 {
     public sealed class ScreenHost
     {

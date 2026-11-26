@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Chromacolony.Foundation.Unity
+namespace Chromacolony.Game
 {
     public interface ISafeArea
     {

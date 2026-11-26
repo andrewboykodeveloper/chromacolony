@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Chromacolony.Foundation
+namespace Chromacolony.Core
 {
     public static class Csv
     {

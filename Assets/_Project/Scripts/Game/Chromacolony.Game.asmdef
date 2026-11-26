@@ -1,6 +1,6 @@
 {
-  "name": "Chromacolony.Unity",
-  "rootNamespace": "Chromacolony.Unity",
+  "name": "Chromacolony.Game",
+  "rootNamespace": "Chromacolony.Game",
   "references": [
     "Chromacolony.Core",
     "Unity.InputSystem"

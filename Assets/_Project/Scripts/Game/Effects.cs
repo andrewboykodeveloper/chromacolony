@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using Chromacolony.Foundation;
+using Chromacolony.Core;
 using UnityEngine;
 
-namespace Chromacolony.Unity
+namespace Chromacolony.Game
 {
     public sealed class Effects
     {

@@ -1,4 +1,4 @@
-namespace Chromacolony.Foundation.Ports
+namespace Chromacolony.Core
 {
     public interface IAudio
     {

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Chromacolony.Unity
+namespace Chromacolony.Game
 {
     /// <summary>The sprites the world draws and the clips the audio plays. The UI's images are named by its style sheet.</summary>
     public sealed class GameContent : ScriptableObject

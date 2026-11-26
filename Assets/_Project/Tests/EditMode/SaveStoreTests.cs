@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Chromacolony.Foundation;
-using Chromacolony.Foundation.Ports;
+using Chromacolony.Core;
 using NUnit.Framework;
 
 namespace Chromacolony.Tests.EditMode

@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Chromacolony.Foundation.Editor
+namespace Chromacolony.Editor
 {
     public sealed class AudioImportRules : AssetPostprocessor
     {

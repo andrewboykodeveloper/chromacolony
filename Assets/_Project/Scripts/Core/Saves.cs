@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using Chromacolony.Foundation.Ports;
 
-namespace Chromacolony.Foundation
+namespace Chromacolony.Core
 {
     /// <summary>
     /// Writes saves with a version line and migrates older ones on load. A save without a version line is copied to a free

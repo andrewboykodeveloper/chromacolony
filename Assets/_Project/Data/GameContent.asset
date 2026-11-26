@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ca22f8b5db094d7e9bb5f1c425232dde, type: 3}
   m_Name: GameContent
-  m_EditorClassIdentifier: Chromacolony.Unity::Chromacolony.Unity.GameContent
+  m_EditorClassIdentifier: Chromacolony.Game::Chromacolony.Game.GameContent
   _beach: {fileID: 21300000, guid: 8fc606bd399f4f83ac07d7fe0329d2a6, type: 3}
   _castle: {fileID: 21300000, guid: bb572a3e74244d958184a460eecf408c, type: 3}
   _panel: {fileID: 21300000, guid: e4392611505745ce86b3560a2a7a4ddd, type: 3}

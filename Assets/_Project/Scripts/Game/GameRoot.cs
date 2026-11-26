@@ -1,12 +1,9 @@
 using System.Collections.Generic;
 using Chromacolony.Core;
-using Chromacolony.Foundation;
-using Chromacolony.Foundation.Ports;
-using Chromacolony.Foundation.Unity;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Chromacolony.Unity
+namespace Chromacolony.Game
 {
     public sealed class GameRoot : MonoBehaviour
     {

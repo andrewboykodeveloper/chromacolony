@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Chromacolony.Core;
-using Chromacolony.Foundation;
-using Chromacolony.Unity;
+using Chromacolony.Game;
 using NUnit.Framework;
 
 namespace Chromacolony.Tests.EditMode

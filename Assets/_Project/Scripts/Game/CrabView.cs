@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Chromacolony.Unity
+namespace Chromacolony.Game
 {
     public sealed class CrabView
     {

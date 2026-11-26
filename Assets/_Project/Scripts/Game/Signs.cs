@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Chromacolony.Unity
+namespace Chromacolony.Game
 {
     public sealed class Signs
     {

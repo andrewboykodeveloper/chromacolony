@@ -1,4 +1,4 @@
-using Chromacolony.Foundation.Editor;
+using Chromacolony.Editor;
 using NUnit.Framework;
 using UnityEditor;
 

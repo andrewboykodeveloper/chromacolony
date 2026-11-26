@@ -1,6 +1,6 @@
 using System.Collections;
+using Chromacolony.Game;
 using NUnit.Framework;
-using Chromacolony.Foundation.Unity;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
@@ -8,7 +8,7 @@ using UnityEngine.TestTools;
 using MouseButton = UnityEngine.InputSystem.LowLevel.MouseButton;
 using TouchPhase = UnityEngine.InputSystem.TouchPhase;
 
-namespace Chromacolony.Tests
+namespace Chromacolony.Tests.PlayMode
 {
     public sealed class PointerInputTest
     {

@@ -1,7 +1,6 @@
-using Chromacolony.Foundation;
 using UnityEngine;
 
-namespace Chromacolony.Foundation.Unity
+namespace Chromacolony.Game
 {
     public static class WorldView
     {

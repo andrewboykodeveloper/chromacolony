@@ -1,6 +1,6 @@
 using System;
 
-namespace Chromacolony.Foundation
+namespace Chromacolony.Game
 {
     public static class WorldFit
     {

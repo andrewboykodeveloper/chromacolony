@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UIElements = UnityEngine.UIElements;
 
-namespace Chromacolony.Unity
+namespace Chromacolony.Game
 {
     public sealed class CoinFlight
     {

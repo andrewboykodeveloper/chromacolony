@@ -1,9 +1,9 @@
 using System;
 using System.IO;
-using Chromacolony.Foundation.Unity;
+using Chromacolony.Game;
 using NUnit.Framework;
 
-namespace Chromacolony.Tests
+namespace Chromacolony.Tests.PlayMode
 {
     // The PlayMode tests play as new players, so the player's own saves wait in another folder for the whole run.
     [SetUpFixture]

@@ -1,4 +1,4 @@
-namespace Chromacolony.Unity
+namespace Chromacolony.Game
 {
     public static class TextKeys
     {

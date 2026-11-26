@@ -1,6 +1,6 @@
 using System;
 
-namespace Chromacolony.Foundation
+namespace Chromacolony.Core
 {
     public sealed class FixedStepTicker
     {

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Chromacolony.Foundation;
+using Chromacolony.Core;
 
 namespace Chromacolony.Tests.EditMode
 {

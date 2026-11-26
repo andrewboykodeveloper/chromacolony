@@ -1,4 +1,4 @@
-namespace Chromacolony.Foundation
+namespace Chromacolony.Core
 {
     public interface IRandom
     {

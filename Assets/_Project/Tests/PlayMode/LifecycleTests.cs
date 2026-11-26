@@ -1,9 +1,9 @@
 using System.Collections;
-using Chromacolony.Unity;
+using Chromacolony.Game;
 using NUnit.Framework;
 using UnityEngine.TestTools;
 
-namespace Chromacolony.Tests
+namespace Chromacolony.Tests.PlayMode
 {
     public sealed class LifecycleTests
     {

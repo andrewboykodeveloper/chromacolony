@@ -1,9 +1,9 @@
 {
-  "name": "Chromacolony.Tests",
-  "rootNamespace": "Chromacolony.Tests",
+  "name": "Chromacolony.Tests.PlayMode",
+  "rootNamespace": "Chromacolony.Tests.PlayMode",
   "references": [
     "Chromacolony.Core",
-    "Chromacolony.Unity",
+    "Chromacolony.Game",
     "Unity.InputSystem",
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner"

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace Chromacolony.Foundation
+namespace Chromacolony.Core
 {
     public sealed class Localization
     {

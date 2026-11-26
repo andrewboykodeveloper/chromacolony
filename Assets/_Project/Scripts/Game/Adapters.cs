@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Chromacolony.Foundation;
-using Chromacolony.Foundation.Ports;
+using Chromacolony.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Chromacolony.Foundation.Unity
+namespace Chromacolony.Game
 {
     public sealed class FileSaveStorage : ISaveStorage
     {

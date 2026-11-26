@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Chromacolony.Foundation
+namespace Chromacolony.Core
 {
     public sealed class StateMachine<TState> where TState : struct
     {

@@ -4,7 +4,7 @@
   "references": [
     "Chromacolony.Core",
     "Chromacolony.Editor",
-    "Chromacolony.Unity",
+    "Chromacolony.Game",
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner"
   ],

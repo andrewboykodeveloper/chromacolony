@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Chromacolony.Core;
-using Chromacolony.Foundation;
-using Chromacolony.Unity;
+using Chromacolony.Game;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;

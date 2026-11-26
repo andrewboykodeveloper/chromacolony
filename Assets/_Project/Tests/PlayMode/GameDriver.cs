@@ -4,9 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using Chromacolony.Core;
-using Chromacolony.Foundation;
-using Chromacolony.Foundation.Unity;
-using Chromacolony.Unity;
+using Chromacolony.Game;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -15,7 +13,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using MouseButton = UnityEngine.InputSystem.LowLevel.MouseButton;
 
-namespace Chromacolony.Tests
+namespace Chromacolony.Tests.PlayMode
 {
     internal sealed class GameDriver
     {
