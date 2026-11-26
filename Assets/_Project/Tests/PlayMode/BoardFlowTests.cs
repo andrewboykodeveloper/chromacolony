@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Globalization;
 using NUnit.Framework;
 using UnityEngine.TestTools;
 
@@ -7,6 +8,7 @@ namespace Chromacolony.Tests.PlayMode
     public sealed class BoardFlowTests
     {
         private const int FirstBoard = 0;
+        private const int PlacesLessonBoard = 1;
         private const int MaxFramesToWin = 4000;
         private const string MoreClass = "crew-more";
 
@@ -130,6 +132,21 @@ namespace Chromacolony.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator TheLessonOnPlacesCountsThemAgainWhenOneIsAdded()
+        {
+            yield return _game.ReopenAt(PlacesLessonBoard);
+            _game.Press("play");
+            yield return null;
+            Assert.That(_game.IsShown("hint"), Is.True, "the board teaches the places");
+            Assert.That(_game.Text("hint"), Does.Contain(_game.Slots.ToString(CultureInfo.InvariantCulture)), "the lesson counts the places");
+
+            _game.Press("helper-slot");
+            yield return null;
+            Assert.That(_game.Text("hint"), Does.Contain((_game.Slots + 1).ToString(CultureInfo.InvariantCulture)),
+                "the lesson counts the extra place");
+        }
+
+        [UnityTest]
         public IEnumerator TheExtraSlotCanBeTakenOnlyOnceOnABoard()
         {
             _game.Press("play");
@@ -170,6 +187,47 @@ namespace Chromacolony.Tests.PlayMode
             _game.Press("note-ok");
             yield return GameDriver.Frames(30);
             Assert.That(_game.CrabsLeftInCrews(), Is.LessThan(crabs), "the crabs set off again once the note is closed");
+        }
+
+        // A pause would leave the pick waiting, so the test holds whether or not the interface also takes the press.
+        [UnityTest]
+        public IEnumerator AMousePressOnAButtonDoesNotReachTheBoard()
+        {
+            _game.Press("play");
+            yield return null;
+            yield return _game.TapColumn(FirstBoard, 0, 0);
+            _game.Press("helper-back");
+            yield return null;
+            Assert.That(_game.Has("helper-back", GameDriver.OnClass), Is.True, "the back helper waits for a crew to be picked");
+
+            yield return _game.PressMouseOver("hud-pause");
+            Assert.That(_game.Has("helper-back", GameDriver.OnClass), Is.True, "a press on the pause button leaves the pick waiting");
+        }
+
+        // The game hands a press to the board unless the interface can pick something there.
+        [UnityTest]
+        public IEnumerator OnlyTheButtonsOnTheGameScreenTakeThePointer()
+        {
+            _game.Press("play");
+            yield return GameDriver.Frames(10);
+            Assert.That(_game.PointerTakersOutsideButtons("game", "labels"), Is.Empty);
+        }
+
+        [UnityTest]
+        public IEnumerator ASecondPressOnTheWaitingBackHelperCallsThePickOff()
+        {
+            _game.Press("play");
+            yield return null;
+            yield return _game.TapColumn(FirstBoard, 0, 0);
+            int stock = _game.Number("helper-back-badge");
+            _game.Press("helper-back");
+            yield return null;
+            Assert.That(_game.Has("helper-back", GameDriver.OnClass), Is.True, "the back helper waits for a crew to be picked");
+
+            _game.Press("helper-back");
+            yield return null;
+            Assert.That(_game.Has("helper-back", GameDriver.OnClass), Is.False, "a second press calls the pick off");
+            Assert.That(_game.Number("helper-back-badge"), Is.EqualTo(stock), "a pick called off costs nothing");
         }
 
         [UnityTest]

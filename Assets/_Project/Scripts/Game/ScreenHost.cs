@@ -54,7 +54,7 @@ namespace Chromacolony.Game
             CloseDialog();
             target.RemoveFromClassList(UiClasses.Hidden);
 
-            // A transition runs only from a style the dialog has already shown with, so the open class waits a frame.
+            // A transition runs only from a style the dialog has already been drawn with, so the open class comes 16 ms later.
             _fadeIn = target.schedule.Execute(() => target.AddToClassList(UiClasses.Open)).StartingIn(16);
             CurrentDialog = dialog;
         }

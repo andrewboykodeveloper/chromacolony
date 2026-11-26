@@ -126,6 +126,12 @@ namespace Chromacolony.Game
 
         private void OnHelperPressed(Helper helper)
         {
+            if (helper == Helper.Back && Picking)
+            {
+                CancelPick();
+                return;
+            }
+
             if (!_model.CanUse(helper) || _screens.CurrentDialog != null)
             {
                 return;

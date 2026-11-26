@@ -15,7 +15,7 @@
             <ui:VisualElement name="game" class="screen game" picking-mode="Ignore">
                 <ui:VisualElement class="hud" picking-mode="Ignore">
                     <ui:Button name="hud-pause" class="btn-icon hud-pause" />
-                    <ui:Label name="board-name" class="pill" />
+                    <ui:Label name="board-name" class="pill" picking-mode="Ignore" />
                     <ui:VisualElement class="coins pill" picking-mode="Ignore">
                         <ui:VisualElement name="coin-icon" class="coin-icon" picking-mode="Ignore" />
                         <ui:Label name="coins" class="coins-count" picking-mode="Ignore" />

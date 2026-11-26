@@ -34,7 +34,7 @@ ok,OK,Хорошо
 cancel,Cancel,Отмена
 no_coins,Not enough coins: win a board to earn more.,Не хватает монет: выиграйте доску.
 lesson_tap,Tap a bucket: its crew of crabs carries pebbles of its colour home.,Коснитесь ведёрка: его бригада крабиков унесёт домой камешки его цвета.
-lesson_slots,Only five places: a crew keeps its place until its last crab sets off.,"Мест всего пять: бригада занимает место, пока не уйдёт последний крабик."
+lesson_slots,Only {0} places: a crew keeps its place until its last crab sets off.,"Мест всего {0}: бригада занимает место, пока не уйдёт последний крабик."
 lesson_inside,A colour inside waits until the way to it is open: take the outside first.,"Цвет внутри ждёт, пока к нему не откроется путь: сначала снаружи."
 lesson_rope,Crews on a rope go together and need two free places.,Бригады на верёвке идут вместе и занимают два места.
 lesson_cover,A covered crew shows its colour when it comes to the front.,"Накрытая бригада покажет цвет, когда выйдет вперёд."

@@ -28,6 +28,10 @@ namespace Chromacolony.Tests.PlayMode
         private const string HiddenClass = "hidden";
         private const string CrewCountClass = "crew-count";
 
+        // The key and the version under which the game root saves the progress.
+        private const string SaveKey = "progress";
+        private const int SaveVersion = 1;
+
         private readonly IReadOnlyList<BoardSpec> _boards;
         private readonly int _slots;
         private readonly List<InputDevice> _disabled = new List<InputDevice>();
@@ -37,6 +41,8 @@ namespace Chromacolony.Tests.PlayMode
         private UIDocument _document;
         private Camera _camera;
         private float? _listenerVolume;
+
+        public int Slots => _slots;
 
         // The document builds its tree anew whenever its game object is enabled again, so the root is read each time.
         private VisualElement Ui => _document.rootVisualElement;
@@ -91,6 +97,15 @@ namespace Chromacolony.Tests.PlayMode
             }
         }
 
+        // Reloads the game as a player who has reached the given board, with nothing else saved.
+        public IEnumerator ReopenAt(int board)
+        {
+            string saves = Path.Combine(Application.temporaryCachePath, "saves at " + Guid.NewGuid().ToString("N"));
+            new SaveStore(new FileSaveStorage(saves), SaveVersion, Assert.Fail)
+                .Save(SaveKey, "board=" + board.ToString(CultureInfo.InvariantCulture) + "\n");
+            yield return Reopen(saves);
+        }
+
         public string CopySaves()
         {
             string copy = Path.Combine(Application.temporaryCachePath, "saves copy " + Guid.NewGuid().ToString("N"));
@@ -98,19 +113,50 @@ namespace Chromacolony.Tests.PlayMode
             return copy;
         }
 
+        // Presses a button at once, as a key does.
         public void Press(string name)
         {
-            VisualElement element = Find(name);
-            Assert.That(element, Is.InstanceOf<Button>(), $"{name} is not a button");
-            Assert.That(IsShown(element), Is.True, $"{name} is not on the screen");
-            Assert.That(element.enabledInHierarchy, Is.True, $"{name} is disabled");
-            VisualElement picked = element.panel.Pick(element.worldBound.center);
-            Assert.That(picked == element || element.Contains(picked), Is.True, $"{name} is covered by {picked?.name ?? "nothing pickable"}");
+            VisualElement element = Pressable(name);
             using (NavigationSubmitEvent submit = NavigationSubmitEvent.GetPooled())
             {
                 submit.target = element;
                 element.SendEvent(submit);
             }
+        }
+
+        // Moves the mouse over a button, then presses and releases it, a frame apart. The game reads this press as it reads every
+        // press. The button may not: run from a shell, the player has no focus, and the interface then gets no mouse input.
+        public IEnumerator PressMouseOver(string name)
+        {
+            Vector2 center = Pressable(name).worldBound.center;
+            Rect panel = Ui.worldBound;
+            var screen = new Vector2((center.x - panel.x) / panel.width * Screen.width,
+                (1f - (center.y - panel.y) / panel.height) * Screen.height);
+            InputSystem.QueueStateEvent(_mouse, new MouseState { position = screen });
+            yield return null;
+            InputSystem.QueueStateEvent(_mouse, new MouseState { position = screen }.WithButton(MouseButton.Left, true));
+            yield return null;
+            InputSystem.QueueStateEvent(_mouse, new MouseState { position = screen });
+            yield return null;
+        }
+
+        // The elements under the named ones that take the pointer, apart from the buttons and what lies inside a button.
+        public List<string> PointerTakersOutsideButtons(params string[] names)
+        {
+            var takers = new List<string>();
+            foreach (string name in names)
+            {
+                Find(name).Query<VisualElement>().ForEach(element =>
+                {
+                    bool button = element is Button || element.GetFirstAncestorOfType<Button>() != null;
+                    if (element.pickingMode == PickingMode.Position && !button)
+                    {
+                        takers.Add(element.name.Length > 0 ? element.name : element.GetType().Name);
+                    }
+                });
+            }
+
+            return takers;
         }
 
         public int ColumnCount(int board)
@@ -127,8 +173,7 @@ namespace Chromacolony.Tests.PlayMode
             Assert.That(screen.x >= 0f && screen.x < Screen.width && screen.y >= 0f && screen.y < Screen.height, Is.True,
                 $"column {column} at depth {depth} is off the screen");
             VisualElement picked = Ui.panel.Pick(WorldToPanel.Point(_camera, world, Ui));
-            Assert.That(picked == null || (!(picked is Button) && picked.GetFirstAncestorOfType<Button>() == null), Is.True,
-                $"column {column} at depth {depth} is under {picked?.name}");
+            Assert.That(picked, Is.Null, $"column {column} at depth {depth} is under {picked?.name}");
 
             InputSystem.QueueStateEvent(_mouse, new MouseState { position = screen }.WithButton(MouseButton.Left, true));
             yield return null;
@@ -336,6 +381,17 @@ namespace Chromacolony.Tests.PlayMode
                     UnityEngine.Object.Destroy(copy);
                 }
             }
+        }
+
+        private VisualElement Pressable(string name)
+        {
+            VisualElement element = Find(name);
+            Assert.That(element, Is.InstanceOf<Button>(), $"{name} is not a button");
+            Assert.That(IsShown(element), Is.True, $"{name} is not on the screen");
+            Assert.That(element.enabledInHierarchy, Is.True, $"{name} is disabled");
+            VisualElement picked = element.panel.Pick(element.worldBound.center);
+            Assert.That(picked == element || element.Contains(picked), Is.True, $"{name} is covered by {picked?.name ?? "nothing pickable"}");
+            return element;
         }
 
         private VisualElement Find(string name)

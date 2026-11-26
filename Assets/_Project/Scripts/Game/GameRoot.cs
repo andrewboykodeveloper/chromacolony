@@ -127,7 +127,7 @@ namespace Chromacolony.Game
                 return;
             }
 
-            if (_input.TryGetPress(out float x, out float y))
+            if (_input.TryGetPress(out float x, out float y) && !IsOverInterface(x, y))
             {
                 _board.Tap(_camera.ScreenToWorldPoint(new Vector3(x, _camera.pixelHeight - y, 0f)));
             }
@@ -193,6 +193,14 @@ namespace Chromacolony.Game
             {
                 _board.Pause();
             }
+        }
+
+        // A press on the interface is the interface's alone: on a button, the menu or a dialog. On the game screen, everything but
+        // the buttons lets presses through to the board.
+        private bool IsOverInterface(float x, float y)
+        {
+            IPanel panel = _document.rootVisualElement.panel;
+            return panel != null && panel.Pick(RuntimePanelUtils.ScreenToPanel(panel, new Vector2(x, y))) != null;
         }
 
         private string StartLanguage()

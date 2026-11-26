@@ -2,6 +2,8 @@
 
 A puzzle game that runs in the browser, laid out for a phone held upright. Crews of crabs wait in columns of buckets under a mosaic, one colour to a bucket. Tap a column and the crew at its front takes one of five places; its crabs then carry the pebbles of their colour home, one at a time. A board is done when every pebble is home, and then the picture puts itself together again.
 
+**Play it in the browser:** [andrewboykodeveloper.itch.io/chromacolony](https://andrewboykodeveloper.itch.io/chromacolony)
+
 ![Board 1 at its start](docs/media/board.png)
 
 ## Status
@@ -59,7 +61,7 @@ Unity 6000.6.7f1, the version the game was built with. It is a supported Unity 6
   ```
 
   - **EditMode** tests cover the rules, a solver over every shipped board, a deterministic replay, the saves, the tables, the interface's element names and the board's hit tests.
-  - **PlayMode** tests play the game through its interface, as a player does.
+  - **PlayMode** tests play the game through its interface. They press only the buttons a player could see and reach, and tap the board with a virtual mouse.
 
   Both suites passed at the 1.0.0 tag.
 - **Build for the web:** use **Chromacolony > Build > Web**, or run from a shell:
@@ -110,4 +112,4 @@ docs/
 
 ## Credits and license
 
-© 2026 Andrew Boyko. The code, art and audio are published for viewing only; see the [license](LICENSE). The Inter font and Unity's web template keep their own licenses; see the [third-party notices](THIRD-PARTY-NOTICES.md).
+© 2026 Andrew Boyko. The code, art and audio are published for viewing and evaluation only; see the [license](LICENSE). The Inter font and Unity's web template keep their own licenses; see the [third-party notices](THIRD-PARTY-NOTICES.md).

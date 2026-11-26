@@ -23,7 +23,7 @@ Chosen option: "Text files, loaded at start", because a tuning change is one lin
 - `Boards.txt` holds the boards in a small text format, one block per board.
 - They are parsed at start. A bad board or number fails loudly. A missing text shows as `[key]` until a test catches it.
 
-Constants would put a tuning change in the code and need a build to try. ScriptableObjects would hide a board's change in serialized YAML.
+Constants would put a tuning change in the code, and each try would wait for a recompile. ScriptableObjects can be tuned live in Play Mode, but a board kept in one would change as serialized YAML, which reads poorly in a diff.
 
 ### Consequences
 
@@ -31,3 +31,4 @@ Constants would put a tuning change in the code and need a build to try. Scripta
 - Good: EditMode tests check that every key in code has its row, that every text has both languages with the same placeholders, and that every shipped board parses and can be solved.
 - Good: the data loads at once on the web.
 - Bad: a mistake in a text file shows at load or in the tests, not in the Inspector.
+- Bad: the files are read at start, so a change shows the next time Play Mode starts, not live as a ScriptableObject's would.

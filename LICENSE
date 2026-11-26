@@ -1,14 +1,20 @@
 Copyright (c) 2026 Andrew Boyko. All rights reserved.
 
 The source code, art, audio and other files in this repository are
-published for viewing only. You may read them on GitHub. No other
-permission is granted: you may not copy, modify, merge, publish,
-distribute, sublicense, sell or otherwise use any part of this
-repository, in source or compiled form, in any other work, product or
-service, without the prior written permission of the copyright holder.
+published for viewing and evaluation only. You may read them on GitHub.
+Solely to evaluate the project, you may also clone it, open it, build
+it, and run it and its tests on your own computer.
+
+No other permission is granted. Without the prior written permission of
+the copyright holder, you may not use any part of this repository, in
+source or compiled form, in any other work, product or service; copy
+any part of it beyond what that evaluation needs; or distribute,
+publish, sublicense or sell its code, its assets or anything built from
+them.
 
 GitHub's Terms of Service let users view and fork public repositories on
-GitHub. This license grants no rights beyond those.
+GitHub. This license grants no rights beyond those and the evaluation
+above.
 
 Third-party components keep their own licenses; see
 THIRD-PARTY-NOTICES.md.

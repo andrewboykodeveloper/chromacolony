@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using Chromacolony.Core;
 using UnityEngine;
@@ -24,25 +23,17 @@ namespace Chromacolony.Game
 
         public void Write(string key, string text)
         {
-            try
+            Directory.CreateDirectory(_folder);
+            string path = PathOf(key);
+            string temp = path + ".tmp";
+            File.WriteAllText(temp, text);
+            if (File.Exists(path))
             {
-                Directory.CreateDirectory(_folder);
-                string path = PathOf(key);
-                string temp = path + ".tmp";
-                File.WriteAllText(temp, text);
-                if (File.Exists(path))
-                {
-                    File.Replace(temp, path, null);
-                }
-                else
-                {
-                    File.Move(temp, path);
-                }
+                File.Replace(temp, path, null);
             }
-            catch (Exception e) when (e is IOException || e is UnauthorizedAccessException)
+            else
             {
-                Debug.LogWarning($"FileSaveStorage: {key} could not be written: {e.Message}");
-                throw;
+                File.Move(temp, path);
             }
         }
 
