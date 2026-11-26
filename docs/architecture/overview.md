@@ -60,7 +60,7 @@ Around the model:
 
 1. It fits the camera, advances the audio's clock and the beach, and shows or hides the menu's crab.
 2. It reads the back key. A paused board, or one held by the buy or no-coins dialog, stops here.
-3. It hands a press to the board presenter, as a point in the world.
+3. It hands a press to the board presenter, as a point in the world, unless the press is on a button, the menu or a dialog.
 4. The ticker runs the model.
 5. The crabs walk and dance. On a board, the board view:
    - rebuilds the picture after a win;
@@ -77,7 +77,7 @@ The interface is one layout, `UI/Main.uxml`, and one style sheet, `UI/Theme.uss`
 - `ScreenHost` shows one screen and at most one dialog by toggling the `hidden` class.
   - The screens are `menu` and `game`.
   - The dialogs are `pause`, `settings`, `buy`, `note` (for no coins) and `result`.
-- A dialog fades in with its `open` class one frame after it shows.
+- A dialog fades in by its `open` class, added 16 ms after the dialog shows: a transition runs only from a style the dialog has already been drawn with.
 - Element names are kept in `UiNames` and class names in `UiClasses`. An EditMode test checks both against the layout and the style sheet.
 
 ## Views and pooling
@@ -108,7 +108,7 @@ A bad board, a bad number or a missing config key throws at start. A missing tex
 
 ## Saves
 
-`SaveStore` writes the progress under a version line (`v1`). It can run a registered migration for an older version on load. The game has had one version, so none is registered.
+`SaveStore` writes the progress under a version line (`v1`). It can run a registered migration for an older version on load. There is one version so far, so none is registered. Within it, `Progress` also reads an earlier body with a single sound switch, which then sets the music and the voice as well.
 
 - A file without a version line is copied aside under a free `.unreadable` name before the game starts afresh.
 - A file from a newer version is kept, untouched.
@@ -119,8 +119,9 @@ A bad board, a bad number or a missing config key throws at start. A missing tex
 ## Tests
 
 - **EditMode:** the rules, a solver over every shipped board, and a replay that must end at the same tick with the same outcome. Also the saves, the tables and keys, the crab prefab, and `BoardLayout`'s hit tests.
-- **PlayMode:** boots the scene and plays it as a player does.
-  - It presses buttons by their names in the layout, taps columns through a virtual mouse, and presses Escape on a virtual keyboard.
+- **PlayMode:** boots the scene and plays it through its interface.
+  - It presses buttons by their names in the layout, as a key does, and only those a player could see and reach. Run from a shell, the interface gets no mouse input.
+  - It taps the columns, and presses over a button, through a virtual mouse. It presses Escape on a virtual keyboard.
   - It covers the menu, a won board, the lessons, the pause, the helpers and the settings.
   - It also covers switching the game object off and on, and destroying the game.
 - **Isolation:** the PlayMode tests set the player's saves aside while they run, and mute the listener.

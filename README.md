@@ -59,7 +59,7 @@ Unity 6000.6.7f1, the version the game was built with. It is a supported Unity 6
   ```
 
   - **EditMode** tests cover the rules, a solver over every shipped board, a deterministic replay, the saves, the tables, the interface's element names and the board's hit tests.
-  - **PlayMode** tests play the game through its interface, as a player does.
+  - **PlayMode** tests play the game through its interface. They press only the buttons a player could see and reach, and tap the board with a virtual mouse.
 
   Both suites passed at the 1.0.0 tag.
 - **Build for the web:** use **Chromacolony > Build > Web**, or run from a shell:
