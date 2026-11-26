@@ -7,11 +7,9 @@ namespace Chromacolony.Editor
         public const string ArtFolder = "Assets/_Project/Art/Sprites/";
         public const float PixelsPerUnit = 512f;
 
-        public static readonly string[] Phones = { "Android", "iPhone" };
-
         public override uint GetVersion()
         {
-            return 2;
+            return 3;
         }
 
         private void OnPreprocessTexture()
@@ -29,14 +27,6 @@ namespace Chromacolony.Editor
             importer.alphaIsTransparency = true;
             importer.mipmapEnabled = true;
             importer.textureCompression = TextureImporterCompression.CompressedHQ;
-            foreach (string phone in Phones)
-            {
-                TextureImporterPlatformSettings settings = importer.GetPlatformTextureSettings(phone);
-                settings.overridden = true;
-                settings.format = TextureImporterFormat.ASTC_4x4;
-                settings.maxTextureSize = importer.maxTextureSize;
-                importer.SetPlatformTextureSettings(settings);
-            }
         }
     }
 }
