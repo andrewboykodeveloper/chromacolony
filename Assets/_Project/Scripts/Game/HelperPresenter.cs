@@ -5,10 +5,6 @@ using UnityEngine.UIElements;
 
 namespace Chromacolony.Game
 {
-    /// <summary>
-    /// The three helpers under the board: their badges, the buy and no-coins dialogs, and the tap on a slot that the back helper
-    /// waits for.
-    /// </summary>
     public sealed class HelperPresenter
     {
         private const string OnClass = "on";
@@ -21,7 +17,7 @@ namespace Chromacolony.Game
         private readonly Progress _progress;
         private readonly Prices _prices;
         private readonly HelperShop _shop;
-        private readonly BoardView _board;
+        private readonly BoardView _boardView;
         private readonly AudioService _audio;
         private readonly IRandom _random;
         private readonly Action _save;
@@ -44,7 +40,7 @@ namespace Chromacolony.Game
         public bool HoldsBoard => _screens.CurrentDialog == UiNames.Buy || _screens.CurrentDialog == UiNames.Note;
 
         public HelperPresenter(ScreenHost screens, Localization text, GameModel model, Progress progress, Prices prices, HelperShop shop,
-            BoardView board, AudioService audio, IRandom random, Action save)
+            BoardView boardView, AudioService audio, IRandom random, Action save)
         {
             _screens = screens;
             _text = text;
@@ -52,7 +48,7 @@ namespace Chromacolony.Game
             _progress = progress;
             _prices = prices;
             _shop = shop;
-            _board = board;
+            _boardView = boardView;
             _audio = audio;
             _random = random;
             _save = save;
@@ -111,8 +107,9 @@ namespace Chromacolony.Game
 
         public void Pick(Vector2 world)
         {
-            int slot = _board.SlotAt(world);
-            if (slot >= 0 && _model.CanBack(slot) && _progress.Pay(Helper.Back, _prices))
+            int slot = _boardView.SlotAt(world);
+            bool taken = slot >= 0 && _model.CanBack(slot) && _progress.Pay(Helper.Back, _prices);
+            if (taken)
             {
                 _model.Back(slot);
                 _audio.Play(SoundKeys.Helper);
@@ -120,6 +117,10 @@ namespace Chromacolony.Game
             }
 
             SetPicking(false);
+            if (taken)
+            {
+                Used?.Invoke();
+            }
         }
 
         public void CancelPick()

@@ -72,12 +72,17 @@ namespace Chromacolony.Game
             _boardView.Sound = _audio.Play;
 
             _settings = new SettingsPresenter(_screens, text, _progress, _audio, Save);
-            _menu = new MenuPresenter(_screens, text, _progress, _settings, _camera, _boardView);
+            _menu = new MenuPresenter(_screens, text, _progress, _camera, _boardView);
             _result = new ResultPresenter(_screens, text, _model, _progress, prices, shop, boards.Count, _boardView, _camera, _audio, Save);
             _helpers = new HelperPresenter(_screens, text, _model, _progress, prices, shop, _boardView, _audio, random, Save);
-            _board = new BoardPresenter(_screens, text, _model, boards, _progress, _boardView, _beach, _effects, _audio, _menu, _settings,
-                _helpers, _result, Save);
+            _board = new BoardPresenter(_screens, text, _model, boards, _progress, _boardView, _beach, _effects, _audio, _helpers, _result,
+                Save);
             _settings.LanguageChanged += ShowTexts;
+            _menu.PlayPressed += () => _board.StartBoard(_progress.Board);
+            _result.NextPressed += () => _board.StartBoard(_progress.Board);
+            _result.RetryPressed += _board.Retry;
+            _result.MenuPressed += _board.ToMenu;
+            _board.LeftBoard += _menu.Show;
         }
 
         // The UI document on this object runs its OnEnable first (Unity gives it execution order -100) and builds its tree anew
@@ -112,7 +117,7 @@ namespace Chromacolony.Game
             _menu.Update();
             if (BackKey.WasPressedThisFrame())
             {
-                _board.GoBack();
+                GoBack();
             }
 
             if (_board.Paused || _helpers.HoldsBoard)
@@ -158,6 +163,34 @@ namespace Chromacolony.Game
         private void OnApplicationQuit()
         {
             Save();
+        }
+
+        private void GoBack()
+        {
+            if (_screens.CurrentDialog == UiNames.Settings)
+            {
+                _settings.Close();
+            }
+            else if (_screens.CurrentDialog == UiNames.Pause)
+            {
+                _board.Resume();
+            }
+            else if (_screens.CurrentDialog == UiNames.Result)
+            {
+                _board.ToMenu();
+            }
+            else if (_screens.CurrentDialog != null)
+            {
+                _screens.CloseDialog();
+            }
+            else if (_helpers.Picking)
+            {
+                _helpers.CancelPick();
+            }
+            else
+            {
+                _board.Pause();
+            }
         }
 
         private string StartLanguage()

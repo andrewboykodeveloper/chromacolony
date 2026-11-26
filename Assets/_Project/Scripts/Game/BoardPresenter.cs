@@ -6,9 +6,6 @@ using UnityEngine.UIElements;
 
 namespace Chromacolony.Game
 {
-    /// <summary>
-    /// A board in play: starting it, the taps on its columns, the tutorial, the speed, the pause and the way back to the menu.
-    /// </summary>
     public sealed class BoardPresenter
     {
         private const string OnClass = "on";
@@ -18,12 +15,10 @@ namespace Chromacolony.Game
         private readonly GameModel _model;
         private readonly IReadOnlyList<BoardSpec> _boards;
         private readonly Progress _progress;
-        private readonly BoardView _board;
+        private readonly BoardView _boardView;
         private readonly BeachView _beach;
         private readonly Effects _effects;
         private readonly AudioService _audio;
-        private readonly MenuPresenter _menu;
-        private readonly SettingsPresenter _settings;
         private readonly HelperPresenter _helpers;
         private readonly ResultPresenter _result;
         private readonly Action _save;
@@ -34,27 +29,26 @@ namespace Chromacolony.Game
         private Button _speed;
         private Label _pauseTitle;
         private Button _resume;
-        private Button _pauseSettings;
         private Button _pauseRetry;
         private Button _pauseMenu;
+
+        public event Action LeftBoard;
 
         public bool Paused { get; private set; }
 
         public BoardPresenter(ScreenHost screens, Localization text, GameModel model, IReadOnlyList<BoardSpec> boards, Progress progress,
-            BoardView board, BeachView beach, Effects effects, AudioService audio, MenuPresenter menu, SettingsPresenter settings,
-            HelperPresenter helpers, ResultPresenter result, Action save)
+            BoardView boardView, BeachView beach, Effects effects, AudioService audio, HelperPresenter helpers, ResultPresenter result,
+            Action save)
         {
             _screens = screens;
             _text = text;
             _model = model;
             _boards = boards;
             _progress = progress;
-            _board = board;
+            _boardView = boardView;
             _beach = beach;
             _effects = effects;
             _audio = audio;
-            _menu = menu;
-            _settings = settings;
             _helpers = helpers;
             _result = result;
             _save = save;
@@ -67,11 +61,7 @@ namespace Chromacolony.Game
             model.CrewRevealed += _ => OnCrewRevealed();
             model.CrewBack += _ => Refresh();
             model.QueueShuffled += ShowTutorial;
-            menu.PlayPressed += () => StartBoard(_progress.Board);
-            result.NextPressed += () => StartBoard(_progress.Board);
-            result.RetryPressed += () => StartBoard(_boardIndex);
-            result.MenuPressed += ToMenu;
-            helpers.PickingChanged += () => ShowHint(_helpers.Picking ? _text.Get(TextKeys.PickCrew) : LessonText());
+            helpers.PickingChanged += ShowHint;
             helpers.Used += OnHelperUsed;
         }
 
@@ -82,15 +72,13 @@ namespace Chromacolony.Game
             _speed = root.Q<Button>(UiNames.HudSpeed);
             _pauseTitle = root.Q<Label>(UiNames.PauseTitle);
             _resume = root.Q<Button>(UiNames.Resume);
-            _pauseSettings = root.Q<Button>(UiNames.PauseSettings);
             _pauseRetry = root.Q<Button>(UiNames.PauseRetry);
             _pauseMenu = root.Q<Button>(UiNames.PauseMenu);
 
             bindings.Click(root.Q<Button>(UiNames.HudPause), Pause);
             bindings.Click(_speed, ToggleSpeed);
             bindings.Click(_resume, Resume);
-            bindings.Click(_pauseSettings, () => _settings.Open(fromPause: true));
-            bindings.Click(_pauseRetry, () => StartBoard(_boardIndex));
+            bindings.Click(_pauseRetry, Retry);
             bindings.Click(_pauseMenu, ToMenu);
             ShowTexts();
             _speed.EnableInClassList(OnClass, _model.Fast);
@@ -100,20 +88,19 @@ namespace Chromacolony.Game
         {
             _pauseTitle.text = _text.Get(TextKeys.Pause);
             _resume.text = _text.Get(TextKeys.Resume);
-            _pauseSettings.text = _text.Get(TextKeys.Settings);
             _pauseRetry.text = _text.Get(TextKeys.Retry);
             _pauseMenu.text = _text.Get(TextKeys.ToMenu);
             if (_screens.CurrentScreen == UiNames.Game)
             {
                 _boardName.text = _text.Format(TextKeys.Board, _boardIndex + 1);
-                ShowHint(_helpers.Picking ? _text.Get(TextKeys.PickCrew) : LessonText());
+                ShowHint();
             }
         }
 
         public void StartBoard(int index)
         {
             Paused = false;
-            _result.Stop();
+            _result.Reset();
             _effects.Clear();
             _helpers.CancelPick();
             _boardIndex = index % _boards.Count;
@@ -134,16 +121,21 @@ namespace Chromacolony.Game
             Refresh();
         }
 
+        public void Retry()
+        {
+            StartBoard(_boardIndex);
+        }
+
         public void ToMenu()
         {
             Paused = false;
-            _result.Stop();
+            _result.Reset();
             _effects.Clear();
             _helpers.CancelPick();
             _model.BackToMenu();
             _beach.OnBoard = false;
-            _board.Clear();
-            _menu.Show();
+            _boardView.Clear();
+            LeftBoard?.Invoke();
         }
 
         public void Tap(Vector2 world)
@@ -164,42 +156,14 @@ namespace Chromacolony.Game
                 return;
             }
 
-            int column = _board.ColumnAt(world);
+            int column = _boardView.ColumnAt(world);
             if (column >= 0)
             {
                 _model.TrySend(column);
             }
         }
 
-        public void GoBack()
-        {
-            if (_screens.CurrentDialog == UiNames.Settings)
-            {
-                _settings.Close();
-            }
-            else if (_screens.CurrentDialog == UiNames.Pause)
-            {
-                Resume();
-            }
-            else if (_screens.CurrentDialog == UiNames.Result)
-            {
-                ToMenu();
-            }
-            else if (_screens.CurrentDialog != null)
-            {
-                _screens.CloseDialog();
-            }
-            else if (_helpers.Picking)
-            {
-                _helpers.CancelPick();
-            }
-            else
-            {
-                Pause();
-            }
-        }
-
-        private void Pause()
+        public void Pause()
         {
             if (_screens.CurrentScreen != UiNames.Game || _screens.CurrentDialog != null)
             {
@@ -210,7 +174,7 @@ namespace Chromacolony.Game
             _screens.Open(UiNames.Pause);
         }
 
-        private void Resume()
+        public void Resume()
         {
             Paused = false;
             _screens.CloseDialog();
@@ -254,17 +218,21 @@ namespace Chromacolony.Game
 
         private void OnHelperUsed()
         {
-            _result.Cancel();
+            _result.DropPending();
             Refresh();
         }
 
         private void ShowTutorial()
         {
-            _board.Point(_tutorial.PointedColumn(_model));
-            if (!_helpers.Picking)
-            {
-                ShowHint(LessonText());
-            }
+            _boardView.Point(_tutorial.PointedColumn(_model));
+            ShowHint();
+        }
+
+        private void ShowHint()
+        {
+            string text = _helpers.Picking ? _text.Get(TextKeys.PickCrew) : LessonText();
+            _hint.text = text ?? string.Empty;
+            _hint.EnableInClassList(ScreenHost.HiddenClass, string.IsNullOrEmpty(text));
         }
 
         private string LessonText()
@@ -278,12 +246,6 @@ namespace Chromacolony.Game
                 Lesson.Cover => _text.Get(TextKeys.LessonCover),
                 _ => null,
             };
-        }
-
-        private void ShowHint(string text)
-        {
-            _hint.text = text ?? string.Empty;
-            _hint.EnableInClassList(ScreenHost.HiddenClass, string.IsNullOrEmpty(text));
         }
 
         private void Refresh()

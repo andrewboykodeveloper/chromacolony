@@ -24,6 +24,7 @@ namespace Chromacolony.Game
         private Button _sounds;
         private Button _voice;
         private Button _done;
+        private Button _pauseSettings;
         private bool _fromPause;
 
         public event Action LanguageChanged;
@@ -50,7 +51,10 @@ namespace Chromacolony.Game
             _sounds = root.Q<Button>(UiNames.SoundsSwitch);
             _voice = root.Q<Button>(UiNames.VoiceSwitch);
             _done = root.Q<Button>(UiNames.SettingsDone);
+            _pauseSettings = root.Q<Button>(UiNames.PauseSettings);
 
+            bindings.Click(root.Q<Button>(UiNames.MenuSettings), () => Open(fromPause: false));
+            bindings.Click(_pauseSettings, () => Open(fromPause: true));
             bindings.Click(_done, Close);
             bindings.Click(_russian, () => Choose(Languages.Russian));
             bindings.Click(_english, () => Choose(Languages.English));
@@ -61,7 +65,7 @@ namespace Chromacolony.Game
             ShowChoices();
         }
 
-        public void ShowTexts()
+        private void ShowTexts()
         {
             _title.text = _text.Get(TextKeys.Settings);
             _languageName.text = _text.Get(TextKeys.Language);
@@ -71,9 +75,10 @@ namespace Chromacolony.Game
             _done.text = _text.Get(TextKeys.Done);
             _russian.text = _text.Get(TextKeys.LanguageRu);
             _english.text = _text.Get(TextKeys.LanguageEn);
+            _pauseSettings.text = _text.Get(TextKeys.Settings);
         }
 
-        public void Open(bool fromPause)
+        private void Open(bool fromPause)
         {
             if (_screens.CurrentDialog != (fromPause ? UiNames.Pause : null))
             {

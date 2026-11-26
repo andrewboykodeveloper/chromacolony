@@ -21,8 +21,8 @@ namespace Chromacolony.Game
         private readonly Progress _progress;
         private readonly Prices _prices;
         private readonly HelperShop _shop;
-        private readonly int _boards;
-        private readonly BoardView _board;
+        private readonly int _boardCount;
+        private readonly BoardView _boardView;
         private readonly Camera _camera;
         private readonly AudioService _audio;
         private readonly Action _save;
@@ -51,7 +51,7 @@ namespace Chromacolony.Game
         public event Action MenuPressed;
 
         public ResultPresenter(ScreenHost screens, Localization text, GameModel model, Progress progress, Prices prices, HelperShop shop,
-            int boards, BoardView board, Camera camera, AudioService audio, Action save)
+            int boardCount, BoardView boardView, Camera camera, AudioService audio, Action save)
         {
             _screens = screens;
             _text = text;
@@ -59,8 +59,8 @@ namespace Chromacolony.Game
             _progress = progress;
             _prices = prices;
             _shop = shop;
-            _boards = boards;
-            _board = board;
+            _boardCount = boardCount;
+            _boardView = boardView;
             _camera = camera;
             _audio = audio;
             _save = save;
@@ -105,27 +105,27 @@ namespace Chromacolony.Game
             _menu.text = _text.Get(TextKeys.ToMenu);
         }
 
-        public void Begin(bool won, int board)
+        public void Begin(bool won, int boardIndex)
         {
             _pending = true;
             _won = won;
-            _boardIndex = board;
+            _boardIndex = boardIndex;
             if (won)
             {
                 // The counter keeps the coins from before the win until they have flown to it.
                 _coinsFrom = _progress.Coins;
                 _coinsHeld = true;
-                _progress.Won(board, _boards, _prices);
+                _progress.Won(boardIndex, _boardCount, _prices);
                 _save();
             }
         }
 
-        public void Cancel()
+        public void DropPending()
         {
             _pending = false;
         }
 
-        public void Stop()
+        public void Reset()
         {
             _pending = false;
             _celebrated = false;
@@ -144,7 +144,7 @@ namespace Chromacolony.Game
         public void Update(float dt)
         {
             _coinFlight.Update(dt);
-            if (!_pending || _board.Busy)
+            if (!_pending || _boardView.Busy)
             {
                 return;
             }
@@ -152,8 +152,8 @@ namespace Chromacolony.Game
             if (_won && !_celebrated && _model.Phase == GamePhase.Won)
             {
                 _celebrated = true;
-                _board.Celebrate();
-                Vector2 from = WorldToPanel.Point(_camera, _board.Layout.Gate, _root);
+                _boardView.Celebrate();
+                Vector2 from = WorldToPanel.Point(_camera, _boardView.Layout.Gate, _root);
                 _coinsHeld = false;
                 _coinFlight.Fly(from, _coinIcon.worldBound.center, _coinsFrom, _progress.Coins);
                 return;
@@ -173,7 +173,7 @@ namespace Chromacolony.Game
             ShowContent();
             if (_won)
             {
-                _audio.Say(_boardIndex == _boards - 1 ? LineKeys.Thanks : LineKeys.Hooray);
+                _audio.Say(_boardIndex == _boardCount - 1 ? LineKeys.Thanks : LineKeys.Hooray);
             }
             else
             {
@@ -187,7 +187,7 @@ namespace Chromacolony.Game
         private void ShowContent()
         {
             bool helper = !_won && _shop.AnyUsable;
-            bool allDone = _won && _boardIndex == _boards - 1;
+            bool allDone = _won && _boardIndex == _boardCount - 1;
             _title.text = _text.Get(_won ? TextKeys.Won : TextKeys.Stuck);
             _message.text = _won
                 ? (allDone ? _text.Get(TextKeys.AllDone) : _text.Format(TextKeys.WonCoins, _prices.CoinsPerWin))
