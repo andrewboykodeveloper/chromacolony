@@ -48,7 +48,6 @@ namespace Chromacolony.Game
         private VisualElement _resultDialog;
         private float _time;
         private bool _settingsFromPause;
-        private bool _claw;
         private bool _celebrated;
         private bool _coinsHeld;
         private int _coinsFrom;
@@ -65,7 +64,7 @@ namespace Chromacolony.Game
         private bool _resultPending;
         private bool _resultWon;
         private Helper _buying;
-        private Lesson _lesson;
+        private Tutorial _tutorial = new Tutorial(Lesson.None);
         private Label _boardName;
         private Label _coins;
         private Label _hint;
@@ -126,7 +125,7 @@ namespace Chromacolony.Game
             _model.SlotAdded += _ => Refresh();
             _model.CrewSent += e => Sent(e.Crew);
             _model.CrewDone += _ => Done();
-            _model.CrewRevealed += _ => Learned(Lesson.Cover);
+            _model.CrewRevealed += _ => Revealed();
             _model.CrewBack += _ => Refresh();
             ToMenu();
         }
@@ -458,70 +457,45 @@ namespace Chromacolony.Game
                 Say(LineKeys.Hello);
             }
 
-            _lesson = Lessons.For(_boardIndex, _boards);
-            Hint(LessonText());
-            bool teaching = _lesson == Lesson.Tap || _lesson == Lesson.Slots || _lesson == Lesson.Inside;
-            _claw = teaching;
-            _board.Point(teaching ? FirstTap() : -1);
+            // After the model starts, so the reveals of the opening crews cannot teach this board's lesson.
+            _tutorial = new Tutorial(Lessons.For(_boardIndex, _boards));
+            ShowTutorial();
             Refresh();
-        }
-
-        private int FirstTap()
-        {
-            for (int c = 0; c < _model.ColumnCount; c++)
-            {
-                IReadOnlyList<Crew> column = _model.Column(c);
-                if (column.Count > 0 && column[0].Link < 0 && _model.Mosaic.AnyInReach(column[0].Color))
-                {
-                    return c;
-                }
-            }
-
-            return -1;
         }
 
         private void Sent(Crew crew)
         {
             Play(SoundKeys.Tap);
-            _claw = false;
-            _board.Point(-1);
-            if (_lesson == Lesson.Tap || (_lesson == Lesson.Rope && crew.Link >= 0))
-            {
-                Learned(_lesson);
-            }
-
+            _tutorial.OnCrewSent(crew);
+            ShowTutorial();
             Refresh();
         }
 
         private void Done()
         {
-            if (_lesson == Lesson.Slots || _lesson == Lesson.Inside)
-            {
-                Learned(_lesson);
-            }
-
+            _tutorial.OnCrewDone();
+            ShowTutorial();
             Refresh();
         }
 
-        private void Learned(Lesson lesson)
+        private void Revealed()
         {
-            if (_lesson != lesson || lesson == Lesson.None)
-            {
-                return;
-            }
+            _tutorial.OnCrewRevealed();
+            ShowTutorial();
+        }
 
-            _lesson = Lesson.None;
-            _claw = false;
-            _board.Point(-1);
+        private void ShowTutorial()
+        {
+            _board.Point(_tutorial.PointedColumn(_model));
             if (!_picking)
             {
-                Hint(null);
+                Hint(LessonText());
             }
         }
 
         private string LessonText()
         {
-            switch (_lesson)
+            switch (_tutorial.Lesson)
             {
                 case Lesson.Tap:
                     return _text.Get(TextKeys.LessonTap);
@@ -664,11 +638,7 @@ namespace Chromacolony.Game
             else
             {
                 _model.Shuffle(_random);
-
-                if (_claw)
-                {
-                    _board.Point(FirstTap());
-                }
+                ShowTutorial();
             }
 
             _resultPending = false;

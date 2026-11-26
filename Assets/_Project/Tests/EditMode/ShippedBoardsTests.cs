@@ -65,6 +65,15 @@ namespace Chromacolony.Tests.EditMode
             Assert.That(ready, Is.GreaterThanOrEqualTo(expected), $"board {index + 1}, {_boards[index].Name}");
         }
 
+        // A board uncovers its front crews as it opens, so a cover at the front would vanish before the player saw it.
+        [Test]
+        public void NoBoardOpensWithACoveredCrewAtTheFront([Range(0, BoardCount - 1)] int index)
+        {
+            List<int> covered = Enumerable.Range(0, _boards[index].Columns.Count).Where(c => _boards[index].Columns[c][0].Hidden).ToList();
+
+            Assert.That(covered, Is.Empty, $"board {index + 1}, {_boards[index].Name}: covered front crews");
+        }
+
         [Test]
         public void TheFirstRopeAndTheFirstCoverOfABoardAreInSightFromTheStart([Range(0, BoardCount - 1)] int index)
         {
