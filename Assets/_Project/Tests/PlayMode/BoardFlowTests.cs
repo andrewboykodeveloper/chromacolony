@@ -172,6 +172,30 @@ namespace Chromacolony.Tests.PlayMode
             Assert.That(_game.CrabsLeftInCrews(), Is.LessThan(crabs), "the crabs set off again once the note is closed");
         }
 
+        // A pause would leave the pick waiting, so the test holds whether or not the interface also takes the press.
+        [UnityTest]
+        public IEnumerator AMousePressOnAButtonDoesNotReachTheBoard()
+        {
+            _game.Press("play");
+            yield return null;
+            yield return _game.TapColumn(FirstBoard, 0, 0);
+            _game.Press("helper-back");
+            yield return null;
+            Assert.That(_game.Has("helper-back", GameDriver.OnClass), Is.True, "the back helper waits for a crew to be picked");
+
+            yield return _game.PressMouseOver("hud-pause");
+            Assert.That(_game.Has("helper-back", GameDriver.OnClass), Is.True, "a press on the pause button leaves the pick waiting");
+        }
+
+        // The game hands a press to the board unless the interface can pick something there.
+        [UnityTest]
+        public IEnumerator OnlyTheButtonsOnTheGameScreenTakeThePointer()
+        {
+            _game.Press("play");
+            yield return GameDriver.Frames(10);
+            Assert.That(_game.PointerTakersOutsideButtons("game", "labels"), Is.Empty);
+        }
+
         [UnityTest]
         public IEnumerator TheBackKeyStepsBackOneLayerAtATimeAndCancelsAPickLast()
         {
