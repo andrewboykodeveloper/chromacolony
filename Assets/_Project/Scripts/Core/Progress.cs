@@ -6,7 +6,7 @@ namespace Chromacolony.Core
 {
     public sealed class Progress
     {
-        private readonly int[] _stock = new int[3];
+        private readonly int[] _stock = new int[Helpers.Count];
 
         public int Board { get; private set; }
 
