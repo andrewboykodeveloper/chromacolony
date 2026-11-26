@@ -76,9 +76,9 @@ namespace Chromacolony.Game
         public void Dance(Vector2 gate, Color[] colors, Vector2[] spots, float size, float seconds)
         {
             _danceLeft = seconds;
-            for (var i = 0; i < colors.Length; i++)
+            for (int i = 0; i < colors.Length; i++)
             {
-                var crab = _pool.Count > 0 ? _pool.Pop() : Make();
+                Crab crab = _pool.Count > 0 ? _pool.Pop() : Make();
                 crab.Root.gameObject.SetActive(true);
                 crab.Root.position = gate;
                 crab.Gate = gate;
@@ -95,10 +95,10 @@ namespace Chromacolony.Game
 
         public void Send(Vector2 from, SpriteRenderer pebble, Vector2 gate, Color color, float size)
         {
-            var crab = _pool.Count > 0 ? _pool.Pop() : Make();
+            Crab crab = _pool.Count > 0 ? _pool.Pop() : Make();
             crab.Root.gameObject.SetActive(true);
 
-            var lane = ((_sent * 7) % 5 - 2) * size * 0.16f;
+            float lane = ((_sent * 7) % 5 - 2) * size * 0.16f;
             crab.Root.position = from + new Vector2(lane, 0f);
             crab.Size = size;
             crab.Facing = 1f;
@@ -120,9 +120,9 @@ namespace Chromacolony.Game
                 Dance(_star, dt, 100f);
             }
 
-            for (var i = _walking.Count - 1; i >= 0; i--)
+            for (int i = _walking.Count - 1; i >= 0; i--)
             {
-                var crab = _walking[i];
+                Crab crab = _walking[i];
                 if (!Advance(crab, dt, speed))
                 {
                     crab.Root.gameObject.SetActive(false);
@@ -137,14 +137,14 @@ namespace Chromacolony.Game
             }
 
             _danceLeft -= dt * speed;
-            foreach (var crab in _dancing)
+            foreach (Crab crab in _dancing)
             {
                 Dance(crab, dt * speed, _danceLeft);
             }
 
             if (_danceLeft <= 0f)
             {
-                foreach (var crab in _dancing)
+                foreach (Crab crab in _dancing)
                 {
                     crab.Root.gameObject.SetActive(false);
                     _pool.Push(crab);
@@ -156,7 +156,7 @@ namespace Chromacolony.Game
 
         public void Clear()
         {
-            foreach (var crab in _walking)
+            foreach (Crab crab in _walking)
             {
                 if (crab.Carrying)
                 {
@@ -167,7 +167,7 @@ namespace Chromacolony.Game
                 _pool.Push(crab);
             }
 
-            foreach (var crab in _dancing)
+            foreach (Crab crab in _dancing)
             {
                 crab.Root.gameObject.SetActive(false);
                 _pool.Push(crab);
@@ -185,10 +185,10 @@ namespace Chromacolony.Game
                 return;
             }
 
-            var grow = Mathf.Clamp01(crab.Time / 0.15f) * Mathf.Clamp01(left / 0.2f);
-            var walk = Mathf.Clamp01(crab.Time / 0.35f);
-            var beat = crab.Time * 7f + crab.Phase;
-            var sway = Mathf.Sin(beat * 0.5f) * crab.Size * 0.12f;
+            float grow = Mathf.Clamp01(crab.Time / 0.15f) * Mathf.Clamp01(left / 0.2f);
+            float walk = Mathf.Clamp01(crab.Time / 0.35f);
+            float beat = crab.Time * 7f + crab.Phase;
+            float sway = Mathf.Sin(beat * 0.5f) * crab.Size * 0.12f;
             var at = Vector2.Lerp(crab.Gate, crab.Target, walk * walk * (3f - 2f * walk));
             crab.Root.position = at + new Vector2(sway * walk, 0f);
             crab.Facing = Mathf.Cos(beat * 0.5f) < 0f ? -1f : 1f;
@@ -201,7 +201,7 @@ namespace Chromacolony.Game
 
         private bool Advance(Crab crab, float dt, float speed)
         {
-            var step = Speed * speed * dt;
+            float step = Speed * speed * dt;
             switch (crab.Leg)
             {
                 case Leg.Out:
@@ -217,7 +217,7 @@ namespace Chromacolony.Game
                     return true;
                 case Leg.Lift:
                     crab.Time += dt * speed;
-                    var lift = Mathf.Clamp01(crab.Time / LiftSeconds);
+                    float lift = Mathf.Clamp01(crab.Time / LiftSeconds);
                     crab.Pose(0.3f + 0.7f * lift);
                     crab.Lift(lift);
                     if (lift >= 1f)
@@ -238,7 +238,7 @@ namespace Chromacolony.Game
                     return true;
                 default:
                     crab.Time += dt * speed;
-                    var gone = Mathf.Clamp01(crab.Time / EnterSeconds);
+                    float gone = Mathf.Clamp01(crab.Time / EnterSeconds);
                     crab.Root.localScale = new Vector3(crab.Size * crab.Facing, crab.Size, 1f) * (1f - gone);
                     if (gone < 1f)
                     {
@@ -253,9 +253,9 @@ namespace Chromacolony.Game
         private static bool Walk(Crab crab, Vector2 to, float step)
         {
             var at = (Vector2)crab.Root.position;
-            var way = to - at;
-            var distance = way.magnitude;
-            var moved = Mathf.Min(step, distance);
+            Vector2 way = to - at;
+            float distance = way.magnitude;
+            float moved = Mathf.Min(step, distance);
             if (distance > 0.0001f)
             {
                 crab.Root.position = at + way / distance * moved;
@@ -280,7 +280,7 @@ namespace Chromacolony.Game
             shadow.transform.SetParent(crab.Root, false);
             shadow.transform.localPosition = new Vector3(0f, -0.3f, 0f);
             shadow.transform.localScale = new Vector3(0.8f, 0.26f, 1f);
-            var shade = shadow.AddComponent<SpriteRenderer>();
+            SpriteRenderer shade = shadow.AddComponent<SpriteRenderer>();
             shade.sprite = _shadow;
             shade.sharedMaterial = _shadowMaterial;
             shade.color = new Color(0.02f, 0.04f, 0.12f, 0.42f);
@@ -289,14 +289,14 @@ namespace Chromacolony.Game
             crab.Body = new GameObject("Body").transform;
             crab.Body.SetParent(crab.Root, false);
             Part(_shell, crab.Body, new Vector2(0f, 0.1f), 0.78f, Order + 1);
-            for (var side = 0; side < 2; side++)
+            for (int side = 0; side < 2; side++)
             {
-                var sign = side == 0 ? -1f : 1f;
+                float sign = side == 0 ? -1f : 1f;
                 crab.Claws[side] = Joint(crab.Body, new Vector2(0.25f * sign, 0f), sign);
                 Part(_claw, crab.Claws[side], new Vector2(0.05f, 0.14f), 0.3f, Order + 2);
-                for (var i = 0; i < 3; i++)
+                for (int i = 0; i < 3; i++)
                 {
-                    var hip = Joint(crab.Body, new Vector2(0.17f * sign, -0.14f - 0.07f * i), sign);
+                    Transform hip = Joint(crab.Body, new Vector2(0.17f * sign, -0.14f - 0.07f * i), sign);
                     Part(_leg, hip, new Vector2(0.09f, -0.08f), 0.2f, Order);
                     crab.Legs[side * 3 + i] = hip;
                 }
@@ -315,12 +315,12 @@ namespace Chromacolony.Game
                 wrapMode = TextureWrapMode.Clamp,
                 filterMode = FilterMode.Bilinear,
             };
-            for (var y = 0; y < size; y++)
+            for (int y = 0; y < size; y++)
             {
-                for (var x = 0; x < size; x++)
+                for (int x = 0; x < size; x++)
                 {
-                    var d = new Vector2(x + 0.5f - size / 2f, y + 0.5f - size / 2f).magnitude / (size / 2f);
-                    var a = Mathf.Clamp01(1f - d);
+                    float d = new Vector2(x + 0.5f - size / 2f, y + 0.5f - size / 2f).magnitude / (size / 2f);
+                    float a = Mathf.Clamp01(1f - d);
                     texture.SetPixel(x, y, new Color(1f, 1f, 1f, a * a * (3f - 2f * a)));
                 }
             }
@@ -331,7 +331,7 @@ namespace Chromacolony.Game
 
         private static Transform Joint(Transform parent, Vector2 at, float sign)
         {
-            var joint = new GameObject("Joint").transform;
+            Transform joint = new GameObject("Joint").transform;
             joint.SetParent(parent, false);
             joint.localPosition = at;
             joint.localScale = new Vector3(sign, 1f, 1f);
@@ -343,9 +343,9 @@ namespace Chromacolony.Game
             var part = new GameObject(sprite.name);
             part.transform.SetParent(parent, false);
             part.transform.localPosition = at;
-            var scale = height / Mathf.Max(sprite.bounds.size.y, 0.0001f);
+            float scale = height / Mathf.Max(sprite.bounds.size.y, 0.0001f);
             part.transform.localScale = new Vector3(scale, scale, 1f);
-            var renderer = part.AddComponent<SpriteRenderer>();
+            SpriteRenderer renderer = part.AddComponent<SpriteRenderer>();
             renderer.sprite = sprite;
             renderer.sharedMaterial = _crewMaterial;
             renderer.sortingOrder = order;
@@ -380,7 +380,7 @@ namespace Chromacolony.Game
 
             public void Paint(Color color)
             {
-                foreach (var renderer in Body.GetComponentsInChildren<SpriteRenderer>(true))
+                foreach (SpriteRenderer renderer in Body.GetComponentsInChildren<SpriteRenderer>(true))
                 {
                     renderer.color = color;
                 }
@@ -388,10 +388,10 @@ namespace Chromacolony.Game
 
             public void Stride()
             {
-                for (var i = 0; i < 6; i++)
+                for (int i = 0; i < 6; i++)
                 {
-                    var tripod = (i + i / 3) % 2 == 0 ? 0f : Mathf.PI;
-                    var swing = Mathf.Sin(Phase + tripod) * 22f;
+                    float tripod = (i + i / 3) % 2 == 0 ? 0f : Mathf.PI;
+                    float swing = Mathf.Sin(Phase + tripod) * 22f;
                     Legs[i].localRotation = Quaternion.Euler(0f, 0f, -10f + swing - 12f * (i % 3));
                 }
 
@@ -402,14 +402,14 @@ namespace Chromacolony.Game
 
             public void Pose(float raise)
             {
-                var wave = Mathf.Sin(Phase * 0.5f) * 6f * (1f - raise);
+                float wave = Mathf.Sin(Phase * 0.5f) * 6f * (1f - raise);
                 Claws[0].localRotation = Quaternion.Euler(0f, 0f, 35f - 45f * raise + wave);
                 Claws[1].localRotation = Quaternion.Euler(0f, 0f, 35f - 45f * raise - wave);
             }
 
             public void Wave(float beat)
             {
-                var swing = Mathf.Sin(beat) * 28f;
+                float swing = Mathf.Sin(beat) * 28f;
                 Claws[0].localRotation = Quaternion.Euler(0f, 0f, -12f + swing);
                 Claws[1].localRotation = Quaternion.Euler(0f, 0f, -12f - swing);
             }
@@ -421,7 +421,7 @@ namespace Chromacolony.Game
                 Pebble.sortingOrder = order;
                 _pebbleFrom = Pebble.transform.localPosition;
                 _pebbleScaleFrom = Pebble.transform.localScale;
-                var s = height / Mathf.Max(Pebble.sprite.bounds.size.y, 0.0001f);
+                float s = height / Mathf.Max(Pebble.sprite.bounds.size.y, 0.0001f);
                 _pebbleScale = new Vector3(Mathf.Sign(_pebbleScaleFrom.x) * s, s, 1f);
             }
 

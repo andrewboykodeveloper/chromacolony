@@ -96,18 +96,18 @@ namespace Chromacolony.Game
             _ticker = new GameTicker(1f / 60f, _model.Tick);
             _camera = Camera.main;
             _camera.backgroundColor = Hex(config.String(ConfigKeys.ColorNight));
-            var colors = new[]
+            Color[] colors =
             {
                 Hex(config.String(ConfigKeys.ColorR)), Hex(config.String(ConfigKeys.ColorO)), Hex(config.String(ConfigKeys.ColorY)),
                 Hex(config.String(ConfigKeys.ColorG)), Hex(config.String(ConfigKeys.ColorT)), Hex(config.String(ConfigKeys.ColorB)),
                 Hex(config.String(ConfigKeys.ColorP)), Hex(config.String(ConfigKeys.ColorK)),
             };
 
-            var root = document.rootVisualElement.Q(UiNames.Root);
+            VisualElement root = document.rootVisualElement.Q(UiNames.Root);
             _screens = new ScreenHost(root);
             SafeAreas.Keep(root.Q(UiNames.Safe), new ScreenSafeArea());
             _input = new PointerInput();
-            var seed = (ulong)System.DateTime.Now.Ticks;
+            ulong seed = (ulong)System.DateTime.Now.Ticks;
             _random = new Pcg32(seed);
             _beach = new BeachView(_camera, spriteMaterial, config.Float(ConfigKeys.BeachShore), _content.Beach);
             _effects = new Effects(spriteMaterial, new Pcg32(seed + 2), _content);
@@ -320,10 +320,10 @@ namespace Chromacolony.Game
                 return;
             }
 
-            var pick = sound == SoundKeys.Pick1 || sound == SoundKeys.Pick2 || sound == SoundKeys.Pick3;
-            var group = pick ? SoundKeys.Pick1 : sound;
-            var gap = pick ? _pickGap : sound == SoundKeys.Coin ? _coinGap : _soundGap;
-            if (_played.TryGetValue(group, out var last) && _time - last < gap)
+            bool pick = sound == SoundKeys.Pick1 || sound == SoundKeys.Pick2 || sound == SoundKeys.Pick3;
+            string group = pick ? SoundKeys.Pick1 : sound;
+            float gap = pick ? _pickGap : sound == SoundKeys.Coin ? _coinGap : _soundGap;
+            if (_played.TryGetValue(group, out float last) && _time - last < gap)
             {
                 return;
             }
@@ -358,7 +358,7 @@ namespace Chromacolony.Game
 
             ReadPress();
             _ticker.Update();
-            var speed = _model.Fast ? 2f : 1f;
+            float speed = _model.Fast ? 2f : 1f;
             _board.Update(Time.deltaTime, speed);
             _effects.Update(Time.deltaTime * speed);
             _coinFlight.Update(Time.deltaTime);
@@ -368,8 +368,8 @@ namespace Chromacolony.Game
                 {
                     _celebrated = true;
                     _board.Celebrate();
-                    var from = WorldToPanel.Point(_camera, _board.Layout.Gate, document.rootVisualElement.Q(UiNames.Root));
-                    var icon = document.rootVisualElement.Q(UiNames.CoinIcon).worldBound;
+                    Vector2 from = WorldToPanel.Point(_camera, _board.Layout.Gate, document.rootVisualElement.Q(UiNames.Root));
+                    Rect icon = document.rootVisualElement.Q(UiNames.CoinIcon).worldBound;
                     _coinsHeld = false;
                     _coinFlight.Fly(from, icon.center, _coinsFrom, _progress.Coins);
                     return;
@@ -385,8 +385,8 @@ namespace Chromacolony.Game
 
         private void Bob()
         {
-            var onMenu = _screens.CurrentScreen == UiNames.Menu && _screens.CurrentDialog == null;
-            var top = _camera.transform.position.y + _camera.orthographicSize;
+            bool onMenu = _screens.CurrentScreen == UiNames.Menu && _screens.CurrentDialog == null;
+            float top = _camera.transform.position.y + _camera.orthographicSize;
             var spot = new Vector2(_camera.transform.position.x, top - _camera.orthographicSize * 2f * MenuCrabShare);
             _board.ShowOff(spot, onMenu);
         }
@@ -408,15 +408,15 @@ namespace Chromacolony.Game
 
         private void ReadPress()
         {
-            if (!_input.TryGetPress(out var x, out var y) || _screens.CurrentDialog != null || _screens.CurrentScreen != UiNames.Game)
+            if (!_input.TryGetPress(out float x, out float y) || _screens.CurrentDialog != null || _screens.CurrentScreen != UiNames.Game)
             {
                 return;
             }
 
-            var world = _camera.ScreenToWorldPoint(new Vector3(x, _camera.pixelHeight - y, 0f));
+            Vector3 world = _camera.ScreenToWorldPoint(new Vector3(x, _camera.pixelHeight - y, 0f));
             if (_picking)
             {
-                var slot = _board.SlotAt(world);
+                int slot = _board.SlotAt(world);
                 if (slot >= 0 && _model.CanBack(slot) && _progress.Pay(Helper.Back, _prices))
                 {
                     _model.Back(slot);
@@ -433,7 +433,7 @@ namespace Chromacolony.Game
                 return;
             }
 
-            var column = _board.ColumnAt(world);
+            int column = _board.ColumnAt(world);
             if (column >= 0)
             {
                 _model.TrySend(column);
@@ -461,7 +461,7 @@ namespace Chromacolony.Game
 
             _lesson = Lessons.For(_boardIndex, _boards);
             Hint(LessonText());
-            var teaching = _lesson == Lesson.Tap || _lesson == Lesson.Slots || _lesson == Lesson.Inside;
+            bool teaching = _lesson == Lesson.Tap || _lesson == Lesson.Slots || _lesson == Lesson.Inside;
             _claw = teaching;
             _board.Point(teaching ? FirstTap() : -1);
             Refresh();
@@ -469,9 +469,9 @@ namespace Chromacolony.Game
 
         private int FirstTap()
         {
-            for (var c = 0; c < _model.ColumnCount; c++)
+            for (int c = 0; c < _model.ColumnCount; c++)
             {
-                var column = _model.Column(c);
+                IReadOnlyList<Crew> column = _model.Column(c);
                 if (column.Count > 0 && column[0].Link < 0 && _model.Mosaic.AnyInReach(column[0].Color))
                 {
                     return c;
@@ -627,7 +627,7 @@ namespace Chromacolony.Game
                     break;
                 case Payment.Coins:
                     _buying = helper;
-                    var price = _prices.Of(helper);
+                    int price = _prices.Of(helper);
                     _buyText.text = _text.Format(TextKeys.BuyText, Name(helper), price, _progress.Coins, _progress.Coins - price);
                     _screens.Open(UiNames.Buy);
                     break;
@@ -679,7 +679,7 @@ namespace Chromacolony.Game
 
         private bool Holding()
         {
-            var dialog = _screens.CurrentDialog;
+            string dialog = _screens.CurrentDialog;
             return dialog == UiNames.Buy || dialog == UiNames.Note;
         }
 
@@ -711,7 +711,7 @@ namespace Chromacolony.Game
 
         private bool AnyHelperToUse()
         {
-            for (var h = 0; h < _helpers.Length; h++)
+            for (int h = 0; h < _helpers.Length; h++)
             {
                 if (Usable((Helper)h) && _progress.PaymentFor((Helper)h, _prices) != Payment.None)
                 {
@@ -742,10 +742,10 @@ namespace Chromacolony.Game
                 _coins.text = (_coinsHeld ? _coinsFrom : _progress.Coins).ToString();
             }
 
-            for (var h = 0; h < _helpers.Length; h++)
+            for (int h = 0; h < _helpers.Length; h++)
             {
                 var helper = (Helper)h;
-                var stock = _progress.Stock(helper);
+                int stock = _progress.Stock(helper);
                 _badges[h].text = stock > 0 ? stock.ToString() : _prices.Of(helper).ToString();
                 _badges[h].EnableInClassList(PriceClass, stock == 0);
                 _helpers[h].EnableInClassList(OffClass, !Usable(helper) || _progress.PaymentFor(helper, _prices) == Payment.None);
@@ -771,8 +771,8 @@ namespace Chromacolony.Game
         private void ShowResult()
         {
             _resultTitle.text = _text.Get(_resultWon ? TextKeys.Won : TextKeys.Stuck);
-            var helper = !_resultWon && AnyHelperToUse();
-            var allDone = _resultWon && _boardIndex == _boards.Count - 1;
+            bool helper = !_resultWon && AnyHelperToUse();
+            bool allDone = _resultWon && _boardIndex == _boards.Count - 1;
             _resultText.text = _resultWon
                 ? (allDone ? _text.Get(TextKeys.AllDone) : _text.Format(TextKeys.WonCoins, _prices.CoinsPerWin))
                 : _text.Get(helper ? TextKeys.StuckHint : TextKeys.StuckRetry);
@@ -805,7 +805,7 @@ namespace Chromacolony.Game
 
         private static Color Hex(string rgb)
         {
-            return ColorUtility.TryParseHtmlString("#" + rgb, out var color) ? color : Color.magenta;
+            return ColorUtility.TryParseHtmlString("#" + rgb, out Color color) ? color : Color.magenta;
         }
     }
 }

@@ -46,7 +46,7 @@ namespace Chromacolony.Core
 
         private static int FirstWith(IReadOnlyList<BoardSpec> boards, bool rope)
         {
-            for (var i = 0; i < boards.Count; i++)
+            for (int i = 0; i < boards.Count; i++)
             {
                 if (Has(boards[i], rope))
                 {
@@ -59,9 +59,9 @@ namespace Chromacolony.Core
 
         private static bool Has(BoardSpec board, bool rope)
         {
-            foreach (var column in board.Columns)
+            foreach (IReadOnlyList<CrewSpec> column in board.Columns)
             {
-                foreach (var crew in column)
+                foreach (CrewSpec crew in column)
                 {
                     if (rope ? crew.Link >= 0 : crew.Hidden)
                     {

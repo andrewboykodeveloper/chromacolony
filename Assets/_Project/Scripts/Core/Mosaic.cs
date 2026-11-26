@@ -15,7 +15,7 @@ namespace Chromacolony.Core
             Height = height;
             _cells = new int[width * height];
             _open = new bool[width * height];
-            for (var i = 0; i < _cells.Length; i++)
+            for (int i = 0; i < _cells.Length; i++)
             {
                 _cells[i] = cells[i];
                 if (cells[i] >= 0)
@@ -24,7 +24,7 @@ namespace Chromacolony.Core
                 }
             }
 
-            for (var i = 0; i < _cells.Length; i++)
+            for (int i = 0; i < _cells.Length; i++)
             {
                 if (_cells[i] < 0 && OnEdge(i))
                 {
@@ -70,22 +70,22 @@ namespace Chromacolony.Core
                 return true;
             }
 
-            var x = cell % Width;
+            int x = cell % Width;
             return _open[cell - Width] || _open[cell + Width] || (x > 0 && _open[cell - 1]) || (x < Width - 1 && _open[cell + 1]);
         }
 
         public int Nearest(int color)
         {
-            var best = -1;
-            var bestDistance = int.MaxValue;
-            for (var i = 0; i < _cells.Length; i++)
+            int best = -1;
+            int bestDistance = int.MaxValue;
+            for (int i = 0; i < _cells.Length; i++)
             {
                 if (_cells[i] != color || !InReach(i))
                 {
                     continue;
                 }
 
-                var distance = Distance(i);
+                int distance = Distance(i);
                 if (distance < bestDistance)
                 {
                     best = i;
@@ -115,15 +115,15 @@ namespace Chromacolony.Core
 
         private int Distance(int cell)
         {
-            var dx = 2 * (cell % Width) + 1 - Width;
-            var dy = 2 * Height + 1 - (2 * (cell / Width) + 1);
+            int dx = 2 * (cell % Width) + 1 - Width;
+            int dy = 2 * Height + 1 - (2 * (cell / Width) + 1);
             return dx * dx + dy * dy;
         }
 
         private bool OnEdge(int cell)
         {
-            var x = cell % Width;
-            var y = cell / Width;
+            int x = cell % Width;
+            int y = cell / Width;
             return x == 0 || y == 0 || x == Width - 1 || y == Height - 1;
         }
 
@@ -138,8 +138,8 @@ namespace Chromacolony.Core
             _flood.Enqueue(start);
             while (_flood.Count > 0)
             {
-                var cell = _flood.Dequeue();
-                var x = cell % Width;
+                int cell = _flood.Dequeue();
+                int x = cell % Width;
                 if (x > 0)
                 {
                     Open(cell - 1);

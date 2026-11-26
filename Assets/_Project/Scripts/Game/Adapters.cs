@@ -20,7 +20,7 @@ namespace Chromacolony.Game
 
         public string Read(string key)
         {
-            var path = PathOf(key);
+            string path = PathOf(key);
             return File.Exists(path) ? File.ReadAllText(path) : null;
         }
 
@@ -29,8 +29,8 @@ namespace Chromacolony.Game
             try
             {
                 Directory.CreateDirectory(_folder);
-                var path = PathOf(key);
-                var temp = path + ".tmp";
+                string path = PathOf(key);
+                string temp = path + ".tmp";
                 File.WriteAllText(temp, text);
                 if (File.Exists(path))
                 {
@@ -162,10 +162,10 @@ namespace Chromacolony.Game
     {
         public bool TryGetPress(out float x, out float y)
         {
-            var pointer = Pointer.current;
+            Pointer pointer = Pointer.current;
             if (pointer != null && pointer.press.wasPressedThisFrame)
             {
-                var position = pointer.position.ReadValue();
+                Vector2 position = pointer.position.ReadValue();
                 x = position.x;
                 y = Screen.height - position.y;
                 return true;
@@ -181,7 +181,7 @@ namespace Chromacolony.Game
     {
         public static bool WasPressedThisFrame()
         {
-            foreach (var device in InputSystem.devices)
+            foreach (InputDevice device in InputSystem.devices)
             {
                 if (device is Keyboard keyboard && keyboard.escapeKey.wasPressedThisFrame)
                 {

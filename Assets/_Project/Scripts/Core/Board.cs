@@ -65,10 +65,10 @@ namespace Chromacolony.Core
             string name = null;
             var rows = new List<string>();
             var columns = new List<IReadOnlyList<CrewSpec>>();
-            var lines = text.Replace("\r\n", "\n").Split('\n');
-            for (var i = 0; i < lines.Length; i++)
+            string[] lines = text.Replace("\r\n", "\n").Split('\n');
+            for (int i = 0; i < lines.Length; i++)
             {
-                var line = lines[i].Trim();
+                string line = lines[i].Trim();
                 if (line.Length == 0 || line.StartsWith("#", StringComparison.Ordinal))
                 {
                     continue;
@@ -117,30 +117,30 @@ namespace Chromacolony.Core
         private static IReadOnlyList<CrewSpec> Column(string board, int column, string line)
         {
             var crews = new List<CrewSpec>();
-            foreach (var token in line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))
+            foreach (string token in line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))
             {
-                var rest = token;
-                var hidden = rest.StartsWith("?", StringComparison.Ordinal);
+                string rest = token;
+                bool hidden = rest.StartsWith("?", StringComparison.Ordinal);
                 if (hidden)
                 {
                     rest = rest.Substring(1);
                 }
 
-                var link = -1;
-                var tilde = rest.IndexOf('~');
+                int link = -1;
+                int tilde = rest.IndexOf('~');
                 if (tilde >= 0)
                 {
                     link = Number(board, token, rest.Substring(tilde + 1));
                     rest = rest.Substring(0, tilde);
                 }
 
-                var color = rest.Length > 0 ? Palette.Of(rest[0]) : -1;
+                int color = rest.Length > 0 ? Palette.Of(rest[0]) : -1;
                 if (color < 0)
                 {
                     throw new FormatException($"board {board}: no colour in the crew \"{token}\"");
                 }
 
-                var crabs = Number(board, token, rest.Substring(1));
+                int crabs = Number(board, token, rest.Substring(1));
                 if (crabs <= 0)
                 {
                     throw new FormatException($"board {board}: the crew \"{token}\" has no crabs");
@@ -159,7 +159,7 @@ namespace Chromacolony.Core
 
         private static int Number(string board, string token, string text)
         {
-            if (!int.TryParse(text, NumberStyles.None, CultureInfo.InvariantCulture, out var value))
+            if (!int.TryParse(text, NumberStyles.None, CultureInfo.InvariantCulture, out int value))
             {
                 throw new FormatException($"board {board}: no number in the crew \"{token}\"");
             }
@@ -174,20 +174,20 @@ namespace Chromacolony.Core
                 throw new FormatException($"board {name}: it needs a mosaic and a queue");
             }
 
-            var width = rows[0].Length;
-            var cells = new int[width * rows.Count];
-            var pebbles = new int[Palette.Count];
-            for (var y = 0; y < rows.Count; y++)
+            int width = rows[0].Length;
+            int[] cells = new int[width * rows.Count];
+            int[] pebbles = new int[Palette.Count];
+            for (int y = 0; y < rows.Count; y++)
             {
                 if (rows[y].Length != width)
                 {
                     throw new FormatException($"board {name}: row {y + 1} is {rows[y].Length} wide, not {width}");
                 }
 
-                for (var x = 0; x < width; x++)
+                for (int x = 0; x < width; x++)
                 {
-                    var c = rows[y][x];
-                    var color = c == '.' ? -1 : Palette.Of(c);
+                    char c = rows[y][x];
+                    int color = c == '.' ? -1 : Palette.Of(c);
                     if (c != '.' && color < 0)
                     {
                         throw new FormatException($"board {name}: no colour \"{c}\" in row {y + 1}");
@@ -201,11 +201,11 @@ namespace Chromacolony.Core
                 }
             }
 
-            var crabs = new int[Palette.Count];
+            int[] crabs = new int[Palette.Count];
             var ropes = new Dictionary<int, List<int>>();
-            for (var c = 0; c < columns.Count; c++)
+            for (int c = 0; c < columns.Count; c++)
             {
-                foreach (var crew in columns[c])
+                foreach (CrewSpec crew in columns[c])
                 {
                     crabs[crew.Color] += crew.Crabs;
                     if (crew.Link < 0)
@@ -213,7 +213,7 @@ namespace Chromacolony.Core
                         continue;
                     }
 
-                    if (!ropes.TryGetValue(crew.Link, out var tied))
+                    if (!ropes.TryGetValue(crew.Link, out List<int> tied))
                     {
                         ropes[crew.Link] = tied = new List<int>();
                     }
@@ -222,7 +222,7 @@ namespace Chromacolony.Core
                 }
             }
 
-            for (var color = 0; color < Palette.Count; color++)
+            for (int color = 0; color < Palette.Count; color++)
             {
                 if (pebbles[color] != crabs[color])
                 {
@@ -230,11 +230,11 @@ namespace Chromacolony.Core
                 }
             }
 
-            foreach (var rope in ropes)
+            foreach ((int link, List<int> ends) in ropes)
             {
-                if (rope.Value.Count != 2 || rope.Value[0] == rope.Value[1])
+                if (ends.Count != 2 || ends[0] == ends[1])
                 {
-                    throw new FormatException($"board {name}: the rope ~{rope.Key} must tie two crews of two columns");
+                    throw new FormatException($"board {name}: the rope ~{link} must tie two crews of two columns");
                 }
             }
 

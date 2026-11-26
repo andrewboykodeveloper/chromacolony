@@ -17,8 +17,8 @@ namespace Chromacolony.Game
         {
             get
             {
-                var points = Mathf.Max(PanelWidth / Screen.width, PanelHeight / Screen.height);
-                var safe = Screen.safeArea;
+                float points = Mathf.Max(PanelWidth / Screen.width, PanelHeight / Screen.height);
+                Rect safe = Screen.safeArea;
                 return ((Screen.height - safe.yMax) * points, safe.yMin * points, safe.xMin * points, (Screen.width - safe.xMax) * points);
             }
         }
@@ -28,7 +28,7 @@ namespace Chromacolony.Game
     {
         public static void Apply(VisualElement safeElement, ISafeArea area)
         {
-            var (top, bottom, left, right) = area.Insets;
+            (float top, float bottom, float left, float right) = area.Insets;
             safeElement.style.top = top;
             safeElement.style.bottom = bottom;
             safeElement.style.left = left;
@@ -37,11 +37,11 @@ namespace Chromacolony.Game
 
         public static void Keep(VisualElement safeElement, ISafeArea area)
         {
-            var applied = area.Insets;
+            (float Top, float Bottom, float Left, float Right) applied = area.Insets;
             Apply(safeElement, area);
             safeElement.schedule.Execute(() =>
             {
-                var insets = area.Insets;
+                (float Top, float Bottom, float Left, float Right) insets = area.Insets;
                 if (!insets.Equals(applied))
                 {
                     applied = insets;
@@ -55,8 +55,8 @@ namespace Chromacolony.Game
     {
         public static Vector2 Point(Camera camera, Vector3 world, VisualElement panelRoot)
         {
-            var v = camera.WorldToViewportPoint(world);
-            var size = panelRoot.worldBound.size;
+            Vector3 v = camera.WorldToViewportPoint(world);
+            Vector2 size = panelRoot.worldBound.size;
             return new Vector2(v.x * size.x, (1f - v.y) * size.y);
         }
     }

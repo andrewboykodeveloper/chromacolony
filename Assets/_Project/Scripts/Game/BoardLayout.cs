@@ -51,22 +51,22 @@ namespace Chromacolony.Game
 
         public Vector2 PebbleAt(int cell)
         {
-            var x = cell % _width;
-            var y = cell / _width;
-            var size = MosaicSize;
+            int x = cell % _width;
+            int y = cell / _width;
+            Vector2 size = MosaicSize;
             return new Vector2(-size.x / 2f + (x + 0.5f) * Cell, MosaicCenterY + size.y / 2f - (y + 0.5f) * Cell);
         }
 
         public Vector2 SlotAt(int slot)
         {
-            var step = RowWidth / _slots;
+            float step = RowWidth / _slots;
             return new Vector2(-RowWidth / 2f + step * (slot + 0.5f), SlotsY);
         }
 
         public Vector2 QueueAt(int column, int depth)
         {
-            var step = Mathf.Min(2.2f, RowWidth / Mathf.Max(_columns, 1));
-            var x = -step * (_columns - 1) / 2f + step * column;
+            float step = Mathf.Min(2.2f, RowWidth / Mathf.Max(_columns, 1));
+            float x = -step * (_columns - 1) / 2f + step * column;
             return new Vector2(x, QueueTopY - QueueStep * depth);
         }
 

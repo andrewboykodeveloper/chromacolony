@@ -21,7 +21,7 @@ namespace Chromacolony.Editor
 
             var importer = (AudioImporter)assetImporter;
             importer.loadInBackground = true;
-            var settings = importer.defaultSampleSettings;
+            AudioImporterSampleSettings settings = importer.defaultSampleSettings;
             settings.loadType = AudioClipLoadType.CompressedInMemory;
             settings.compressionFormat = AudioCompressionFormat.Vorbis;
             settings.quality = 0.6f;

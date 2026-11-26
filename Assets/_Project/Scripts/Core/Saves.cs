@@ -74,8 +74,8 @@ namespace Chromacolony.Core
                 return null;
             }
 
-            var newline = text.IndexOf('\n');
-            if (newline < 2 || text[0] != 'v' || !int.TryParse(text.Substring(1, newline - 1), NumberStyles.None, CultureInfo.InvariantCulture, out var version))
+            int newline = text.IndexOf('\n');
+            if (newline < 2 || text[0] != 'v' || !int.TryParse(text.Substring(1, newline - 1), NumberStyles.None, CultureInfo.InvariantCulture, out int version))
             {
                 return SetAside(key, text, $"{key}: no version line");
             }
@@ -85,10 +85,10 @@ namespace Chromacolony.Core
                 return Keep(key, $"{key}: saved by a newer version, {version}, than this game's {_version}");
             }
 
-            var payload = text.Substring(newline + 1);
-            for (var v = version; v < _version; v++)
+            string payload = text.Substring(newline + 1);
+            for (int v = version; v < _version; v++)
             {
-                if (!_migrations.TryGetValue(v, out var migration))
+                if (!_migrations.TryGetValue(v, out Func<string, string> migration))
                 {
                     return Keep(key, $"{key}: no migration from version {v}");
                 }

@@ -9,7 +9,7 @@ namespace Chromacolony.Core
 
         public IDisposable Subscribe<T>(Action<T> handler)
         {
-            if (!_handlers.TryGetValue(typeof(T), out var list))
+            if (!_handlers.TryGetValue(typeof(T), out List<Delegate> list))
             {
                 _handlers[typeof(T)] = list = new List<Delegate>();
             }
@@ -20,12 +20,12 @@ namespace Chromacolony.Core
 
         public void Publish<T>(T message)
         {
-            if (!_handlers.TryGetValue(typeof(T), out var list))
+            if (!_handlers.TryGetValue(typeof(T), out List<Delegate> list))
             {
                 return;
             }
 
-            foreach (var handler in list.ToArray())
+            foreach (Delegate handler in list.ToArray())
             {
                 ((Action<T>)handler)(message);
             }
