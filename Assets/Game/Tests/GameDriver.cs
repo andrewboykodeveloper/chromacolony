@@ -38,6 +38,7 @@ namespace Chromacolony.Tests
         private Keyboard _keyboard;
         private VisualElement _ui;
         private Camera _camera;
+        private float? _listenerVolume;
 
         public GameDriver()
         {
@@ -59,6 +60,9 @@ namespace Chromacolony.Tests
             PlayModeSaves.ClearTestSaves();
             Assert.That(Directory.Exists(FileSaveStorage.DefaultFolder), Is.False, "the game starts as a new player");
             Time.captureDeltaTime = FrameSeconds;
+            // The tests check which sources play, not what they sound like, so nothing needs to reach the speakers.
+            _listenerVolume = AudioListener.volume;
+            AudioListener.volume = 0f;
             IsolateInput();
             yield return Load();
         }
@@ -81,6 +85,7 @@ namespace Chromacolony.Tests
             finally
             {
                 Time.captureDeltaTime = 0f;
+                AudioListener.volume = _listenerVolume ?? AudioListener.volume;
                 RestoreInput();
             }
         }
