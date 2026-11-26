@@ -9,7 +9,6 @@ namespace Chromacolony.Game
         private const int Coins = 7;
         private const float Stagger = 0.08f;
         private const float FlySeconds = 0.6f;
-        private const string CoinClass = "flying-coin";
 
         private readonly VisualElement _layer;
         private readonly Label _counter;
@@ -41,7 +40,7 @@ namespace Chromacolony.Game
             for (int i = 0; i < Coins; i++)
             {
                 var coin = new VisualElement();
-                coin.AddToClassList(CoinClass);
+                coin.AddToClassList(UiClasses.FlyingCoin);
                 coin.pickingMode = PickingMode.Ignore;
                 coin.style.opacity = 0f;
                 _layer.Add(coin);

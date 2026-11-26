@@ -1,8 +1,10 @@
+using System;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Chromacolony.Game
 {
-    public sealed class Signs
+    public sealed class Signs : IDisposable
     {
         private const int Size = 64;
         private const int Samples = 4;
@@ -22,11 +24,23 @@ namespace Chromacolony.Game
             return _sprites[Mathf.Clamp(color, 0, _sprites.Length - 1)];
         }
 
+        public void Dispose()
+        {
+            foreach (Sprite sprite in _sprites)
+            {
+                if (sprite != null)
+                {
+                    Object.Destroy(sprite.texture);
+                    Object.Destroy(sprite);
+                }
+            }
+        }
+
         private static Sprite Draw(int color)
         {
             var texture = new Texture2D(Size, Size, TextureFormat.RGBA32, false)
             {
-                name = "Sign " + color,
+                name = RuntimeArt.Sign + " " + color,
                 wrapMode = TextureWrapMode.Clamp,
                 filterMode = FilterMode.Bilinear,
             };
@@ -57,7 +71,9 @@ namespace Chromacolony.Game
             }
 
             texture.Apply(false, true);
-            return Sprite.Create(texture, new Rect(0, 0, Size, Size), new Vector2(0.5f, 0.5f), Size, 0, SpriteMeshType.FullRect);
+            Sprite sprite = Sprite.Create(texture, new Rect(0, 0, Size, Size), new Vector2(0.5f, 0.5f), Size, 0, SpriteMeshType.FullRect);
+            sprite.name = texture.name;
+            return sprite;
         }
 
         private static bool In(int color, float x, float y, float grow)

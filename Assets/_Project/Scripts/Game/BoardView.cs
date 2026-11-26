@@ -1,11 +1,13 @@
+using System;
 using System.Collections.Generic;
 using Chromacolony.Core;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
 
 namespace Chromacolony.Game
 {
-    public sealed class BoardView
+    public sealed class BoardView : IDisposable
     {
         private sealed class CrewVisual
         {
@@ -55,8 +57,6 @@ namespace Chromacolony.Game
         private const float CelebrateSeconds = 2.4f;
         private const float PictureSeconds = 1.1f;
         private const int Dancers = 6;
-        private const string CountClass = "crew-count";
-        private const string MoreClass = "crew-more";
 
         private const int PebbleOrder = 2;
         private const int GlowOrder = 3;
@@ -74,8 +74,6 @@ namespace Chromacolony.Game
         private readonly Material _crewMaterial;
         private readonly Material _spriteMaterial;
         private readonly Color[] _colors;
-        private readonly VisualElement _panelRoot;
-        private readonly VisualElement _labels;
         private readonly Sprite _pebble;
         private readonly Sprite _bucket;
         private readonly Sprite _cover;
@@ -107,25 +105,25 @@ namespace Chromacolony.Game
         private SpriteRenderer[] _pebbles = new SpriteRenderer[0];
         private SpriteRenderer[] _glows = new SpriteRenderer[0];
         private BoardLayout _layout;
+        private VisualElement _panelRoot;
+        private VisualElement _labels;
 
         public BoardLayout Layout => _layout;
 
-        public System.Action<string> Sound { get; set; }
+        public Action<string> Sound { get; set; }
 
         private static Color Gold => new Color(1f, 0.88f, 0.55f);
 
         public bool Busy => _crabs.Walking > 0 || _crews.Count > 0 && AnyLeaving() || _celebration > 0f;
 
-        public BoardView(Camera camera, GameModel model, Material crewMaterial, Material spriteMaterial, Color[] colors, VisualElement panelRoot,
-            VisualElement labels, Effects effects, GameContent content)
+        public BoardView(Camera camera, GameModel model, Material crewMaterial, Material spriteMaterial, Color[] colors, Effects effects,
+            GameContent content)
         {
             _camera = camera;
             _model = model;
             _crewMaterial = crewMaterial;
             _spriteMaterial = spriteMaterial;
             _colors = colors;
-            _panelRoot = panelRoot;
-            _labels = labels;
             _effects = effects;
             _pebble = content.Pebble;
             _bucket = content.Bucket;
@@ -161,6 +159,24 @@ namespace Chromacolony.Game
             model.CrewWaiting += e => Tint(e.Crew);
             model.CrewDone += OnCrewDone;
             model.CrewRevealed += OnRevealed;
+        }
+
+        /// <summary>
+        /// Shows the crews' labels in a layer of the interface; called again with the new layer whenever the interface is rebuilt.
+        /// </summary>
+        public void Attach(VisualElement panelRoot, VisualElement labels)
+        {
+            _panelRoot = panelRoot;
+            _labels = labels;
+            foreach (Label more in _more)
+            {
+                AddToLayer(more);
+            }
+
+            foreach (CrewVisual crew in _crews.Values)
+            {
+                AddToLayer(crew.Count);
+            }
         }
 
         public void ShowOff(Vector2 at, bool on)
@@ -227,6 +243,27 @@ namespace Chromacolony.Game
             _pebbles = new SpriteRenderer[0];
             _glows = new SpriteRenderer[0];
             _layout = null;
+        }
+
+        public void Dispose()
+        {
+            if (_root != null)
+            {
+                Object.Destroy(_root);
+            }
+
+            _crabs.Dispose();
+            _signs.Dispose();
+            if (_glow != null)
+            {
+                Object.Destroy(_glow.texture);
+                Object.Destroy(_glow);
+            }
+
+            if (_tray != null)
+            {
+                Object.Destroy(_tray);
+            }
         }
 
         public void Celebrate()
@@ -330,7 +367,7 @@ namespace Chromacolony.Game
             {
                 int hidden = _model.Column(c).Count - BoardLayout.VisibleDepth;
                 _more[c].text = hidden > 0 ? "+" + hidden : string.Empty;
-                _more[c].style.display = hidden > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+                _more[c].EnableInClassList(UiClasses.Hidden, hidden <= 0);
                 float back = _layout.BucketSize * _layout.QueueScale(BoardLayout.VisibleDepth - 1);
                 Vector2 corner = WorldToPanel.Point(_camera, _layout.QueueAt(c, BoardLayout.VisibleDepth - 1) + new Vector2(back * 0.48f, -back * 0.34f), _panelRoot);
                 _more[c].style.left = corner.x;
@@ -470,7 +507,7 @@ namespace Chromacolony.Game
             for (int c = 0; c < _model.ColumnCount; c++)
             {
                 var more = new Label();
-                more.AddToClassList(MoreClass);
+                more.AddToClassList(UiClasses.CrewMore);
                 more.pickingMode = PickingMode.Ignore;
                 _labels.Add(more);
                 _more.Add(more);
@@ -508,7 +545,7 @@ namespace Chromacolony.Game
                     visual.Renderer = Make(_bucket, _crewMaterial, "Crew " + crew.Id, 10);
                     visual.Sign = MakeSign(visual.Renderer.transform, crew.Color);
                     visual.Count = new Label();
-                    visual.Count.AddToClassList(CountClass);
+                    visual.Count.AddToClassList(UiClasses.CrewCount);
                     visual.Count.pickingMode = PickingMode.Ignore;
                     _labels.Add(visual.Count);
                     _crews.Add(crew.Id, visual);
@@ -775,11 +812,21 @@ namespace Chromacolony.Game
             }
         }
 
+        private void AddToLayer(VisualElement label)
+        {
+            if (label.parent != _labels)
+            {
+                _labels.Add(label);
+            }
+        }
+
         private static Sprite Sliced(Sprite sprite)
         {
             Rect rect = sprite.rect;
-            return Sprite.Create(sprite.texture, rect, new Vector2(0.5f, 0.5f), TrayPixelsPerUnit, 0, SpriteMeshType.FullRect,
+            Sprite sliced = Sprite.Create(sprite.texture, rect, new Vector2(0.5f, 0.5f), TrayPixelsPerUnit, 0, SpriteMeshType.FullRect,
                 new Vector4(TrayBorder, TrayBorder, TrayBorder, TrayBorder));
+            sliced.name = RuntimeArt.Tray;
+            return sliced;
         }
 
         private void Dress(Crew crew)

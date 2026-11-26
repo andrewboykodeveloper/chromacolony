@@ -46,6 +46,7 @@ namespace Chromacolony.Game
             if (_voice == null)
             {
                 _voice = _host.AddComponent<AudioSource>();
+                _voice.playOnAwake = false;
             }
 
             _voice.Stop();

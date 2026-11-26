@@ -70,5 +70,19 @@ namespace Chromacolony.Tests.EditMode
             Assert.That(text.Language, Is.EqualTo("en"));
             Assert.That(text.Format("board", 3), Is.EqualTo("Board 3"));
         }
+
+        [Test]
+        public void TheTextsChangeTheirLanguageInPlace()
+        {
+            var text = new Localization("key,en,ru\nboard,Board {0},Доска {0}\n", "en");
+
+            text.Use("ru");
+            Assert.That(text.Language, Is.EqualTo("ru"));
+            Assert.That(text.Format("board", 3), Is.EqualTo("Доска 3"));
+
+            text.Use("de");
+            Assert.That(text.Language, Is.EqualTo("en"));
+            Assert.That(text.Format("board", 3), Is.EqualTo("Board 3"));
+        }
     }
 }

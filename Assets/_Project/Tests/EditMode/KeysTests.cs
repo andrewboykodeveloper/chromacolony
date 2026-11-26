@@ -83,6 +83,14 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
+        public void TheLocalizationTableHasAColumnForEveryLanguageAndNoOther()
+        {
+            List<string> columns = Rows(LocalizationGuid)[0].Skip(1).ToList();
+
+            Assert.That(columns, Is.EquivalentTo(Constants(typeof(Languages))));
+        }
+
+        [Test]
         public void TheConfigTableHasOneRowForEveryConfigKeyAndNoOther()
         {
             List<string> keys = Constants(typeof(ConfigKeys));
@@ -165,6 +173,17 @@ namespace Chromacolony.Tests.EditMode
 
             Assert.That(assets, Is.Not.Empty, $"{sheet} names no asset");
             Assert.That(missing, Is.Empty, $"assets {sheet} names that do not load");
+        }
+
+        [Test]
+        public void EveryUiClassHasARuleInTheStyleSheet()
+        {
+            string sheet = File.ReadAllText(AssetDatabase.GUIDToAssetPath(StyleSheetGuid));
+            List<string> missing = Constants(typeof(UiClasses))
+                .Where(name => !Regex.IsMatch(sheet, @"\." + Regex.Escape(name) + @"(?![\w-])"))
+                .ToList();
+
+            Assert.That(missing, Is.Empty, "classes with no rule in the style sheet");
         }
 
         [TestCase(StyleSheetGuid)]

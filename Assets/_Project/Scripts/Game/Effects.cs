@@ -1,10 +1,12 @@
+using System;
 using System.Collections.Generic;
 using Chromacolony.Core;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Chromacolony.Game
 {
-    public sealed class Effects
+    public sealed class Effects : IDisposable
     {
         private sealed class Bit
         {
@@ -99,6 +101,14 @@ namespace Chromacolony.Game
             }
 
             _live.Clear();
+        }
+
+        public void Dispose()
+        {
+            if (_holder != null)
+            {
+                Object.Destroy(_holder.gameObject);
+            }
         }
 
         private void Spawn(Sprite sprite, Vector2 at, Vector2 way, float sizeFrom, float sizeTo, float life, float alpha, float spin, Color tint)

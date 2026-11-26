@@ -13,11 +13,11 @@ namespace Chromacolony.Game
             safeElement.style.right = right;
         }
 
-        public static void Keep(VisualElement safeElement, ISafeArea area)
+        public static IVisualElementScheduledItem Keep(VisualElement safeElement, ISafeArea area)
         {
             (float Top, float Bottom, float Left, float Right) applied = area.Insets;
             Apply(safeElement, area);
-            safeElement.schedule.Execute(() =>
+            return safeElement.schedule.Execute(() =>
             {
                 (float Top, float Bottom, float Left, float Right) insets = area.Insets;
                 if (!insets.Equals(applied))
