@@ -4,7 +4,7 @@ This file lists the notable changes to Chromacolony. The format follows [Keep a 
 
 The first release lists its changes against the game as it was imported in the first commit.
 
-## [Unreleased]
+## [1.0.0] - 2026-11-26
 
 ### Added
 
@@ -36,3 +36,5 @@ The first release lists its changes against the game as it was imported in the f
 ### Removed
 
 - Code, images, style rules and packages the game did not use, and the input actions asset from Unity's project template.
+
+[1.0.0]: https://github.com/andrewboykodeveloper/chromacolony/releases/tag/v1.0.0
