@@ -22,7 +22,7 @@ namespace Chromacolony.Core
         public int Advance(double frameSeconds, Action<float> tick)
         {
             _pending += frameSeconds;
-            var steps = 0;
+            int steps = 0;
             while (_pending >= _step && steps < _maxStepsPerAdvance)
             {
                 tick((float)_step);

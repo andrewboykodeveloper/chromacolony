@@ -22,15 +22,6 @@ namespace Chromacolony.Game
         private readonly int _slots;
         private readonly int _columns;
 
-        public BoardLayout(int width, int height, int slots, int columns)
-        {
-            _width = width;
-            _height = height;
-            _slots = slots;
-            _columns = columns;
-            Cell = Mathf.Min(MosaicMaxWidth / width, MosaicMaxHeight / height);
-        }
-
         public float Cell { get; }
 
         public Vector2 MosaicSize => new Vector2(_width * Cell, _height * Cell);
@@ -49,24 +40,33 @@ namespace Chromacolony.Game
 
         public float BucketSize => Mathf.Min(1.25f, RowWidth / Mathf.Max(_columns, 1) * 0.7f);
 
+        public BoardLayout(int width, int height, int slots, int columns)
+        {
+            _width = width;
+            _height = height;
+            _slots = slots;
+            _columns = columns;
+            Cell = Mathf.Min(MosaicMaxWidth / width, MosaicMaxHeight / height);
+        }
+
         public Vector2 PebbleAt(int cell)
         {
-            var x = cell % _width;
-            var y = cell / _width;
-            var size = MosaicSize;
+            int x = cell % _width;
+            int y = cell / _width;
+            Vector2 size = MosaicSize;
             return new Vector2(-size.x / 2f + (x + 0.5f) * Cell, MosaicCenterY + size.y / 2f - (y + 0.5f) * Cell);
         }
 
         public Vector2 SlotAt(int slot)
         {
-            var step = RowWidth / _slots;
+            float step = RowWidth / _slots;
             return new Vector2(-RowWidth / 2f + step * (slot + 0.5f), SlotsY);
         }
 
         public Vector2 QueueAt(int column, int depth)
         {
-            var step = Mathf.Min(2.2f, RowWidth / Mathf.Max(_columns, 1));
-            var x = -step * (_columns - 1) / 2f + step * column;
+            float step = Mathf.Min(2.2f, RowWidth / Mathf.Max(_columns, 1));
+            float x = -step * (_columns - 1) / 2f + step * column;
             return new Vector2(x, QueueTopY - QueueStep * depth);
         }
 

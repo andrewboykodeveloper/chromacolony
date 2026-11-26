@@ -6,6 +6,20 @@ namespace Chromacolony.Game
 {
     public sealed class Effects
     {
+        private sealed class Bit
+        {
+            public SpriteRenderer Renderer;
+            public Vector2 From;
+            public Vector2 Way;
+            public float SizeFrom;
+            public float SizeTo;
+            public float Life;
+            public float Alpha;
+            public float Spin;
+            public Color Tint;
+            public float Age;
+        }
+
         private const int Order = 55;
 
         private readonly Transform _holder;
@@ -27,17 +41,17 @@ namespace Chromacolony.Game
 
         public void Puff(Vector2 at, float size)
         {
-            var spin = (_random.Value() - 0.5f) * 60f;
+            float spin = (_random.Value() - 0.5f) * 60f;
             Spawn(_puff, at, new Vector2(0f, size * 0.6f), size * 0.5f, size * 1.25f, 0.45f, 0.8f, spin, Color.white);
         }
 
         public void Sparkles(Vector2 at, float radius, int count, Color tint)
         {
-            for (var i = 0; i < count; i++)
+            for (int i = 0; i < count; i++)
             {
-                var angle = (i + _random.Value() * 0.6f) / count * Mathf.PI * 2f;
-                var way = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius * (0.7f + 0.6f * _random.Value());
-                var size = radius * (0.28f + 0.18f * _random.Value());
+                float angle = (i + _random.Value() * 0.6f) / count * Mathf.PI * 2f;
+                Vector2 way = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius * (0.7f + 0.6f * _random.Value());
+                float size = radius * (0.28f + 0.18f * _random.Value());
                 Spawn(_sparkle, at, way * 2f / 0.55f, size, size * 0.4f, 0.55f, 1f, 220f * (_random.Value() - 0.5f), tint);
             }
         }
@@ -54,17 +68,17 @@ namespace Chromacolony.Game
 
         public void Update(float dt)
         {
-            for (var i = _live.Count - 1; i >= 0; i--)
+            for (int i = _live.Count - 1; i >= 0; i--)
             {
-                var bit = _live[i];
+                Bit bit = _live[i];
                 bit.Age += dt;
-                var t = Mathf.Clamp01(bit.Age / bit.Life);
-                var transform = bit.Renderer.transform;
+                float t = Mathf.Clamp01(bit.Age / bit.Life);
+                Transform transform = bit.Renderer.transform;
                 transform.position = (Vector3)(bit.From + bit.Way * (1f - (1f - t) * (1f - t)) * bit.Life / 2f);
-                var size = Mathf.Lerp(bit.SizeFrom, bit.SizeTo, Mathf.Sin(t * Mathf.PI * 0.5f));
+                float size = Mathf.Lerp(bit.SizeFrom, bit.SizeTo, Mathf.Sin(t * Mathf.PI * 0.5f));
                 transform.localScale = Fit(bit.Renderer.sprite, size);
                 transform.localRotation = Quaternion.Euler(0f, 0f, bit.Spin * bit.Age);
-                var tint = bit.Tint;
+                Color tint = bit.Tint;
                 tint.a = bit.Alpha * (t < 0.2f ? t / 0.2f : 1f - (t - 0.2f) / 0.8f);
                 bit.Renderer.color = tint;
                 if (t >= 1f)
@@ -78,7 +92,7 @@ namespace Chromacolony.Game
 
         public void Clear()
         {
-            foreach (var bit in _live)
+            foreach (Bit bit in _live)
             {
                 bit.Renderer.gameObject.SetActive(false);
                 _pool.Push(bit.Renderer);
@@ -124,22 +138,8 @@ namespace Chromacolony.Game
 
         private static Vector3 Fit(Sprite sprite, float height)
         {
-            var s = height / Mathf.Max(sprite.bounds.size.y, 0.0001f);
+            float s = height / Mathf.Max(sprite.bounds.size.y, 0.0001f);
             return new Vector3(s, s, 1f);
-        }
-
-        private sealed class Bit
-        {
-            public SpriteRenderer Renderer;
-            public Vector2 From;
-            public Vector2 Way;
-            public float SizeFrom;
-            public float SizeTo;
-            public float Life;
-            public float Alpha;
-            public float Spin;
-            public Color Tint;
-            public float Age;
         }
     }
 }

@@ -6,11 +6,12 @@ namespace Chromacolony.Game
     {
         private const int Size = 64;
         private const int Samples = 4;
+
         private readonly Sprite[] _sprites = new Sprite[8];
 
         public Signs()
         {
-            for (var color = 0; color < _sprites.Length; color++)
+            for (int color = 0; color < _sprites.Length; color++)
             {
                 _sprites[color] = Draw(color);
             }
@@ -29,17 +30,17 @@ namespace Chromacolony.Game
                 wrapMode = TextureWrapMode.Clamp,
                 filterMode = FilterMode.Bilinear,
             };
-            for (var y = 0; y < Size; y++)
+            for (int y = 0; y < Size; y++)
             {
-                for (var x = 0; x < Size; x++)
+                for (int x = 0; x < Size; x++)
                 {
                     float inside = 0f, rim = 0f;
-                    for (var sy = 0; sy < Samples; sy++)
+                    for (int sy = 0; sy < Samples; sy++)
                     {
-                        for (var sx = 0; sx < Samples; sx++)
+                        for (int sx = 0; sx < Samples; sx++)
                         {
-                            var px = (x + (sx + 0.5f) / Samples) / Size * 2f - 1f;
-                            var py = (y + (sy + 0.5f) / Samples) / Size * 2f - 1f;
+                            float px = (x + (sx + 0.5f) / Samples) / Size * 2f - 1f;
+                            float py = (y + (sy + 0.5f) / Samples) / Size * 2f - 1f;
                             inside += In(color, px, py, 0f) ? 1f : 0f;
                             rim += In(color, px, py, 0.14f) ? 1f : 0f;
                         }
@@ -61,8 +62,8 @@ namespace Chromacolony.Game
 
         private static bool In(int color, float x, float y, float grow)
         {
-            var r = 0.72f + grow;
-            var d = Mathf.Sqrt(x * x + y * y);
+            float r = 0.72f + grow;
+            float d = Mathf.Sqrt(x * x + y * y);
             switch (color)
             {
                 case 0:
@@ -80,8 +81,8 @@ namespace Chromacolony.Game
                 case 6:
                     return d < r && d > 0.38f - grow;
                 default:
-                    var ax = Mathf.Abs(x);
-                    var ay = Mathf.Abs(y);
+                    float ax = Mathf.Abs(x);
+                    float ay = Mathf.Abs(y);
                     return Mathf.Max(ax * 0.866f + ay * 0.5f, ay) < r * 0.9f;
             }
         }
@@ -102,26 +103,26 @@ namespace Chromacolony.Game
 
         private static bool Heart(float x, float y, float r)
         {
-            var k = r / 1.15f;
-            var u = x / k;
-            var v = y / k + 0.12f;
-            var a = u * u + v * v - 1f;
+            float k = r / 1.15f;
+            float u = x / k;
+            float v = y / k + 0.12f;
+            float a = u * u + v * v - 1f;
             return a * a * a - u * u * v * v * v <= 0f;
         }
 
         private static bool Star(float x, float y, float outer, float inner)
         {
-            var inside = false;
+            bool inside = false;
             for (int i = 0, j = 9; i < 10; j = i++)
             {
-                var ai = Mathf.PI / 2f + i * Mathf.PI / 5f;
-                var aj = Mathf.PI / 2f + j * Mathf.PI / 5f;
-                var ri = i % 2 == 0 ? outer : inner;
-                var rj = j % 2 == 0 ? outer : inner;
-                var xi = Mathf.Cos(ai) * ri;
-                var yi = Mathf.Sin(ai) * ri;
-                var xj = Mathf.Cos(aj) * rj;
-                var yj = Mathf.Sin(aj) * rj;
+                float ai = Mathf.PI / 2f + i * Mathf.PI / 5f;
+                float aj = Mathf.PI / 2f + j * Mathf.PI / 5f;
+                float ri = i % 2 == 0 ? outer : inner;
+                float rj = j % 2 == 0 ? outer : inner;
+                float xi = Mathf.Cos(ai) * ri;
+                float yi = Mathf.Sin(ai) * ri;
+                float xj = Mathf.Cos(aj) * rj;
+                float yj = Mathf.Sin(aj) * rj;
                 if ((yi > y) != (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi)
                 {
                     inside = !inside;

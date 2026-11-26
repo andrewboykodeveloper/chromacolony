@@ -4,50 +4,9 @@ using System.Text;
 
 namespace Chromacolony.Core
 {
-    public enum Helper
-    {
-        Slot,
-
-        Shuffle,
-
-        Back,
-    }
-
-    public enum Payment
-    {
-        Stock,
-        Coins,
-        None,
-    }
-
-    public sealed class Prices
-    {
-        private readonly int[] _helpers;
-
-        public Prices(int coinsPerWin, int startStock, int slot, int shuffle, int back)
-        {
-            CoinsPerWin = coinsPerWin;
-            StartStock = startStock;
-            _helpers = new[] { slot, shuffle, back };
-        }
-
-        public int CoinsPerWin { get; }
-
-        public int StartStock { get; }
-
-        public int Of(Helper helper)
-        {
-            return _helpers[(int)helper];
-        }
-    }
-
     public sealed class Progress
     {
         private readonly int[] _stock = new int[3];
-
-        private Progress()
-        {
-        }
 
         public int Board { get; private set; }
 
@@ -65,10 +24,14 @@ namespace Chromacolony.Core
 
         public bool Fast { get; set; }
 
+        private Progress()
+        {
+        }
+
         public static Progress New(Prices prices)
         {
             var progress = new Progress();
-            for (var h = 0; h < progress._stock.Length; h++)
+            for (int h = 0; h < progress._stock.Length; h++)
             {
                 progress._stock[h] = prices.StartStock;
             }
@@ -135,7 +98,7 @@ namespace Chromacolony.Core
 
         public static Progress FromText(string text, Prices prices, int boards)
         {
-            var progress = New(prices);
+            Progress progress = New(prices);
             if (string.IsNullOrEmpty(text))
             {
                 return progress;
@@ -143,23 +106,23 @@ namespace Chromacolony.Core
 
             bool? music = null;
             bool? voice = null;
-            foreach (var line in text.Split('\n'))
+            foreach (string line in text.Split('\n'))
             {
-                var equals = line.IndexOf('=');
+                int equals = line.IndexOf('=');
                 if (equals <= 0)
                 {
                     continue;
                 }
 
-                var key = line.Substring(0, equals).Trim();
-                var raw = line.Substring(equals + 1).Trim();
+                string key = line.Substring(0, equals).Trim();
+                string raw = line.Substring(equals + 1).Trim();
                 if (key == "language")
                 {
                     progress.Language = IsLanguage(raw) ? raw : string.Empty;
                     continue;
                 }
 
-                if (!int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value))
+                if (!int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int value))
                 {
                     continue;
                 }
@@ -211,7 +174,7 @@ namespace Chromacolony.Core
                 return false;
             }
 
-            foreach (var c in code)
+            foreach (char c in code)
             {
                 if (c < 'a' || c > 'z')
                 {

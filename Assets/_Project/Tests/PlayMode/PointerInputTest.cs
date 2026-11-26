@@ -34,14 +34,14 @@ namespace Chromacolony.Tests.PlayMode
         [UnityTest]
         public IEnumerator AMouseClickIsOnePressWithYDown()
         {
-            var mouse = InputSystem.AddDevice<Mouse>();
+            Mouse mouse = InputSystem.AddDevice<Mouse>();
             try
             {
                 mouse.MakeCurrent();
                 var input = new PointerInput();
                 InputSystem.QueueStateEvent(mouse, new MouseState { position = new Vector2(100f, Screen.height - 40f) }.WithButton(MouseButton.Left, true));
                 yield return null;
-                Assert.That(input.TryGetPress(out var x, out var y), Is.True);
+                Assert.That(input.TryGetPress(out float x, out float y), Is.True);
                 Assert.That(x, Is.EqualTo(100f).Within(0.5f));
                 Assert.That(y, Is.EqualTo(40f).Within(0.5f));
 
@@ -59,14 +59,14 @@ namespace Chromacolony.Tests.PlayMode
         [UnityTest]
         public IEnumerator ATouchIsAPressToo()
         {
-            var screen = InputSystem.AddDevice<Touchscreen>();
+            Touchscreen screen = InputSystem.AddDevice<Touchscreen>();
             try
             {
                 screen.MakeCurrent();
                 var input = new PointerInput();
                 InputSystem.QueueStateEvent(screen, new TouchState { touchId = 1, phase = TouchPhase.Began, position = new Vector2(200f, Screen.height - 300f) });
                 yield return null;
-                Assert.That(input.TryGetPress(out var x, out var y), Is.True);
+                Assert.That(input.TryGetPress(out float x, out float y), Is.True);
                 Assert.That(x, Is.EqualTo(200f).Within(0.5f));
                 Assert.That(y, Is.EqualTo(300f).Within(0.5f));
 
@@ -83,8 +83,8 @@ namespace Chromacolony.Tests.PlayMode
         [UnityTest]
         public IEnumerator TheBackKeyCountsOnAKeyboardThatIsNotCurrent()
         {
-            var back = InputSystem.AddDevice<Keyboard>();
-            var other = InputSystem.AddDevice<Keyboard>();
+            Keyboard back = InputSystem.AddDevice<Keyboard>();
+            Keyboard other = InputSystem.AddDevice<Keyboard>();
             try
             {
                 other.MakeCurrent();

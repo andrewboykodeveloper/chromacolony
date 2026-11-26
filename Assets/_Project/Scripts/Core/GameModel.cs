@@ -2,27 +2,6 @@ using System.Collections.Generic;
 
 namespace Chromacolony.Core
 {
-    public enum GamePhase
-    {
-        Menu,
-        Playing,
-        Won,
-        Stuck,
-    }
-
-    public sealed class Rules
-    {
-        public Rules(int slots, float crabInterval)
-        {
-            Slots = slots;
-            CrabInterval = crabInterval;
-        }
-
-        public int Slots { get; }
-
-        public float CrabInterval { get; }
-    }
-
     public sealed class GameModel
     {
         private readonly StateMachine<GamePhase> _phase = new StateMachine<GamePhase>(GamePhase.Menu)
@@ -41,12 +20,6 @@ namespace Chromacolony.Core
         private readonly List<List<Crew>> _columns = new List<List<Crew>>();
         private Crew[] _slots = new Crew[0];
 
-        public GameModel(EventBus events, Rules rules)
-        {
-            _events = events;
-            _rules = rules;
-        }
-
         public GamePhase Phase => _phase.Current;
 
         public BoardSpec Board { get; private set; }
@@ -58,6 +31,18 @@ namespace Chromacolony.Core
         public int SlotCount { get; private set; }
 
         public int ColumnCount => _columns.Count;
+
+        public bool CanAddSlot => InPlay && SlotCount < _slots.Length;
+
+        public bool CanShuffle => Phase == GamePhase.Playing && Shufflable().Count >= 2;
+
+        private bool InPlay => Phase == GamePhase.Playing || Phase == GamePhase.Stuck;
+
+        public GameModel(EventBus events, Rules rules)
+        {
+            _events = events;
+            _rules = rules;
+        }
 
         public Crew SlotAt(int slot)
         {
@@ -77,11 +62,11 @@ namespace Chromacolony.Core
             SlotCount = _rules.Slots;
             _slots = new Crew[_rules.Slots + 1];
             _columns.Clear();
-            var id = 0;
-            for (var c = 0; c < board.Columns.Count; c++)
+            int id = 0;
+            for (int c = 0; c < board.Columns.Count; c++)
             {
                 var column = new List<Crew>();
-                foreach (var spec in board.Columns[c])
+                foreach (CrewSpec spec in board.Columns[c])
                 {
                     column.Add(new Crew(id++, spec, c));
                 }
@@ -90,7 +75,7 @@ namespace Chromacolony.Core
             }
 
             _events.Publish(new BoardStarted(board));
-            for (var c = 0; c < _columns.Count; c++)
+            for (int c = 0; c < _columns.Count; c++)
             {
                 RevealFront(c);
             }
@@ -114,15 +99,15 @@ namespace Chromacolony.Core
             copy.SlotCount = SlotCount;
             var crews = new Dictionary<Crew, Crew>();
             copy._slots = new Crew[_slots.Length];
-            for (var s = 0; s < _slots.Length; s++)
+            for (int s = 0; s < _slots.Length; s++)
             {
                 copy._slots[s] = CopyOf(_slots[s], crews);
             }
 
-            foreach (var column in _columns)
+            foreach (List<Crew> column in _columns)
             {
                 var copied = new List<Crew>(column.Count);
-                foreach (var crew in column)
+                foreach (Crew crew in column)
                 {
                     copied.Add(CopyOf(crew, crews));
                 }
@@ -153,8 +138,8 @@ namespace Chromacolony.Core
                 return Refuse(column, Refusal.Empty);
             }
 
-            var crew = _columns[column][0];
-            var partner = -1;
+            Crew crew = _columns[column][0];
+            int partner = -1;
             if (crew.Link >= 0)
             {
                 partner = PartnerColumn(crew, column);
@@ -185,10 +170,10 @@ namespace Chromacolony.Core
                 return;
             }
 
-            var step = Fast ? dt * 2f : dt;
-            for (var s = 0; s < SlotCount; s++)
+            float step = Fast ? dt * 2f : dt;
+            for (int s = 0; s < SlotCount; s++)
             {
-                var crew = _slots[s];
+                Crew crew = _slots[s];
                 if (crew == null)
                 {
                     continue;
@@ -197,7 +182,7 @@ namespace Chromacolony.Core
                 crew.Cooldown -= step;
                 while (crew.Remaining > 0 && crew.Cooldown <= 0f)
                 {
-                    var cell = Mosaic.Nearest(crew.Color);
+                    int cell = Mosaic.Nearest(crew.Color);
                     if (cell < 0)
                     {
                         crew.Cooldown = 0f;
@@ -231,10 +216,6 @@ namespace Chromacolony.Core
             }
         }
 
-        public bool CanAddSlot => InPlay && SlotCount < _slots.Length;
-
-        public bool CanShuffle => Phase == GamePhase.Playing && Shufflable().Count >= 2;
-
         public bool CanBack(int slot)
         {
             return InPlay && slot >= 0 && slot < SlotCount && _slots[slot] != null;
@@ -242,7 +223,7 @@ namespace Chromacolony.Core
 
         public bool AnyToBack()
         {
-            for (var s = 0; s < SlotCount; s++)
+            for (int s = 0; s < SlotCount; s++)
             {
                 if (CanBack(s))
                 {
@@ -272,29 +253,29 @@ namespace Chromacolony.Core
                 return;
             }
 
-            var places = Shufflable();
+            List<(int Column, int Depth)> places = Shufflable();
             var crews = new List<Crew>(places.Count);
-            foreach (var (column, depth) in places)
+            foreach ((int column, int depth) in places)
             {
                 crews.Add(_columns[column][depth]);
             }
 
-            for (var i = crews.Count - 1; i > 0; i--)
+            for (int i = crews.Count - 1; i > 0; i--)
             {
-                var j = random.Range(0, i + 1);
-                var swap = crews[i];
+                int j = random.Range(0, i + 1);
+                Crew swap = crews[i];
                 crews[i] = crews[j];
                 crews[j] = swap;
             }
 
-            for (var i = 0; i < places.Count; i++)
+            for (int i = 0; i < places.Count; i++)
             {
                 _columns[places[i].Column][places[i].Depth] = crews[i];
                 crews[i].Column = places[i].Column;
             }
 
             _events.Publish(new QueueShuffled());
-            for (var c = 0; c < _columns.Count; c++)
+            for (int c = 0; c < _columns.Count; c++)
             {
                 RevealFront(c);
             }
@@ -307,7 +288,7 @@ namespace Chromacolony.Core
                 return;
             }
 
-            var crew = _slots[slot];
+            Crew crew = _slots[slot];
             _slots[slot] = null;
             crew.Waiting = false;
             crew.Link = -1;
@@ -318,8 +299,8 @@ namespace Chromacolony.Core
 
         public int FreeSlots()
         {
-            var free = 0;
-            for (var s = 0; s < SlotCount; s++)
+            int free = 0;
+            for (int s = 0; s < SlotCount; s++)
             {
                 if (_slots[s] == null)
                 {
@@ -329,8 +310,6 @@ namespace Chromacolony.Core
 
             return free;
         }
-
-        private bool InPlay => Phase == GamePhase.Playing || Phase == GamePhase.Stuck;
 
         private void PlayOn()
         {
@@ -343,9 +322,9 @@ namespace Chromacolony.Core
         private List<(int Column, int Depth)> Shufflable()
         {
             var places = new List<(int Column, int Depth)>();
-            for (var c = 0; c < _columns.Count; c++)
+            for (int c = 0; c < _columns.Count; c++)
             {
-                for (var d = 0; d < _columns[c].Count; d++)
+                for (int d = 0; d < _columns[c].Count; d++)
                 {
                     if (_columns[c][d].Link < 0)
                     {
@@ -364,7 +343,7 @@ namespace Chromacolony.Core
                 return null;
             }
 
-            if (!copies.TryGetValue(crew, out var copy))
+            if (!copies.TryGetValue(crew, out Crew copy))
             {
                 copies[crew] = copy = new Crew(crew);
             }
@@ -380,8 +359,8 @@ namespace Chromacolony.Core
 
         private void Place(int column)
         {
-            var crew = _columns[column][0];
-            var slot = 0;
+            Crew crew = _columns[column][0];
+            int slot = 0;
             while (_slots[slot] != null)
             {
                 slot++;
@@ -402,7 +381,7 @@ namespace Chromacolony.Core
                 return;
             }
 
-            var front = _columns[column][0];
+            Crew front = _columns[column][0];
             if (front.Hidden)
             {
                 front.Hidden = false;
@@ -412,7 +391,7 @@ namespace Chromacolony.Core
 
         private int PartnerColumn(Crew crew, int column)
         {
-            for (var c = 0; c < _columns.Count; c++)
+            for (int c = 0; c < _columns.Count; c++)
             {
                 if (c != column && _columns[c].Count > 0 && _columns[c][0].Link == crew.Link)
                 {
@@ -434,9 +413,9 @@ namespace Chromacolony.Core
 
         private bool CanProgress()
         {
-            for (var s = 0; s < SlotCount; s++)
+            for (int s = 0; s < SlotCount; s++)
             {
-                var crew = _slots[s];
+                Crew crew = _slots[s];
                 if (crew != null && crew.Remaining > 0 && Mosaic.AnyInReach(crew.Color))
                 {
                     return true;
@@ -448,15 +427,15 @@ namespace Chromacolony.Core
 
         private bool CanSendAny()
         {
-            var free = FreeSlots();
-            for (var c = 0; c < _columns.Count; c++)
+            int free = FreeSlots();
+            for (int c = 0; c < _columns.Count; c++)
             {
                 if (_columns[c].Count == 0)
                 {
                     continue;
                 }
 
-                var crew = _columns[c][0];
+                Crew crew = _columns[c][0];
                 if (crew.Link < 0 ? free >= 1 : free >= 2 && PartnerColumn(crew, c) >= 0)
                 {
                     return true;

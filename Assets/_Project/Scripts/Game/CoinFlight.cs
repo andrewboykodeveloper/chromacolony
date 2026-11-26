@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UIElements = UnityEngine.UIElements;
+using UnityEngine.UIElements;
 
 namespace Chromacolony.Game
 {
@@ -11,24 +11,24 @@ namespace Chromacolony.Game
         private const float FlySeconds = 0.6f;
         private const string CoinClass = "flying-coin";
 
-        private readonly UIElements.VisualElement _layer;
-        private readonly UIElements.Label _counter;
-        private readonly List<UIElements.VisualElement> _shown = new List<UIElements.VisualElement>();
+        private readonly VisualElement _layer;
+        private readonly Label _counter;
+        private readonly List<VisualElement> _shown = new List<VisualElement>();
         private Vector2 _from;
         private Vector2 _to;
         private int _start;
         private int _end;
         private float _time = -1f;
 
-        public CoinFlight(UIElements.VisualElement layer, UIElements.Label counter)
+        public bool Flying => _time >= 0f;
+
+        public System.Action Landed { get; set; }
+
+        public CoinFlight(VisualElement layer, Label counter)
         {
             _layer = layer;
             _counter = counter;
         }
-
-        public bool Flying => _time >= 0f;
-
-        public System.Action Landed { get; set; }
 
         public void Fly(Vector2 from, Vector2 to, int start, int end)
         {
@@ -38,11 +38,11 @@ namespace Chromacolony.Game
             _start = start;
             _end = end;
             _time = 0f;
-            for (var i = 0; i < Coins; i++)
+            for (int i = 0; i < Coins; i++)
             {
-                var coin = new UIElements.VisualElement();
+                var coin = new VisualElement();
                 coin.AddToClassList(CoinClass);
-                coin.pickingMode = UIElements.PickingMode.Ignore;
+                coin.pickingMode = PickingMode.Ignore;
                 coin.style.opacity = 0f;
                 _layer.Add(coin);
                 _shown.Add(coin);
@@ -59,11 +59,11 @@ namespace Chromacolony.Game
             }
 
             _time += dt;
-            var landed = 0;
-            for (var i = 0; i < _shown.Count; i++)
+            int landed = 0;
+            for (int i = 0; i < _shown.Count; i++)
             {
-                var t = Mathf.Clamp01((_time - i * Stagger) / FlySeconds);
-                var coin = _shown[i];
+                float t = Mathf.Clamp01((_time - i * Stagger) / FlySeconds);
+                VisualElement coin = _shown[i];
                 if (t >= 1f)
                 {
                     landed++;
@@ -76,13 +76,13 @@ namespace Chromacolony.Game
                     continue;
                 }
 
-                var eased = t * t * (3f - 2f * t);
-                var point = Vector2.Lerp(_from, _to, eased) + new Vector2(0f, -320f * Mathf.Sin(eased * Mathf.PI));
+                float eased = t * t * (3f - 2f * t);
+                Vector2 point = Vector2.Lerp(_from, _to, eased) + new Vector2(0f, -320f * Mathf.Sin(eased * Mathf.PI));
                 coin.style.left = point.x;
                 coin.style.top = point.y;
                 coin.style.opacity = t > 0f ? 1f : 0f;
-                var scale = 1f - 0.35f * eased;
-                coin.style.scale = new UIElements.Scale(new Vector3(scale, scale, 1f));
+                float scale = 1f - 0.35f * eased;
+                coin.style.scale = new Scale(new Vector3(scale, scale, 1f));
             }
 
             _counter.text = (_start + (_end - _start) * landed / Coins).ToString();
@@ -94,7 +94,7 @@ namespace Chromacolony.Game
 
         public void Stop()
         {
-            foreach (var coin in _shown)
+            foreach (VisualElement coin in _shown)
             {
                 coin.RemoveFromHierarchy();
             }

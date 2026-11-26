@@ -29,9 +29,9 @@ namespace Chromacolony.Editor
             importer.alphaIsTransparency = true;
             importer.mipmapEnabled = true;
             importer.textureCompression = TextureImporterCompression.CompressedHQ;
-            foreach (var phone in Phones)
+            foreach (string phone in Phones)
             {
-                var settings = importer.GetPlatformTextureSettings(phone);
+                TextureImporterPlatformSettings settings = importer.GetPlatformTextureSettings(phone);
                 settings.overridden = true;
                 settings.format = TextureImporterFormat.ASTC_4x4;
                 settings.maxTextureSize = importer.maxTextureSize;

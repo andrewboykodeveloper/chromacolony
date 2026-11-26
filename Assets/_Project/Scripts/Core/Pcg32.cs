@@ -1,14 +1,5 @@
 namespace Chromacolony.Core
 {
-    public interface IRandom
-    {
-        uint NextUInt();
-
-        int Range(int minInclusive, int maxExclusive);
-
-        float Value();
-    }
-
     public sealed class Pcg32 : IRandom
     {
         private const ulong Multiplier = 6364136223846793005UL;
@@ -27,10 +18,10 @@ namespace Chromacolony.Core
 
         public uint NextUInt()
         {
-            var old = _state;
+            ulong old = _state;
             _state = unchecked(old * Multiplier + _increment);
-            var shifted = (uint)(((old >> 18) ^ old) >> 27);
-            var rotation = (int)(old >> 59);
+            uint shifted = (uint)(((old >> 18) ^ old) >> 27);
+            int rotation = (int)(old >> 59);
             return (shifted >> rotation) | (shifted << ((-rotation) & 31));
         }
 
@@ -41,11 +32,11 @@ namespace Chromacolony.Core
                 throw new System.ArgumentException($"empty range: {minInclusive}..{maxExclusive}");
             }
 
-            var span = (uint)((long)maxExclusive - minInclusive);
-            var threshold = unchecked(0u - span) % span;
+            uint span = (uint)((long)maxExclusive - minInclusive);
+            uint threshold = unchecked(0u - span) % span;
             while (true)
             {
-                var r = NextUInt();
+                uint r = NextUInt();
                 if (r >= threshold)
                 {
                     return (int)((long)minInclusive + r % span);

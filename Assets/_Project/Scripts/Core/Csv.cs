@@ -11,12 +11,12 @@ namespace Chromacolony.Core
             var rows = new List<List<string>>();
             var row = new List<string>();
             var field = new StringBuilder();
-            var inQuotes = false;
-            var fieldStarted = false;
-            var i = text.Length > 0 && text[0] == '﻿' ? 1 : 0;
+            bool inQuotes = false;
+            bool fieldStarted = false;
+            int i = text.Length > 0 && text[0] == '\uFEFF' ? 1 : 0;
             for (; i < text.Length; i++)
             {
-                var c = text[i];
+                char c = text[i];
                 if (inQuotes)
                 {
                     if (c != '"')
