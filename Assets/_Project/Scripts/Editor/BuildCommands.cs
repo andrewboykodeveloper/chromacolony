@@ -29,10 +29,23 @@ namespace Chromacolony.Editor
                 options = BuildOptions.None,
             };
 
-            BuildSummary summary = BuildPipeline.BuildPlayer(options).summary;
-            if (summary.result != BuildResult.Succeeded)
+            // IL2CPP's runtime names its own source files in its messages by their path in the editor's install folder, and the
+            // map turns that folder into /unity for this build. Only the path is quoted: IL2CPP drops a value's outer quotes and
+            // hands the flags to the compiler unquoted, so a space in the path would split the flag.
+            string projectArgs = PlayerSettings.GetAdditionalIl2CppArgs();
+            string prefixMap = $"--compiler-flags=-ffile-prefix-map=\"{EditorApplication.applicationContentsPath}\"=/unity";
+            PlayerSettings.SetAdditionalIl2CppArgs($"{projectArgs} {prefixMap}".Trim());
+            try
             {
-                throw new BuildFailedException($"The web build ended {summary.result} with {summary.totalErrors} errors.");
+                BuildSummary summary = BuildPipeline.BuildPlayer(options).summary;
+                if (summary.result != BuildResult.Succeeded)
+                {
+                    throw new BuildFailedException($"The web build ended {summary.result} with {summary.totalErrors} errors.");
+                }
+            }
+            finally
+            {
+                PlayerSettings.SetAdditionalIl2CppArgs(projectArgs);
             }
         }
     }
