@@ -65,6 +65,8 @@ namespace Chromacolony.Game
             var random = new Pcg32(seed);
             _beach = new BeachView(_camera, _spriteMaterial, config.Float(ConfigKeys.BeachShore), _content.Beach);
             _effects = new Effects(_spriteMaterial, new Pcg32(seed + 2), _content);
+            // Before any presenter: the board view and its crews view subscribe to the model first, so a presenter that reacts to an
+            // event finds the pieces in their new places.
             _boardView = new BoardView(_camera, _model, _crewMaterial, _spriteMaterial, colors, _effects, _content);
             _audio = new AudioService(new UnityAudio(gameObject, _content.Sounds, _content.VoiceLines, _content.Tracks), _progress, text,
                 config.Float(ConfigKeys.SoundGap), config.Float(ConfigKeys.SoundGapPick), config.Float(ConfigKeys.SoundGapCoin));
