@@ -175,6 +175,17 @@ namespace Chromacolony.Tests.EditMode
             Assert.That(missing, Is.Empty, $"assets {sheet} names that do not load");
         }
 
+        [Test]
+        public void EveryUiClassHasARuleInTheStyleSheet()
+        {
+            string sheet = File.ReadAllText(AssetDatabase.GUIDToAssetPath(StyleSheetGuid));
+            List<string> missing = Constants(typeof(UiClasses))
+                .Where(name => !Regex.IsMatch(sheet, @"\." + Regex.Escape(name) + @"(?![\w-])"))
+                .ToList();
+
+            Assert.That(missing, Is.Empty, "classes with no rule in the style sheet");
+        }
+
         [TestCase(StyleSheetGuid)]
         [TestCase(LayoutGuid)]
         public void TheUiNamesItsAssetsByRelativePath(string guid)

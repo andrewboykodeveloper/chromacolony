@@ -6,8 +6,6 @@ namespace Chromacolony.Game
 {
     public sealed class SettingsPresenter
     {
-        private const string OnClass = "on";
-
         private readonly ScreenHost _screens;
         private readonly Localization _text;
         private readonly Progress _progress;
@@ -109,11 +107,11 @@ namespace Chromacolony.Game
 
         private void ShowChoices()
         {
-            _music.EnableInClassList(OnClass, _progress.Music);
-            _sounds.EnableInClassList(OnClass, _progress.Sound);
-            _voice.EnableInClassList(OnClass, _progress.Voice);
-            _russian.EnableInClassList(OnClass, _text.Language == Languages.Russian);
-            _english.EnableInClassList(OnClass, _text.Language == Languages.English);
+            _music.EnableInClassList(UiClasses.On, _progress.Music);
+            _sounds.EnableInClassList(UiClasses.On, _progress.Sound);
+            _voice.EnableInClassList(UiClasses.On, _progress.Voice);
+            _russian.EnableInClassList(UiClasses.On, _text.Language == Languages.Russian);
+            _english.EnableInClassList(UiClasses.On, _text.Language == Languages.English);
         }
 
         private void Choose(string language)

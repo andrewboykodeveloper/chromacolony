@@ -31,7 +31,7 @@ namespace Chromacolony.Tests.PlayMode
         {
             var host = new VisualElement();
             var dialog = new VisualElement { name = DialogName };
-            dialog.AddToClassList(ScreenHost.DialogClass);
+            dialog.AddToClassList(UiClasses.Dialog);
             host.Add(dialog);
             _game.Single<UIDocument>().rootVisualElement.Add(host);
             var screens = new ScreenHost();
@@ -41,8 +41,8 @@ namespace Chromacolony.Tests.PlayMode
             screens.CloseDialog();
             yield return new WaitForSecondsRealtime(0.2f);
 
-            Assert.That(dialog.ClassListContains(ScreenHost.OpenClass), Is.False, "the closed dialog faded in");
-            Assert.That(dialog.ClassListContains(ScreenHost.HiddenClass), Is.True);
+            Assert.That(dialog.ClassListContains(UiClasses.Open), Is.False, "the closed dialog faded in");
+            Assert.That(dialog.ClassListContains(UiClasses.Hidden), Is.True);
         }
     }
 }

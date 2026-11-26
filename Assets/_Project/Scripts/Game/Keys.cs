@@ -125,6 +125,23 @@ namespace Chromacolony.Game
         public const string VoiceSwitch = "voice-switch";
     }
 
+    public static class UiClasses
+    {
+        public const string ButtonPrimary = "btn-primary";
+        public const string ButtonSecondary = "btn-secondary";
+        public const string CrewCount = "crew-count";
+        public const string CrewMore = "crew-more";
+        public const string Dialog = "dialog";
+        public const string FlyingCoin = "flying-coin";
+        public const string Hidden = "hidden";
+        public const string Off = "off";
+        public const string On = "on";
+        public const string Open = "open";
+        public const string Price = "price";
+        public const string Screen = "screen";
+        public const string Won = "won";
+    }
+
     public static class SoundKeys
     {
         public const string Click = "click";

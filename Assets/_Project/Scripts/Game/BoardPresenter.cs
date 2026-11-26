@@ -8,8 +8,6 @@ namespace Chromacolony.Game
 {
     public sealed class BoardPresenter
     {
-        private const string OnClass = "on";
-
         private readonly ScreenHost _screens;
         private readonly Localization _text;
         private readonly GameModel _model;
@@ -81,7 +79,7 @@ namespace Chromacolony.Game
             bindings.Click(_pauseRetry, Retry);
             bindings.Click(_pauseMenu, ToMenu);
             ShowTexts();
-            _speed.EnableInClassList(OnClass, _model.Fast);
+            _speed.EnableInClassList(UiClasses.On, _model.Fast);
         }
 
         public void ShowTexts()
@@ -107,7 +105,7 @@ namespace Chromacolony.Game
             _beach.OnBoard = true;
             _model.Start(_boards[_boardIndex]);
             _model.Fast = _progress.Fast;
-            _speed.EnableInClassList(OnClass, _model.Fast);
+            _speed.EnableInClassList(UiClasses.On, _model.Fast);
             _boardName.text = _text.Format(TextKeys.Board, _boardIndex + 1);
             _screens.Show(UiNames.Game);
             if (_boardIndex == 0)
@@ -184,7 +182,7 @@ namespace Chromacolony.Game
         {
             _model.Fast = !_model.Fast;
             _progress.Fast = _model.Fast;
-            _speed.EnableInClassList(OnClass, _model.Fast);
+            _speed.EnableInClassList(UiClasses.On, _model.Fast);
             _save();
         }
 
@@ -232,7 +230,7 @@ namespace Chromacolony.Game
         {
             string text = _helpers.Picking ? _text.Get(TextKeys.PickCrew) : LessonText();
             _hint.text = text ?? string.Empty;
-            _hint.EnableInClassList(ScreenHost.HiddenClass, string.IsNullOrEmpty(text));
+            _hint.EnableInClassList(UiClasses.Hidden, string.IsNullOrEmpty(text));
         }
 
         private string LessonText()

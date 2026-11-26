@@ -57,8 +57,6 @@ namespace Chromacolony.Game
         private const float CelebrateSeconds = 2.4f;
         private const float PictureSeconds = 1.1f;
         private const int Dancers = 6;
-        private const string CountClass = "crew-count";
-        private const string MoreClass = "crew-more";
 
         private const int PebbleOrder = 2;
         private const int GlowOrder = 3;
@@ -369,7 +367,7 @@ namespace Chromacolony.Game
             {
                 int hidden = _model.Column(c).Count - BoardLayout.VisibleDepth;
                 _more[c].text = hidden > 0 ? "+" + hidden : string.Empty;
-                _more[c].EnableInClassList(ScreenHost.HiddenClass, hidden <= 0);
+                _more[c].EnableInClassList(UiClasses.Hidden, hidden <= 0);
                 float back = _layout.BucketSize * _layout.QueueScale(BoardLayout.VisibleDepth - 1);
                 Vector2 corner = WorldToPanel.Point(_camera, _layout.QueueAt(c, BoardLayout.VisibleDepth - 1) + new Vector2(back * 0.48f, -back * 0.34f), _panelRoot);
                 _more[c].style.left = corner.x;
@@ -509,7 +507,7 @@ namespace Chromacolony.Game
             for (int c = 0; c < _model.ColumnCount; c++)
             {
                 var more = new Label();
-                more.AddToClassList(MoreClass);
+                more.AddToClassList(UiClasses.CrewMore);
                 more.pickingMode = PickingMode.Ignore;
                 _labels.Add(more);
                 _more.Add(more);
@@ -547,7 +545,7 @@ namespace Chromacolony.Game
                     visual.Renderer = Make(_bucket, _crewMaterial, "Crew " + crew.Id, 10);
                     visual.Sign = MakeSign(visual.Renderer.transform, crew.Color);
                     visual.Count = new Label();
-                    visual.Count.AddToClassList(CountClass);
+                    visual.Count.AddToClassList(UiClasses.CrewCount);
                     visual.Count.pickingMode = PickingMode.Ignore;
                     _labels.Add(visual.Count);
                     _crews.Add(crew.Id, visual);

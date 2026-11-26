@@ -7,10 +7,6 @@ namespace Chromacolony.Game
 {
     public sealed class HelperPresenter
     {
-        private const string OnClass = "on";
-        private const string OffClass = "off";
-        private const string PriceClass = "price";
-
         private readonly ScreenHost _screens;
         private readonly Localization _text;
         private readonly GameModel _model;
@@ -77,7 +73,7 @@ namespace Chromacolony.Game
             bindings.Click(_buttons[(int)Helper.Back], () => OnHelperPressed(Helper.Back));
             ShowTexts();
             Refresh();
-            _buttons[(int)Helper.Back].EnableInClassList(OnClass, Picking);
+            _buttons[(int)Helper.Back].EnableInClassList(UiClasses.On, Picking);
             if (_screens.CurrentDialog == UiNames.Buy)
             {
                 ShowBuyText();
@@ -100,8 +96,8 @@ namespace Chromacolony.Game
                 var helper = (Helper)h;
                 int stock = _progress.Stock(helper);
                 _badges[h].text = stock > 0 ? stock.ToString() : _prices.Of(helper).ToString();
-                _badges[h].EnableInClassList(PriceClass, stock == 0);
-                _buttons[h].EnableInClassList(OffClass, !_shop.Usable(helper));
+                _badges[h].EnableInClassList(UiClasses.Price, stock == 0);
+                _buttons[h].EnableInClassList(UiClasses.Off, !_shop.Usable(helper));
             }
         }
 
@@ -193,7 +189,7 @@ namespace Chromacolony.Game
         private void SetPicking(bool on)
         {
             Picking = on;
-            _buttons[(int)Helper.Back].EnableInClassList(OnClass, on);
+            _buttons[(int)Helper.Back].EnableInClassList(UiClasses.On, on);
             PickingChanged?.Invoke();
         }
 

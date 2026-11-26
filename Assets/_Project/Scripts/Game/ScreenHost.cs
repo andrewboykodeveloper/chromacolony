@@ -6,11 +6,6 @@ namespace Chromacolony.Game
 {
     public sealed class ScreenHost
     {
-        public const string ScreenClass = "screen";
-        public const string DialogClass = "dialog";
-        public const string HiddenClass = "hidden";
-        public const string OpenClass = "open";
-
         private readonly Dictionary<string, VisualElement> _screens = new Dictionary<string, VisualElement>();
         private readonly Dictionary<string, VisualElement> _dialogs = new Dictionary<string, VisualElement>();
         private IVisualElementScheduledItem _fadeIn;
@@ -27,17 +22,17 @@ namespace Chromacolony.Game
             _fadeIn?.Pause();
             _screens.Clear();
             _dialogs.Clear();
-            root.Query<VisualElement>(className: ScreenClass).ForEach(e => Add(_screens, e));
-            root.Query<VisualElement>(className: DialogClass).ForEach(e => Add(_dialogs, e));
+            root.Query<VisualElement>(className: UiClasses.Screen).ForEach(e => Add(_screens, e));
+            root.Query<VisualElement>(className: UiClasses.Dialog).ForEach(e => Add(_dialogs, e));
             foreach (KeyValuePair<string, VisualElement> screen in _screens)
             {
-                screen.Value.EnableInClassList(HiddenClass, screen.Key != CurrentScreen);
+                screen.Value.EnableInClassList(UiClasses.Hidden, screen.Key != CurrentScreen);
             }
 
             foreach (KeyValuePair<string, VisualElement> dialog in _dialogs)
             {
-                dialog.Value.EnableInClassList(HiddenClass, dialog.Key != CurrentDialog);
-                dialog.Value.EnableInClassList(OpenClass, dialog.Key == CurrentDialog);
+                dialog.Value.EnableInClassList(UiClasses.Hidden, dialog.Key != CurrentDialog);
+                dialog.Value.EnableInClassList(UiClasses.Open, dialog.Key == CurrentDialog);
             }
         }
 
@@ -47,7 +42,7 @@ namespace Chromacolony.Game
             CloseDialog();
             foreach (VisualElement element in _screens.Values)
             {
-                element.EnableInClassList(HiddenClass, element != target);
+                element.EnableInClassList(UiClasses.Hidden, element != target);
             }
 
             CurrentScreen = screen;
@@ -57,10 +52,10 @@ namespace Chromacolony.Game
         {
             VisualElement target = Find(_dialogs, dialog);
             CloseDialog();
-            target.RemoveFromClassList(HiddenClass);
+            target.RemoveFromClassList(UiClasses.Hidden);
 
             // A transition runs only from a style the dialog has already shown with, so the open class waits a frame.
-            _fadeIn = target.schedule.Execute(() => target.AddToClassList(OpenClass)).StartingIn(16);
+            _fadeIn = target.schedule.Execute(() => target.AddToClassList(UiClasses.Open)).StartingIn(16);
             CurrentDialog = dialog;
         }
 
@@ -73,8 +68,8 @@ namespace Chromacolony.Game
 
             _fadeIn.Pause();
             VisualElement element = _dialogs[CurrentDialog];
-            element.RemoveFromClassList(OpenClass);
-            element.AddToClassList(HiddenClass);
+            element.RemoveFromClassList(UiClasses.Open);
+            element.AddToClassList(UiClasses.Hidden);
             CurrentDialog = null;
         }
 

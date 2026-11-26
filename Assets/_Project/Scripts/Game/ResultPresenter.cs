@@ -11,10 +11,6 @@ namespace Chromacolony.Game
     /// </summary>
     public sealed class ResultPresenter
     {
-        private const string WonClass = "won";
-        private const string PrimaryClass = "btn-primary";
-        private const string SecondaryClass = "btn-secondary";
-
         private readonly ScreenHost _screens;
         private readonly Localization _text;
         private readonly GameModel _model;
@@ -194,13 +190,13 @@ namespace Chromacolony.Game
                 : _text.Get(helper ? TextKeys.StuckHint : TextKeys.StuckRetry);
 
             _next.text = _text.Get(allDone ? TextKeys.PlayAgain : TextKeys.Next);
-            _next.EnableInClassList(ScreenHost.HiddenClass, !_won);
-            _useHelper.EnableInClassList(ScreenHost.HiddenClass, !helper);
+            _next.EnableInClassList(UiClasses.Hidden, !_won);
+            _useHelper.EnableInClassList(UiClasses.Hidden, !helper);
 
-            _retry.EnableInClassList(PrimaryClass, !_won && !helper);
-            _retry.EnableInClassList(SecondaryClass, _won || helper);
-            _retry.EnableInClassList(ScreenHost.HiddenClass, _won);
-            _dialog.EnableInClassList(WonClass, _won);
+            _retry.EnableInClassList(UiClasses.ButtonPrimary, !_won && !helper);
+            _retry.EnableInClassList(UiClasses.ButtonSecondary, _won || helper);
+            _retry.EnableInClassList(UiClasses.Hidden, _won);
+            _dialog.EnableInClassList(UiClasses.Won, _won);
         }
     }
 }
