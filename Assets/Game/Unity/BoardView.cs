@@ -68,7 +68,7 @@ namespace Chromacolony.Unity
         private BoardLayout _layout;
 
         public BoardView(Camera camera, GameModel model, Material crewMaterial, Material spriteMaterial, Color[] colors, VisualElement panelRoot,
-            VisualElement labels, EventBus events, Effects effects)
+            VisualElement labels, EventBus events, Effects effects, GameContent content)
         {
             _camera = camera;
             _model = model;
@@ -78,16 +78,16 @@ namespace Chromacolony.Unity
             _panelRoot = panelRoot;
             _labels = labels;
             _effects = effects;
-            _pebble = Resources.Load<Sprite>(ArtKeys.Pebble);
-            _bucket = Resources.Load<Sprite>(ArtKeys.Bucket);
-            _cover = Resources.Load<Sprite>(ArtKeys.BucketCover);
-            _slot = Resources.Load<Sprite>(ArtKeys.Slot);
-            _castle = Resources.Load<Sprite>(ArtKeys.Castle);
-            _rope = Resources.Load<Sprite>(ArtKeys.BucketRope);
-            _pointerSprite = Resources.Load<Sprite>(ArtKeys.Pointer);
-            _sitterSprite = Resources.Load<Sprite>(ArtKeys.Crab);
-            _tray = Sliced(Resources.Load<Sprite>(ArtKeys.Panel));
-            _crabs = new CrabView(crewMaterial, spriteMaterial);
+            _pebble = content.Pebble;
+            _bucket = content.Bucket;
+            _cover = content.BucketCover;
+            _slot = content.Slot;
+            _castle = content.Castle;
+            _rope = content.BucketRope;
+            _pointerSprite = content.Pointer;
+            _sitterSprite = content.Crab;
+            _tray = Sliced(content.Panel);
+            _crabs = new CrabView(crewMaterial, spriteMaterial, content);
 
             _crabs.Lifted = at =>
             {

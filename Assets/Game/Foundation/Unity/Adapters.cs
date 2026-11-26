@@ -57,33 +57,40 @@ namespace Chromacolony.Foundation.Unity
 
     public sealed class UnityAudio : IAudio
     {
-        public const string VoicePrefix = "Voice/";
-
         private readonly GameObject _host;
         private readonly AudioSource _effects;
         private readonly AudioSource _music;
-        private readonly Dictionary<string, AudioClip> _clips = new Dictionary<string, AudioClip>();
+        private readonly Dictionary<string, AudioClip> _sounds;
+        private readonly Dictionary<string, AudioClip> _voiceLines;
+        private readonly Dictionary<string, AudioClip> _tracks;
+        private readonly HashSet<string> _reported = new HashSet<string>();
         private AudioSource _voice;
 
-        public UnityAudio(GameObject host)
+        public UnityAudio(GameObject host, IEnumerable<AudioClip> sounds, IEnumerable<AudioClip> voiceLines, IEnumerable<AudioClip> tracks)
         {
             _host = host;
             _effects = host.AddComponent<AudioSource>();
             _music = host.AddComponent<AudioSource>();
             _music.loop = true;
+            _sounds = ByName(sounds, "sound");
+            _voiceLines = ByName(voiceLines, "voice line");
+            _tracks = ByName(tracks, "music track");
         }
 
         public void Play(string sound)
         {
-            var clip = Clip(sound);
-            if (clip == null)
-            {
-                return;
-            }
-
-            if (!sound.StartsWith(VoicePrefix, StringComparison.Ordinal))
+            AudioClip clip = Find(_sounds, sound, "sound");
+            if (clip != null)
             {
                 _effects.PlayOneShot(clip);
+            }
+        }
+
+        public void Say(string line)
+        {
+            AudioClip clip = Find(_voiceLines, line, "voice line");
+            if (clip == null)
+            {
                 return;
             }
 
@@ -106,7 +113,7 @@ namespace Chromacolony.Foundation.Unity
                 return;
             }
 
-            var clip = Clip(track);
+            AudioClip clip = Find(_tracks, track, "music track");
             if (clip != null && _music.clip != clip)
             {
                 _music.clip = clip;
@@ -114,21 +121,41 @@ namespace Chromacolony.Foundation.Unity
             }
         }
 
-        private AudioClip Clip(string name)
+        private static Dictionary<string, AudioClip> ByName(IEnumerable<AudioClip> clips, string kind)
         {
-            if (_clips.TryGetValue(name, out var clip))
+            var byName = new Dictionary<string, AudioClip>();
+            foreach (AudioClip clip in clips)
+            {
+                if (clip == null)
+                {
+                    Debug.LogWarning($"an empty {kind} slot in the game content");
+                }
+                else if (byName.ContainsKey(clip.name))
+                {
+                    Debug.LogWarning($"two {kind}s named {clip.name} in the game content");
+                }
+                else
+                {
+                    byName.Add(clip.name, clip);
+                }
+            }
+
+            return byName;
+        }
+
+        private AudioClip Find(Dictionary<string, AudioClip> clips, string name, string kind)
+        {
+            if (clips.TryGetValue(name, out AudioClip clip))
             {
                 return clip;
             }
 
-            clip = Resources.Load<AudioClip>("Audio/" + name);
-            if (clip == null)
+            if (_reported.Add(kind + " " + name))
             {
-                Debug.LogWarning($"no sound: Resources/Audio/{name}");
+                Debug.LogWarning($"no {kind} named {name}");
             }
 
-            _clips[name] = clip;
-            return clip;
+            return null;
         }
     }
 

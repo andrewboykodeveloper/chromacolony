@@ -125,25 +125,6 @@ namespace Chromacolony.Unity
         public const string VoiceSwitch = "voice-switch";
     }
 
-    public static class ArtKeys
-    {
-        public const string Beach = "Art/beach";
-        public const string Bucket = "Art/bucket";
-        public const string BucketCover = "Art/bucket-cover";
-        public const string BucketRope = "Art/bucket-rope";
-        public const string Castle = "Art/castle";
-        public const string Crab = "Art/crab";
-        public const string CrabClaw = "Art/crab-claw";
-        public const string CrabLeg = "Art/crab-leg";
-        public const string CrabShell = "Art/crab-shell";
-        public const string Panel = "Art/panel";
-        public const string Pebble = "Art/pebble";
-        public const string Pointer = "Art/pointer";
-        public const string SandPuff = "Art/sand-puff";
-        public const string Slot = "Art/slot";
-        public const string Sparkle = "Art/sparkle";
-    }
-
     public static class SoundKeys
     {
         public const string Click = "click";
@@ -162,7 +143,7 @@ namespace Chromacolony.Unity
 
     public static class MusicKeys
     {
-        public const string Theme = "Music/theme";
+        public const string Theme = "theme";
     }
 
     public static class LineKeys
@@ -174,7 +155,7 @@ namespace Chromacolony.Unity
 
         public static string For(string line, string language)
         {
-            return "Voice/" + line + "." + language;
+            return line + "." + language;
         }
     }
 }

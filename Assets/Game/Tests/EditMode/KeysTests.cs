@@ -16,12 +16,12 @@ namespace Chromacolony.Tests.EditMode
 {
     public sealed class KeysTests
     {
-        // The data, the layout and the style sheet are found by GUID, which survives a move or a rename.
+        // The data, the layout, the style sheet and the content are found by GUID, which survives a move or a rename.
         private const string LocalizationGuid = "5af3dfe402a345d9896500f28f70e9d5";
         private const string ConfigGuid = "2eada14ad966444ab9641c44be4c8360";
         private const string LayoutGuid = "3006750766c945f1b82df4262fe4103d";
         private const string StyleSheetGuid = "6595bc9a084e4dd8b64d68f138744360";
-        private const string SoundFolder = "Audio/";
+        private const string ContentGuid = "39848b8adfcf49f19ddef5c38300522f";
 
         private static readonly Regex s_placeholder = new Regex(@"\{(\d+)[^}]*\}");
         private static readonly Regex s_styleAsset = new Regex(@"\burl\(""([^""]+)""\)");
@@ -111,23 +111,46 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void EveryArtKeyLoadsASprite()
+        public void EverySlotOfTheContentHoldsAnAsset()
         {
-            List<string> missing = Constants(typeof(ArtKeys)).Where(key => Resources.Load<Sprite>(key) == null).ToList();
+            using var content = new SerializedObject(Asset<GameContent>(ContentGuid));
+            var empty = new List<string>();
+            SerializedProperty property = content.GetIterator();
+            while (property.NextVisible(true))
+            {
+                if (property.propertyType == SerializedPropertyType.ObjectReference && property.objectReferenceValue == null)
+                {
+                    empty.Add(property.propertyPath);
+                }
+            }
 
-            Assert.That(missing, Is.Empty, "art keys with no sprite under Resources");
+            Assert.That(empty, Is.Empty, "slots of the content asset with nothing in them");
         }
 
         [Test]
-        public void EverySoundMusicTrackAndVoiceLineLoadsAClip()
+        public void EverySoundMusicTrackAndVoiceLineIsAClipOfTheContent()
         {
-            List<string> languages = Rows(LocalizationGuid)[0].Skip(1).ToList();
-            IEnumerable<string> voices = Constants(typeof(LineKeys)).SelectMany(line => languages.Select(language => LineKeys.For(line, language)));
-            List<string> missing = Constants(typeof(SoundKeys)).Concat(Constants(typeof(MusicKeys))).Concat(voices)
-                .Where(name => Resources.Load<AudioClip>(SoundFolder + name) == null)
-                .ToList();
+            GameContent content = Asset<GameContent>(ContentGuid);
+            var problems = new List<string>();
+            problems.AddRange(Missing(Constants(typeof(SoundKeys)), content.Sounds, "sound"));
+            problems.AddRange(Missing(Constants(typeof(MusicKeys)), content.Tracks, "music track"));
+            problems.AddRange(Missing(VoiceLines(), content.VoiceLines, "voice line"));
 
-            Assert.That(missing, Is.Empty, $"sounds with no clip under Resources/{SoundFolder}");
+            Assert.That(problems, Is.Empty);
+        }
+
+        [Test]
+        public void EveryClipOfTheContentIsNamedByOneKey()
+        {
+            GameContent content = Asset<GameContent>(ContentGuid);
+            var problems = new List<string>();
+            problems.AddRange(Unnamed(content.Sounds, Constants(typeof(SoundKeys)), "sound"));
+            problems.AddRange(Unnamed(content.Tracks, Constants(typeof(MusicKeys)), "music track"));
+            problems.AddRange(Unnamed(content.VoiceLines, VoiceLines(), "voice line"));
+            IEnumerable<string> names = content.Sounds.Concat(content.Tracks).Concat(content.VoiceLines).Where(clip => clip != null).Select(clip => clip.name);
+            problems.AddRange(names.GroupBy(name => name).Where(group => group.Count() > 1).Select(group => $"{group.Key} is in the content more than once"));
+
+            Assert.That(problems, Is.Empty);
         }
 
         [Test]
@@ -167,6 +190,24 @@ namespace Chromacolony.Tests.EditMode
         private static List<List<string>> Rows(string guid)
         {
             return Csv.Parse(Asset<TextAsset>(guid).text);
+        }
+
+        private static List<string> VoiceLines()
+        {
+            List<string> languages = Rows(LocalizationGuid)[0].Skip(1).ToList();
+            return Constants(typeof(LineKeys)).SelectMany(line => languages.Select(language => LineKeys.For(line, language))).ToList();
+        }
+
+        private static IEnumerable<string> Missing(IEnumerable<string> names, IEnumerable<AudioClip> clips, string kind)
+        {
+            var present = new HashSet<string>(clips.Where(clip => clip != null).Select(clip => clip.name));
+            return names.Where(name => !present.Contains(name)).Select(name => $"no {kind} {name} in the content");
+        }
+
+        private static IEnumerable<string> Unnamed(IEnumerable<AudioClip> clips, IEnumerable<string> names, string kind)
+        {
+            var known = new HashSet<string>(names);
+            return clips.Where(clip => clip != null && !known.Contains(clip.name)).Select(clip => $"no key names the {kind} {clip.name}");
         }
 
         private static T Asset<T>(string guid)

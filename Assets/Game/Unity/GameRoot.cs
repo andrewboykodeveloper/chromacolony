@@ -28,6 +28,7 @@ namespace Chromacolony.Unity
         [SerializeField] private TextAsset boardsText;
         [SerializeField] private Material crewMaterial;
         [SerializeField] private Material spriteMaterial;
+        [SerializeField] private GameContent _content;
 
         private readonly EventBus _events = new EventBus();
         private readonly Dictionary<string, float> _played = new Dictionary<string, float>();
@@ -111,10 +112,10 @@ namespace Chromacolony.Unity
             _input = new PointerInput();
             var seed = (ulong)System.DateTime.Now.Ticks;
             _random = new Pcg32(seed);
-            _beach = new BeachView(_camera, spriteMaterial, config.Float(ConfigKeys.BeachShore));
-            _effects = new Effects(spriteMaterial, new Pcg32(seed + 2));
-            _board = new BoardView(_camera, _model, crewMaterial, spriteMaterial, colors, root, root.Q(UiNames.Labels), _events, _effects);
-            _audio = new UnityAudio(gameObject);
+            _beach = new BeachView(_camera, spriteMaterial, config.Float(ConfigKeys.BeachShore), _content.Beach);
+            _effects = new Effects(spriteMaterial, new Pcg32(seed + 2), _content);
+            _board = new BoardView(_camera, _model, crewMaterial, spriteMaterial, colors, root, root.Q(UiNames.Labels), _events, _effects, _content);
+            _audio = new UnityAudio(gameObject, _content.Sounds, _content.VoiceLines, _content.Tracks);
             _soundGap = config.Float(ConfigKeys.SoundGap);
             _pickGap = config.Float(ConfigKeys.SoundGapPick);
             _coinGap = config.Float(ConfigKeys.SoundGapCoin);
@@ -338,7 +339,7 @@ namespace Chromacolony.Unity
         {
             if (_progress.Voice)
             {
-                _audio.Play(LineKeys.For(line, _text.Language));
+                _audio.Say(LineKeys.For(line, _text.Language));
             }
         }
 

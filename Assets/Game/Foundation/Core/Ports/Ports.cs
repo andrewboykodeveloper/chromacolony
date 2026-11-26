@@ -4,6 +4,8 @@ namespace Chromacolony.Foundation.Ports
     {
         void Play(string sound);
 
+        void Say(string line);
+
         void PlayMusic(string track);
     }
 

@@ -16,13 +16,13 @@ namespace Chromacolony.Unity
         private readonly List<Bit> _live = new List<Bit>();
         private readonly Stack<SpriteRenderer> _pool = new Stack<SpriteRenderer>();
 
-        public Effects(Material material, IRandom random)
+        public Effects(Material material, IRandom random, GameContent content)
         {
             _holder = new GameObject("Effects").transform;
             _material = material;
             _random = random;
-            _puff = Resources.Load<Sprite>(ArtKeys.SandPuff);
-            _sparkle = Resources.Load<Sprite>(ArtKeys.Sparkle);
+            _puff = content.SandPuff;
+            _sparkle = content.Sparkle;
         }
 
         public void Puff(Vector2 at, float size)

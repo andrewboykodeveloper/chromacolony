@@ -27,14 +27,14 @@ namespace Chromacolony.Unity
         private float _danceLeft;
         private Crab _star;
 
-        public CrabView(Material crewMaterial, Material spriteMaterial)
+        public CrabView(Material crewMaterial, Material spriteMaterial, GameContent content)
         {
             _holder = new GameObject("Crabs").transform;
             _crewMaterial = crewMaterial;
             _shadowMaterial = spriteMaterial;
-            _shell = Resources.Load<Sprite>(ArtKeys.CrabShell);
-            _claw = Resources.Load<Sprite>(ArtKeys.CrabClaw);
-            _leg = Resources.Load<Sprite>(ArtKeys.CrabLeg);
+            _shell = content.CrabShell;
+            _claw = content.CrabClaw;
+            _leg = content.CrabLeg;
             _shadow = SoftOval();
         }
 

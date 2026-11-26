@@ -25,12 +25,12 @@ namespace Chromacolony.Unity
         private readonly SpriteRenderer[] _shadows = new SpriteRenderer[2];
         private float _rise;
 
-        public BeachView(Camera camera, Material material, float shore)
+        public BeachView(Camera camera, Material material, float shore, Sprite sprite)
         {
             _camera = camera;
             _material = material;
             _shore = Mathf.Clamp(shore, 0.1f, 0.9f);
-            _sprite = Resources.Load<Sprite>(ArtKeys.Beach);
+            _sprite = sprite;
             _root = new GameObject("Beach").transform;
             _picture = Make(_sprite, Order);
             _backdrop = Make(_sprite, Order - 2);
