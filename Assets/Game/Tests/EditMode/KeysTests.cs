@@ -22,10 +22,9 @@ namespace Chromacolony.Tests.EditMode
         private const string LayoutGuid = "3006750766c945f1b82df4262fe4103d";
         private const string StyleSheetGuid = "6595bc9a084e4dd8b64d68f138744360";
         private const string SoundFolder = "Audio/";
-        private const string ProjectUrl = "project://database/";
 
         private static readonly Regex s_placeholder = new Regex(@"\{(\d+)[^}]*\}");
-        private static readonly Regex s_styleAsset = new Regex(@"\b(resource|url)\(""([^""]+)""\)");
+        private static readonly Regex s_styleAsset = new Regex(@"\burl\(""([^""]+)""\)");
 
         [Test]
         public void EveryTextKeyHasItsTextInEveryLanguageWithTheSamePlaceholders()
@@ -137,10 +136,22 @@ namespace Chromacolony.Tests.EditMode
             string sheet = AssetDatabase.GUIDToAssetPath(StyleSheetGuid);
             Assert.That(sheet, Is.Not.Empty, $"no style sheet with GUID {StyleSheetGuid}");
             List<Match> assets = s_styleAsset.Matches(File.ReadAllText(sheet)).Cast<Match>().ToList();
-            List<string> missing = assets.Where(match => !Loads(match.Groups[1].Value, match.Groups[2].Value, sheet)).Select(match => match.Value).ToList();
+            List<string> missing = assets.Where(match => AssetDatabase.LoadMainAssetAtPath(AssetPath(match.Groups[1].Value, sheet)) == null)
+                .Select(match => match.Value)
+                .ToList();
 
             Assert.That(assets, Is.Not.Empty, $"{sheet} names no asset");
             Assert.That(missing, Is.Empty, $"assets {sheet} names that do not load");
+        }
+
+        [TestCase(StyleSheetGuid)]
+        [TestCase(LayoutGuid)]
+        public void TheUiNamesItsAssetsByRelativePath(string guid)
+        {
+            string text = File.ReadAllText(AssetDatabase.GUIDToAssetPath(guid));
+
+            Assert.That(text, Does.Not.Contain("resource("));
+            Assert.That(text, Does.Not.Contain("project://"));
         }
 
         private static List<string> Constants(Type keysType)
@@ -175,31 +186,10 @@ namespace Chromacolony.Tests.EditMode
                 .ToList();
         }
 
-        private static bool Loads(string function, string path, string sheet)
-        {
-            if (function == "resource")
-            {
-                return Resources.Load(path) != null;
-            }
-
-            return AssetDatabase.LoadMainAssetAtPath(AssetPath(path, sheet)) != null;
-        }
-
         private static string AssetPath(string url, string sheet)
         {
-            string path = url.Split('?', '#')[0];
-            if (path.StartsWith(ProjectUrl, StringComparison.Ordinal))
-            {
-                return path.Substring(ProjectUrl.Length);
-            }
-
-            if (path.StartsWith("/", StringComparison.Ordinal))
-            {
-                return path.Substring(1);
-            }
-
             var parts = new List<string>(Path.GetDirectoryName(sheet).Replace('\\', '/').Split('/'));
-            foreach (string part in path.Split('/'))
+            foreach (string part in url.Split('?', '#')[0].Split('/'))
             {
                 if (part == "..")
                 {

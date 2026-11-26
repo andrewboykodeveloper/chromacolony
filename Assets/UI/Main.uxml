@@ -1,5 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <Style src="project://database/Assets/UI/Theme.uss" />
+    <Style src="Theme.uss" />
     <ui:VisualElement name="root" class="root" picking-mode="Ignore">
         <ui:VisualElement name="labels" class="labels" picking-mode="Ignore" />
         <ui:VisualElement name="safe" class="safe" picking-mode="Ignore">

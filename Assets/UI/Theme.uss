@@ -11,7 +11,7 @@
 
 .root {
     flex-grow: 1;
-    -unity-font-definition: url("project://database/Assets/UI/Fonts/Inter-Regular.ttf");
+    -unity-font-definition: url("Fonts/Inter-Regular.ttf");
     color: var(--text);
 }
 
@@ -77,13 +77,13 @@
 }
 
 .btn-primary {
-    background-image: resource("Art/button-primary");
+    background-image: url("../Resources/Art/button-primary.png");
     text-shadow: 0 3px 4px rgba(110, 28, 18, 0.65);
 }
 
 .btn-secondary {
     margin-top: 28px;
-    background-image: resource("Art/button-secondary");
+    background-image: url("../Resources/Art/button-secondary.png");
     text-shadow: 0 3px 4px rgba(8, 20, 60, 0.65);
 }
 
@@ -104,27 +104,27 @@
 }
 
 .glyph-next {
-    background-image: resource("Art/icon-next");
+    background-image: url("../Resources/Art/icon-next.png");
 }
 
 .glyph-retry {
-    background-image: resource("Art/icon-retry");
+    background-image: url("../Resources/Art/icon-retry.png");
 }
 
 .glyph-menu {
-    background-image: resource("Art/icon-menu");
+    background-image: url("../Resources/Art/icon-menu.png");
 }
 
 .glyph-helper {
-    background-image: resource("Art/sparkle");
+    background-image: url("../Resources/Art/sparkle.png");
 }
 
 .glyph-coin {
-    background-image: resource("Art/coin");
+    background-image: url("../Resources/Art/coin.png");
 }
 
 .glyph-settings {
-    background-image: resource("Art/icon-settings");
+    background-image: url("../Resources/Art/icon-settings.png");
 }
 
 .menu-top {
@@ -137,7 +137,7 @@
 }
 
 .menu-settings {
-    background-image: resource("Art/icon-settings");
+    background-image: url("../Resources/Art/icon-settings.png");
 }
 
 .setting {
@@ -228,11 +228,11 @@
 }
 
 .hud-pause {
-    background-image: resource("Art/icon-pause");
+    background-image: url("../Resources/Art/icon-pause.png");
 }
 
 .hud-speed {
-    background-image: resource("Art/icon-speed");
+    background-image: url("../Resources/Art/icon-speed.png");
 }
 
 .game {
@@ -263,7 +263,7 @@
     width: 64px;
     height: 64px;
     margin-right: 12px;
-    background-image: resource("Art/coin");
+    background-image: url("../Resources/Art/coin.png");
     -unity-background-scale-mode: scale-to-fit;
 }
 
@@ -324,15 +324,15 @@
 }
 
 .helper-slot {
-    background-image: resource("Art/icon-slot");
+    background-image: url("../Resources/Art/icon-slot.png");
 }
 
 .helper-shuffle {
-    background-image: resource("Art/icon-shuffle");
+    background-image: url("../Resources/Art/icon-shuffle.png");
 }
 
 .helper-back {
-    background-image: resource("Art/icon-back");
+    background-image: url("../Resources/Art/icon-back.png");
 }
 
 .badge {
@@ -405,7 +405,7 @@
     height: 84px;
     margin-left: -42px;
     margin-top: -42px;
-    background-image: resource("Art/coin");
+    background-image: url("../Resources/Art/coin.png");
     -unity-background-scale-mode: scale-to-fit;
 }
 
@@ -450,7 +450,7 @@
     align-items: center;
     padding: 76px 56px 72px 56px;
     background-color: rgba(0, 0, 0, 0);
-    background-image: resource("Art/panel");
+    background-image: url("../Resources/Art/panel.png");
     -unity-slice-left: 120;
     -unity-slice-right: 120;
     -unity-slice-top: 120;
