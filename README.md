@@ -107,8 +107,8 @@ docs/
 
 ## History
 
-- **Branches:** the history follows git-flow. It has `main` and `develop`, plus `feature/*`, `fix/*` and `release/*` branches, merged with `--no-ff`.
-- **Commits:** every commit after the first, which imported the game, follows Conventional Commits. A merge commit keeps the "Merge pull request" line, with the pull request's title as its body.
+- **Branches:** the history follows git-flow. It has `main` and `develop`, plus `feature/*`, `fix/*`, `release/*` and `hotfix/*` branches, merged with `--no-ff`.
+- **Commits:** every commit after the first, which imported the game, follows Conventional Commits. A pull request's merge commit keeps the "Merge pull request" line, with the pull request's title as its body.
   - Types: `fix`, `perf`, `refactor`, `style`, `test`, `docs`, `build` and `chore`.
   - Scopes, where one fits: `core`, `game`, `ui`, `data`, `assets`, `packages`, `editor`, `build`, `repo` and `project`.
 
