@@ -17,10 +17,8 @@ namespace Chromacolony.Game
 
         private sealed class Crab
         {
-            public readonly Transform[] Claws = new Transform[2];
-            public readonly Transform[] Legs = new Transform[6];
-            public Transform Root;
-            public Transform Body;
+            public readonly CrabRig Rig;
+            public readonly Transform Root;
             public SpriteRenderer Pebble;
             public bool Carrying;
             public Vector2 Target;
@@ -34,12 +32,17 @@ namespace Chromacolony.Game
             private Vector3 _pebbleScaleFrom;
             private Vector3 _pebbleScale;
 
+            public Transform Body => Rig.Body;
+
+            public Crab(CrabRig rig)
+            {
+                Rig = rig;
+                Root = rig.transform;
+            }
+
             public void Paint(Color color)
             {
-                foreach (SpriteRenderer renderer in Body.GetComponentsInChildren<SpriteRenderer>(true))
-                {
-                    renderer.color = color;
-                }
+                Rig.Paint(color);
             }
 
             public void Stride()
@@ -48,7 +51,7 @@ namespace Chromacolony.Game
                 {
                     float tripod = (i + i / 3) % 2 == 0 ? 0f : Mathf.PI;
                     float swing = Mathf.Sin(Phase + tripod) * 22f;
-                    Legs[i].localRotation = Quaternion.Euler(0f, 0f, -10f + swing - 12f * (i % 3));
+                    Rig.Legs[i].localRotation = Quaternion.Euler(0f, 0f, -10f + swing - 12f * (i % 3));
                 }
 
                 Body.localPosition = new Vector3(0f, Mathf.Abs(Mathf.Sin(Phase)) * 0.04f, 0f);
@@ -59,15 +62,15 @@ namespace Chromacolony.Game
             public void Pose(float raise)
             {
                 float wave = Mathf.Sin(Phase * 0.5f) * 6f * (1f - raise);
-                Claws[0].localRotation = Quaternion.Euler(0f, 0f, 35f - 45f * raise + wave);
-                Claws[1].localRotation = Quaternion.Euler(0f, 0f, 35f - 45f * raise - wave);
+                Rig.Claws[0].localRotation = Quaternion.Euler(0f, 0f, 35f - 45f * raise + wave);
+                Rig.Claws[1].localRotation = Quaternion.Euler(0f, 0f, 35f - 45f * raise - wave);
             }
 
             public void Wave(float beat)
             {
                 float swing = Mathf.Sin(beat) * 28f;
-                Claws[0].localRotation = Quaternion.Euler(0f, 0f, -12f + swing);
-                Claws[1].localRotation = Quaternion.Euler(0f, 0f, -12f - swing);
+                Rig.Claws[0].localRotation = Quaternion.Euler(0f, 0f, -12f + swing);
+                Rig.Claws[1].localRotation = Quaternion.Euler(0f, 0f, -12f - swing);
             }
 
             public void Take(int order, float height)
@@ -77,7 +80,7 @@ namespace Chromacolony.Game
                 Pebble.sortingOrder = order;
                 _pebbleFrom = Pebble.transform.localPosition;
                 _pebbleScaleFrom = Pebble.transform.localScale;
-                float s = height / Mathf.Max(Pebble.sprite.bounds.size.y, 0.0001f);
+                float s = SpriteRenderers.HeightScale(Pebble.sprite, height).y;
                 _pebbleScale = new Vector3(Mathf.Sign(_pebbleScaleFrom.x) * s, s, 1f);
             }
 
@@ -107,17 +110,12 @@ namespace Chromacolony.Game
         private const float EnterSeconds = 0.25f;
 
         private const float PebbleHeight = 0.36f;
-        private const int Order = 40;
 
         private const float StarSize = 2.9f;
 
         private readonly Transform _holder;
-        private readonly Material _crewMaterial;
-        private readonly Sprite _shell;
-        private readonly Sprite _claw;
-        private readonly Sprite _leg;
+        private readonly CrabRig _prefab;
         private readonly Sprite _shadow;
-        private readonly Material _shadowMaterial;
         private readonly List<Crab> _walking = new List<Crab>();
         private readonly List<Crab> _dancing = new List<Crab>();
         private readonly Stack<Crab> _pool = new Stack<Crab>();
@@ -133,15 +131,11 @@ namespace Chromacolony.Game
 
         private static Color StarColor => new Color(0.847f, 0.373f, 0.298f);
 
-        public CrabView(Material crewMaterial, Material spriteMaterial, GameContent content)
+        public CrabView(CrabRig prefab, Sprite shadow)
         {
             _holder = new GameObject("Crabs").transform;
-            _crewMaterial = crewMaterial;
-            _shadowMaterial = spriteMaterial;
-            _shell = content.CrabShell;
-            _claw = content.CrabClaw;
-            _leg = content.CrabLeg;
-            _shadow = SoftOval();
+            _prefab = prefab;
+            _shadow = shadow;
         }
 
         public void ShowOff(Vector2 at, bool on)
@@ -279,12 +273,6 @@ namespace Chromacolony.Game
             {
                 Object.Destroy(_holder.gameObject);
             }
-
-            if (_shadow != null)
-            {
-                Object.Destroy(_shadow.texture);
-                Object.Destroy(_shadow);
-            }
         }
 
         private static void Dance(Crab crab, float dt, float left)
@@ -320,7 +308,7 @@ namespace Chromacolony.Game
                     {
                         crab.Leg = Leg.Lift;
                         crab.Time = 0f;
-                        crab.Take(Order + 3, PebbleHeight);
+                        crab.Take(SortingOrder.CarriedPebble, PebbleHeight);
                         Lifted?.Invoke(crab.Target);
                     }
 
@@ -382,85 +370,10 @@ namespace Chromacolony.Game
 
         private Crab Make()
         {
-            var crab = new Crab();
-            crab.Root = new GameObject("Crab").transform;
-            crab.Root.SetParent(_holder, false);
-
-            var shadow = new GameObject("Shadow");
-            shadow.transform.SetParent(crab.Root, false);
-            shadow.transform.localPosition = new Vector3(0f, -0.3f, 0f);
-            shadow.transform.localScale = new Vector3(0.8f, 0.26f, 1f);
-            SpriteRenderer shade = shadow.AddComponent<SpriteRenderer>();
-            shade.sprite = _shadow;
-            shade.sharedMaterial = _shadowMaterial;
-            shade.color = new Color(0.02f, 0.04f, 0.12f, 0.42f);
-            shade.sortingOrder = Order - 1;
-
-            crab.Body = new GameObject("Body").transform;
-            crab.Body.SetParent(crab.Root, false);
-            Part(_shell, crab.Body, new Vector2(0f, 0.1f), 0.78f, Order + 1);
-            for (int side = 0; side < 2; side++)
-            {
-                float sign = side == 0 ? -1f : 1f;
-                crab.Claws[side] = Joint(crab.Body, new Vector2(0.25f * sign, 0f), sign);
-                Part(_claw, crab.Claws[side], new Vector2(0.05f, 0.14f), 0.3f, Order + 2);
-                for (int i = 0; i < 3; i++)
-                {
-                    Transform hip = Joint(crab.Body, new Vector2(0.17f * sign, -0.14f - 0.07f * i), sign);
-                    Part(_leg, hip, new Vector2(0.09f, -0.08f), 0.2f, Order);
-                    crab.Legs[side * 3 + i] = hip;
-                }
-            }
-
-            crab.Root.gameObject.SetActive(false);
-            return crab;
-        }
-
-        internal static Sprite SoftOval()
-        {
-            const int Size = 32;
-            var texture = new Texture2D(Size, Size, TextureFormat.RGBA32, false)
-            {
-                name = RuntimeArt.SoftOval,
-                wrapMode = TextureWrapMode.Clamp,
-                filterMode = FilterMode.Bilinear,
-            };
-            for (int y = 0; y < Size; y++)
-            {
-                for (int x = 0; x < Size; x++)
-                {
-                    float d = new Vector2(x + 0.5f - Size / 2f, y + 0.5f - Size / 2f).magnitude / (Size / 2f);
-                    float a = Mathf.Clamp01(1f - d);
-                    texture.SetPixel(x, y, new Color(1f, 1f, 1f, a * a * (3f - 2f * a)));
-                }
-            }
-
-            texture.Apply(false, true);
-            Sprite sprite = Sprite.Create(texture, new Rect(0, 0, Size, Size), new Vector2(0.5f, 0.5f), Size, 0, SpriteMeshType.FullRect);
-            sprite.name = texture.name;
-            return sprite;
-        }
-
-        private static Transform Joint(Transform parent, Vector2 at, float sign)
-        {
-            Transform joint = new GameObject("Joint").transform;
-            joint.SetParent(parent, false);
-            joint.localPosition = at;
-            joint.localScale = new Vector3(sign, 1f, 1f);
-            return joint;
-        }
-
-        private void Part(Sprite sprite, Transform parent, Vector2 at, float height, int order)
-        {
-            var part = new GameObject(sprite.name);
-            part.transform.SetParent(parent, false);
-            part.transform.localPosition = at;
-            float scale = height / Mathf.Max(sprite.bounds.size.y, 0.0001f);
-            part.transform.localScale = new Vector3(scale, scale, 1f);
-            SpriteRenderer renderer = part.AddComponent<SpriteRenderer>();
-            renderer.sprite = sprite;
-            renderer.sharedMaterial = _crewMaterial;
-            renderer.sortingOrder = order;
+            CrabRig rig = Object.Instantiate(_prefab, _holder);
+            rig.Shadow.sprite = _shadow;
+            rig.gameObject.SetActive(false);
+            return new Crab(rig);
         }
     }
 }

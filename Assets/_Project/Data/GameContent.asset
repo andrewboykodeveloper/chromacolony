@@ -22,9 +22,7 @@ MonoBehaviour:
   _bucketRope: {fileID: 21300000, guid: ff1824f67b5e4dc2b79d2599bd6c2f6a, type: 3}
   _pointer: {fileID: 21300000, guid: 494eb27b063746d699ebe9db2b02ee48, type: 3}
   _crab: {fileID: 21300000, guid: d4f92e0fddad49409b62269d5d83e862, type: 3}
-  _crabShell: {fileID: 21300000, guid: 77f18803b21046d28ee319fc60103e45, type: 3}
-  _crabClaw: {fileID: 21300000, guid: dbad121c80834fd19319109d90c299af, type: 3}
-  _crabLeg: {fileID: 21300000, guid: a3dad9966747478ab1d7af32dbac0d93, type: 3}
+  _crabRig: {fileID: 5144605334689793872, guid: 2de422ca9c41e9644a9351287008a260, type: 3}
   _sandPuff: {fileID: 21300000, guid: ccc238e04afc4fd2bd35cfd4e714aa80, type: 3}
   _sparkle: {fileID: 21300000, guid: 0e9dd3f991e540ad94cd51aaedace013, type: 3}
   _tracks:

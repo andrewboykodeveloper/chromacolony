@@ -6,8 +6,6 @@ namespace Chromacolony.Game
 {
     public sealed class BeachView : IDisposable
     {
-        private const int Order = -100;
-
         private const float BoardShoreY = -0.3f;
 
         private const float Glide = 3f;
@@ -39,13 +37,13 @@ namespace Chromacolony.Game
             _shore = Mathf.Clamp(shore, 0.1f, 0.9f);
             _sprite = sprite;
             _root = new GameObject("Beach").transform;
-            _picture = Make(_sprite, Order);
-            _backdrop = Make(_sprite, Order - 2);
+            _picture = SpriteRenderers.Create(_root, _sprite, _material, "Beach picture", SortingOrder.Beach);
+            _backdrop = SpriteRenderers.Create(_root, _sprite, _material, "Beach picture", SortingOrder.Backdrop);
             _backdrop.color = BackdropTint;
             _shadow = Shadow();
             for (int i = 0; i < _shadows.Length; i++)
             {
-                _shadows[i] = Make(_shadow, Order - 1);
+                _shadows[i] = SpriteRenderers.Create(_root, _shadow, _material, "Beach picture", SortingOrder.BeachShadow);
                 _shadows[i].flipX = i == 0;
             }
         }
@@ -135,17 +133,6 @@ namespace Chromacolony.Game
             Sprite sprite = Sprite.Create(texture, new Rect(0, 0, Size, 1), new Vector2(0.5f, 0.5f), Size, 0, SpriteMeshType.FullRect);
             sprite.name = texture.name;
             return sprite;
-        }
-
-        private SpriteRenderer Make(Sprite sprite, int order)
-        {
-            var go = new GameObject("Beach picture");
-            go.transform.SetParent(_root, false);
-            SpriteRenderer renderer = go.AddComponent<SpriteRenderer>();
-            renderer.sprite = sprite;
-            renderer.sharedMaterial = _material;
-            renderer.sortingOrder = order;
-            return renderer;
         }
     }
 }
