@@ -279,7 +279,7 @@ namespace Chromacolony.Game
                     colors.Add(color);
                 }
 
-                SpriteRenderer pebble = Make(_pebble, _crewMaterial, "Picture " + cell, SortingOrder.Pebble);
+                SpriteRenderer pebble = SpriteRenderers.Create(_root.transform, _pebble, _crewMaterial, "Picture " + cell, SortingOrder.Pebble);
                 pebble.color = _colors[color];
                 pebble.transform.position = _layout.PebbleAt(cell);
                 pebble.transform.localScale = Vector3.zero;
@@ -394,8 +394,8 @@ namespace Chromacolony.Game
 
             if (_pointer == null)
             {
-                _pointer = Make(_pointerSprite, _spriteMaterial, "Pointer", SortingOrder.Pointer);
-                _pointer.transform.localScale = Scale(_pointerSprite, _layout.BucketSize * 0.7f);
+                _pointer = SpriteRenderers.Create(_root.transform, _pointerSprite, _spriteMaterial, "Pointer", SortingOrder.Pointer);
+                _pointer.transform.localScale = SpriteRenderers.HeightScale(_pointerSprite, _layout.BucketSize * 0.7f);
 
                 _pointer.transform.localRotation = Quaternion.Euler(0f, 0f, PointerTurn);
             }
@@ -435,8 +435,8 @@ namespace Chromacolony.Game
             }
 
             var handles = new Vector3(0f, _layout.BucketSize * 0.36f, 0f);
-            Vector3 from = a.Renderer.transform.position + handles * a.Renderer.transform.localScale.y / Mathf.Max(Scale(_bucket, _layout.BucketSize).y, 0.0001f);
-            Vector3 to = _crews[rope.B].Renderer.transform.position + handles * _crews[rope.B].Renderer.transform.localScale.y / Mathf.Max(Scale(_bucket, _layout.BucketSize).y, 0.0001f);
+            Vector3 from = a.Renderer.transform.position + handles * a.Renderer.transform.localScale.y / Mathf.Max(SpriteRenderers.HeightScale(_bucket, _layout.BucketSize).y, 0.0001f);
+            Vector3 to = _crews[rope.B].Renderer.transform.position + handles * _crews[rope.B].Renderer.transform.localScale.y / Mathf.Max(SpriteRenderers.HeightScale(_bucket, _layout.BucketSize).y, 0.0001f);
             Vector3 middle = (from + to) / 2f;
             float length = Vector3.Distance(from, to);
             float width = Mathf.Max(_rope.bounds.size.x, 0.0001f);
@@ -485,10 +485,10 @@ namespace Chromacolony.Game
             _root = new GameObject("Board");
             _layout = new BoardLayout(board.Width, board.Height, _model.SlotCount, _model.ColumnCount);
 
-            SpriteRenderer castle = Make(_castle, _spriteMaterial, "Castle", SortingOrder.Castle);
-            Place(castle, _layout.CastleCenter, Scale(_castle, _layout.CastleHeight));
+            SpriteRenderer castle = SpriteRenderers.Create(_root.transform, _castle, _spriteMaterial, "Castle", SortingOrder.Castle);
+            SpriteRenderers.Place(castle, _layout.CastleCenter, SpriteRenderers.HeightScale(_castle, _layout.CastleHeight));
 
-            SpriteRenderer tray = Make(_tray, _spriteMaterial, "Tray", SortingOrder.Tray);
+            SpriteRenderer tray = SpriteRenderers.Create(_root.transform, _tray, _spriteMaterial, "Tray", SortingOrder.Tray);
             tray.color = new Color(1f, 1f, 1f, TrayAlpha);
             tray.drawMode = SpriteDrawMode.Sliced;
             tray.size = _layout.TraySize;
@@ -518,10 +518,10 @@ namespace Chromacolony.Game
                     continue;
                 }
 
-                SpriteRenderer pebble = Make(_pebble, _crewMaterial, "Pebble " + cell, SortingOrder.Pebble);
+                SpriteRenderer pebble = SpriteRenderers.Create(_root.transform, _pebble, _crewMaterial, "Pebble " + cell, SortingOrder.Pebble);
                 pebble.color = _colors[color];
-                _pebbleScale = Scale(_pebble, _layout.Cell * 0.94f);
-                Place(pebble, _layout.PebbleAt(cell), _pebbleScale);
+                _pebbleScale = SpriteRenderers.HeightScale(_pebble, _layout.Cell * 0.94f);
+                SpriteRenderers.Place(pebble, _layout.PebbleAt(cell), _pebbleScale);
                 _pebbles[cell] = pebble;
             }
 
@@ -532,7 +532,7 @@ namespace Chromacolony.Game
                 {
                     Crew crew = column[depth];
                     var visual = new CrewVisual { Crew = crew };
-                    visual.Renderer = Make(_bucket, _crewMaterial, "Crew " + crew.Id, SortingOrder.Crew);
+                    visual.Renderer = SpriteRenderers.Create(_root.transform, _bucket, _crewMaterial, "Crew " + crew.Id, SortingOrder.Crew);
                     visual.Sign = MakeSign(visual.Renderer.transform, crew.Color);
                     visual.Count = new Label();
                     visual.Count.AddToClassList(UiClasses.CrewCount);
@@ -561,7 +561,7 @@ namespace Chromacolony.Game
                 {
                     if (other != visual && other.Crew.Link == link)
                     {
-                        var rope = new Rope { A = visual.Crew.Id, B = other.Crew.Id, Renderer = Make(_rope, _spriteMaterial, "Rope " + link, SortingOrder.Rope) };
+                        var rope = new Rope { A = visual.Crew.Id, B = other.Crew.Id, Renderer = SpriteRenderers.Create(_root.transform, _rope, _spriteMaterial, "Rope " + link, SortingOrder.Rope) };
                         _ropes.Add(link, rope);
                         Tie(rope);
                     }
@@ -571,8 +571,8 @@ namespace Chromacolony.Game
 
         private void AddNest(int slot)
         {
-            SpriteRenderer nest = Make(_slot, _spriteMaterial, "Slot " + slot, SortingOrder.Slot);
-            Place(nest, _layout.SlotAt(slot), Scale(_slot, _layout.SlotSize * 0.62f));
+            SpriteRenderer nest = SpriteRenderers.Create(_root.transform, _slot, _spriteMaterial, "Slot " + slot, SortingOrder.Slot);
+            SpriteRenderers.Place(nest, _layout.SlotAt(slot), SpriteRenderers.HeightScale(_slot, _layout.SlotSize * 0.62f));
             _nests.Add(nest);
         }
 
@@ -582,7 +582,7 @@ namespace Chromacolony.Game
             AddNest(added.Slot);
             for (int s = 0; s < _nests.Count; s++)
             {
-                Place(_nests[s], _layout.SlotAt(s), Scale(_slot, _layout.SlotSize * 0.62f));
+                SpriteRenderers.Place(_nests[s], _layout.SlotAt(s), SpriteRenderers.HeightScale(_slot, _layout.SlotSize * 0.62f));
             }
 
             foreach (CrewVisual crew in _crews.Values)
@@ -638,7 +638,7 @@ namespace Chromacolony.Game
             }
 
             visual.Target = _layout.SlotAt(sent.Slot);
-            visual.Scale = Scale(_bucket, _layout.BucketSize);
+            visual.Scale = SpriteRenderers.HeightScale(_bucket, _layout.BucketSize);
             visual.LabelTarget = 1f;
             visual.Visible = true;
             visual.InSlot = true;
@@ -718,7 +718,7 @@ namespace Chromacolony.Game
 
                 if (glow == null)
                 {
-                    glow = Make(_softOval, _spriteMaterial, "Glow " + cell, SortingOrder.PebbleGlow);
+                    glow = SpriteRenderers.Create(_root.transform, _softOval, _spriteMaterial, "Glow " + cell, SortingOrder.PebbleGlow);
                     _glows[cell] = glow;
                 }
 
@@ -727,7 +727,7 @@ namespace Chromacolony.Game
                 glow.enabled = true;
                 glow.color = light;
                 glow.transform.position = pebble.transform.position;
-                glow.transform.localScale = Scale(_softOval, _layout.Cell * (1.75f + 0.25f * breath));
+                glow.transform.localScale = SpriteRenderers.HeightScale(_softOval, _layout.Cell * (1.75f + 0.25f * breath));
                 pebble.sortingOrder = SortingOrder.PebbleLit;
                 pebble.transform.localScale = _pebbleScale * (1f + 0.08f * breath);
             }
@@ -748,7 +748,7 @@ namespace Chromacolony.Game
 
             if (crew.Sitter == null)
             {
-                crew.Sitter = Make(_sitterSprite, _crewMaterial, "Sitter " + crew.Crew.Id, SortingOrder.Sitter);
+                crew.Sitter = SpriteRenderers.Create(_root.transform, _sitterSprite, _crewMaterial, "Sitter " + crew.Crew.Id, SortingOrder.Sitter);
             }
 
             crew.Sitter.enabled = true;
@@ -757,7 +757,7 @@ namespace Chromacolony.Game
             Vector3 top = crew.Renderer.transform.position + new Vector3(0f, _layout.BucketSize * 0.5f + bob, 0f);
             crew.Sitter.transform.position = top;
             crew.Sitter.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(_time * 1.3f + crew.Crew.Id * 2f) * 9f);
-            crew.Sitter.transform.localScale = Scale(_sitterSprite, _layout.BucketSize * 0.42f);
+            crew.Sitter.transform.localScale = SpriteRenderers.HeightScale(_sitterSprite, _layout.BucketSize * 0.42f);
         }
 
         private void Reassemble(float t)
@@ -772,7 +772,7 @@ namespace Chromacolony.Game
                 }
 
                 float pop = grow < 1f ? Mathf.Sin(grow * Mathf.PI * 0.75f) / Mathf.Sin(Mathf.PI * 0.75f) : 1f;
-                piece.Renderer.transform.localScale = Scale(_pebble, _layout.Cell * 0.94f) * pop;
+                piece.Renderer.transform.localScale = SpriteRenderers.HeightScale(_pebble, _layout.Cell * 0.94f) * pop;
                 if (!piece.Twinkled)
                 {
                     piece.Twinkled = true;
@@ -880,36 +880,13 @@ namespace Chromacolony.Game
         private void InQueue(CrewVisual visual, int column, int depth)
         {
             visual.Target = _layout.QueueAt(column, depth);
-            visual.Scale = Scale(visual.Renderer.sprite, _layout.BucketSize * _layout.QueueScale(depth));
+            visual.Scale = SpriteRenderers.HeightScale(visual.Renderer.sprite, _layout.BucketSize * _layout.QueueScale(depth));
             visual.LabelTarget = _layout.QueueScale(depth);
             visual.Visible = depth < BoardLayout.VisibleDepth;
             visual.Renderer.enabled = visual.Visible;
             visual.Renderer.sortingOrder = SortingOrder.Crew - depth;
             visual.Sign.enabled = visual.Visible && !visual.Crew.Hidden;
             visual.Sign.sortingOrder = SortingOrder.CrewSign - depth;
-        }
-
-        private SpriteRenderer Make(Sprite sprite, Material material, string name, int order)
-        {
-            var go = new GameObject(name);
-            go.transform.SetParent(_root.transform, false);
-            SpriteRenderer renderer = go.AddComponent<SpriteRenderer>();
-            renderer.sprite = sprite;
-            renderer.sharedMaterial = material;
-            renderer.sortingOrder = order;
-            return renderer;
-        }
-
-        private static void Place(SpriteRenderer renderer, Vector2 position, Vector3 scale)
-        {
-            renderer.transform.position = position;
-            renderer.transform.localScale = scale;
-        }
-
-        private static Vector3 Scale(Sprite sprite, float height)
-        {
-            float s = height / Mathf.Max(sprite.bounds.size.y, 0.0001f);
-            return new Vector3(s, s, 1f);
         }
     }
 }

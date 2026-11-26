@@ -76,7 +76,7 @@ namespace Chromacolony.Game
                 Transform transform = bit.Renderer.transform;
                 transform.position = (Vector3)(bit.From + bit.Way * (1f - (1f - t) * (1f - t)) * bit.Life / 2f);
                 float size = Mathf.Lerp(bit.SizeFrom, bit.SizeTo, Mathf.Sin(t * Mathf.PI * 0.5f));
-                transform.localScale = Fit(bit.Renderer.sprite, size);
+                transform.localScale = SpriteRenderers.HeightScale(bit.Renderer.sprite, size);
                 transform.localRotation = Quaternion.Euler(0f, 0f, bit.Spin * bit.Age);
                 Color tint = bit.Tint;
                 tint.a = bit.Alpha * (t < 0.2f ? t / 0.2f : 1f - (t - 0.2f) / 0.8f);
@@ -119,16 +119,12 @@ namespace Chromacolony.Game
             }
             else
             {
-                var go = new GameObject("Effect");
-                go.transform.SetParent(_holder, false);
-                renderer = go.AddComponent<SpriteRenderer>();
-                renderer.sharedMaterial = _material;
-                renderer.sortingOrder = SortingOrder.Effect;
+                renderer = SpriteRenderers.Create(_holder, sprite, _material, "Effect", SortingOrder.Effect);
             }
 
             renderer.sprite = sprite;
             renderer.transform.position = at;
-            renderer.transform.localScale = Fit(sprite, sizeFrom);
+            renderer.transform.localScale = SpriteRenderers.HeightScale(sprite, sizeFrom);
             renderer.color = new Color(tint.r, tint.g, tint.b, 0f);
             _live.Add(new Bit
             {
@@ -142,12 +138,6 @@ namespace Chromacolony.Game
                 Spin = spin,
                 Tint = tint,
             });
-        }
-
-        private static Vector3 Fit(Sprite sprite, float height)
-        {
-            float s = height / Mathf.Max(sprite.bounds.size.y, 0.0001f);
-            return new Vector3(s, s, 1f);
         }
     }
 }

@@ -80,7 +80,7 @@ namespace Chromacolony.Game
                 Pebble.sortingOrder = order;
                 _pebbleFrom = Pebble.transform.localPosition;
                 _pebbleScaleFrom = Pebble.transform.localScale;
-                float s = height / Mathf.Max(Pebble.sprite.bounds.size.y, 0.0001f);
+                float s = SpriteRenderers.HeightScale(Pebble.sprite, height).y;
                 _pebbleScale = new Vector3(Mathf.Sign(_pebbleScaleFrom.x) * s, s, 1f);
             }
 
