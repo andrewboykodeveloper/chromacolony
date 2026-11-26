@@ -1,16 +1,9 @@
 :root {
-    --coral: #d85f4c;
-    --coral-deep: #bb3c28;
-    --coral-light: #ef9c94;
-    --moon: #e0e2f0;
-    --lavender: #a893dd;
     --night: #0e1838;
-    --sea: #1d3f7a;
     --gold: #ffc83d;
     --accent: #d85f4c;
     --accent-text: #ffffff;
     --text: #e0e2f0;
-    --card: rgb(14, 24, 56);
     --pill: rgba(14, 24, 56, 0.92);
     --scrim: rgba(6, 10, 26, 0.72);
     --off: #34467a;
@@ -36,10 +29,6 @@
 
 .hidden {
     display: none;
-}
-
-.menu {
-    padding: 0;
 }
 
 .title {
@@ -124,10 +113,6 @@
 
 .glyph-menu {
     background-image: resource("Art/icon-menu");
-}
-
-.glyph-slot {
-    background-image: resource("Art/icon-slot");
 }
 
 .glyph-helper {
@@ -408,12 +393,6 @@
     background-color: var(--pill);
     font-size: 46px;
     color: var(--text);
-}
-
-.play-area {
-    flex-grow: 1;
-    align-items: center;
-    justify-content: center;
 }
 
 .dialog {

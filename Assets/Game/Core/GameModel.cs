@@ -299,8 +299,6 @@ namespace Chromacolony.Core
             {
                 RevealFront(c);
             }
-
-            PlayOn();
         }
 
         public void Back(int slot)

@@ -1,10 +1,7 @@
 {
   "name": "Chromacolony.Foundation.Editor",
   "rootNamespace": "Chromacolony.Foundation.Editor",
-  "references": [
-    "Chromacolony.Foundation",
-    "Chromacolony.Foundation.Unity"
-  ],
+  "references": [],
   "includePlatforms": [
     "Editor"
   ],

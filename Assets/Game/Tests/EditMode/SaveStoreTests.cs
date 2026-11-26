@@ -11,7 +11,7 @@ namespace Chromacolony.Tests.EditMode
     {
         private sealed class FailingStorage : ISaveStorage
         {
-            private readonly FakeSaveStorage _files = new FakeSaveStorage();
+            private readonly MemorySaveStorage _files = new MemorySaveStorage();
             private readonly Func<string, bool> _failsToRead;
             private readonly Func<string, bool> _failsToWrite;
 
@@ -43,11 +43,6 @@ namespace Chromacolony.Tests.EditMode
                 Writes++;
                 _files.Write(key, text);
             }
-
-            public void Delete(string key)
-            {
-                _files.Delete(key);
-            }
         }
 
         private const string Key = "progress";
@@ -63,7 +58,7 @@ namespace Chromacolony.Tests.EditMode
         [Test]
         public void ASaveIsWrittenWithAVersionLineAndReadBackWithoutIt()
         {
-            var storage = new FakeSaveStorage();
+            var storage = new MemorySaveStorage();
             var saves = new SaveStore(storage, 2, _problems.Add);
 
             saves.Save(Key, "board=3\n");
@@ -76,7 +71,7 @@ namespace Chromacolony.Tests.EditMode
         [Test]
         public void AnOlderSaveIsMigratedOneVersionAtATime()
         {
-            var storage = new FakeSaveStorage();
+            var storage = new MemorySaveStorage();
             storage.Write(Key, "v1\nboard=3\n");
             SaveStore saves = new SaveStore(storage, 3, _problems.Add)
                 .Migrate(1, text => text + "coins=0\n")
@@ -89,7 +84,7 @@ namespace Chromacolony.Tests.EditMode
         [Test]
         public void AFileWithoutAVersionLineIsSetAsideAndTheGameStartsAfresh()
         {
-            var storage = new FakeSaveStorage();
+            var storage = new MemorySaveStorage();
             storage.Write(Key, "not a save");
             var saves = new SaveStore(storage, 1, _problems.Add);
 
@@ -104,7 +99,7 @@ namespace Chromacolony.Tests.EditMode
         [Test]
         public void ADifferentUnreadableFileGoesToTheNextFreeName()
         {
-            var storage = new FakeSaveStorage();
+            var storage = new MemorySaveStorage();
             storage.Write(Key + ".unreadable", "an older copy");
             storage.Write(Key, "not a save");
             var saves = new SaveStore(storage, 1, _problems.Add);
@@ -118,7 +113,7 @@ namespace Chromacolony.Tests.EditMode
         [Test]
         public void TheSameUnreadableFileIsSetAsideOnce()
         {
-            var storage = new FakeSaveStorage();
+            var storage = new MemorySaveStorage();
             storage.Write(Key, "not a save");
             var saves = new SaveStore(storage, 1, _problems.Add);
 
@@ -146,7 +141,7 @@ namespace Chromacolony.Tests.EditMode
         [Test]
         public void ASaveFromANewerVersionIsNotWrittenOver()
         {
-            var storage = new FakeSaveStorage();
+            var storage = new MemorySaveStorage();
             storage.Write(Key, "v9\nboard=3\n");
             var saves = new SaveStore(storage, 1, _problems.Add);
 
@@ -160,7 +155,7 @@ namespace Chromacolony.Tests.EditMode
         [Test]
         public void ASaveWithoutAMigrationIsNotWrittenOver()
         {
-            var storage = new FakeSaveStorage();
+            var storage = new MemorySaveStorage();
             storage.Write(Key, "v1\nboard=3\n");
             var saves = new SaveStore(storage, 2, _problems.Add);
 
@@ -174,7 +169,7 @@ namespace Chromacolony.Tests.EditMode
         [Test]
         public void ASaveWhoseMigrationFailsIsNotWrittenOver()
         {
-            var storage = new FakeSaveStorage();
+            var storage = new MemorySaveStorage();
             storage.Write(Key, "v1\nboard=3\n");
             SaveStore saves = new SaveStore(storage, 2, _problems.Add).Migrate(1, text => throw new FormatException("unexpected line"));
 

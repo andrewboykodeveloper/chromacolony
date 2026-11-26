@@ -7,7 +7,6 @@ namespace Chromacolony.Foundation
     public sealed class Localization
     {
         private readonly Dictionary<string, Dictionary<string, string>> _byLanguage = new Dictionary<string, Dictionary<string, string>>();
-        private readonly HashSet<string> _missing = new HashSet<string>();
         private readonly string _fallback;
 
         public Localization(string csv, string language)
@@ -39,8 +38,6 @@ namespace Chromacolony.Foundation
 
         public string Language { get; }
 
-        public IReadOnlyCollection<string> Missing => _missing;
-
         public string Get(string key)
         {
             if (_byLanguage[Language].TryGetValue(key, out var text) && text.Length > 0)
@@ -53,7 +50,6 @@ namespace Chromacolony.Foundation
                 return text;
             }
 
-            _missing.Add(key);
             return "[" + key + "]";
         }
 
@@ -91,11 +87,6 @@ namespace Chromacolony.Foundation
         public float Float(string key)
         {
             return float.Parse(String(key), CultureInfo.InvariantCulture);
-        }
-
-        public bool Bool(string key)
-        {
-            return bool.Parse(String(key));
         }
     }
 }

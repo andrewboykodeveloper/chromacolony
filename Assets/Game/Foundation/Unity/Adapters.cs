@@ -49,15 +49,6 @@ namespace Chromacolony.Foundation.Unity
             }
         }
 
-        public void Delete(string key)
-        {
-            var path = PathOf(key);
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
-        }
-
         private string PathOf(string key)
         {
             return Path.Combine(_folder, key + ".txt");
@@ -73,7 +64,6 @@ namespace Chromacolony.Foundation.Unity
         private readonly AudioSource _music;
         private readonly Dictionary<string, AudioClip> _clips = new Dictionary<string, AudioClip>();
         private AudioSource _voice;
-        private bool _muted;
 
         public UnityAudio(GameObject host)
         {
@@ -81,21 +71,6 @@ namespace Chromacolony.Foundation.Unity
             _effects = host.AddComponent<AudioSource>();
             _music = host.AddComponent<AudioSource>();
             _music.loop = true;
-        }
-
-        public bool Muted
-        {
-            get => _muted;
-            set
-            {
-                _muted = value;
-                _effects.mute = value;
-                _music.mute = value;
-                if (_voice != null)
-                {
-                    _voice.mute = value;
-                }
-            }
         }
 
         public void Play(string sound)
@@ -115,7 +90,6 @@ namespace Chromacolony.Foundation.Unity
             if (_voice == null)
             {
                 _voice = _host.AddComponent<AudioSource>();
-                _voice.mute = _muted;
             }
 
             _voice.Stop();

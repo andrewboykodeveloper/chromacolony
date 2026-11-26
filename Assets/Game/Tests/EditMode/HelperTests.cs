@@ -57,6 +57,22 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
+        public void AStuckBoardStaysStuckWhenAskedToShuffle()
+        {
+            GameModel model = Start("board ring\nRRR\nRYR\nRRR\n= R4 R4\n= Y1\n", slots: 1);
+            model.TrySend(1);
+            model.Tick(Step);
+            Assert.That(model.Phase, Is.EqualTo(GamePhase.Stuck));
+            bool shuffled = false;
+            _events.Subscribe<QueueShuffled>(_ => shuffled = true);
+
+            model.Shuffle(new Pcg32(7));
+
+            Assert.That(shuffled, Is.False, "the queue was shuffled");
+            Assert.That(model.Phase, Is.EqualTo(GamePhase.Stuck));
+        }
+
+        [Test]
         public void ABoardGetsOneExtraSlotAtMost()
         {
             GameModel model = Start(Ring, slots: 5);

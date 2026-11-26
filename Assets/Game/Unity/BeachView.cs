@@ -1,6 +1,4 @@
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
-using UnityEngine.Rendering;
 
 namespace Chromacolony.Unity
 {
@@ -11,8 +9,6 @@ namespace Chromacolony.Unity
         private const float BoardShoreY = -0.3f;
 
         private const float Glide = 3f;
-
-        private const int BackdropMip = 5;
 
         private const float CoverReach = 1.12f;
 
@@ -37,7 +33,7 @@ namespace Chromacolony.Unity
             _sprite = Resources.Load<Sprite>(ArtKeys.Beach);
             _root = new GameObject("Beach").transform;
             _picture = Make(_sprite, Order);
-            _backdrop = Make(Blurred(_sprite, BackdropMip) ?? _sprite, Order - 2);
+            _backdrop = Make(_sprite, Order - 2);
             _backdrop.color = BackdropTint;
             var shadow = Shadow();
             for (var i = 0; i < _shadows.Length; i++)
@@ -120,31 +116,6 @@ namespace Chromacolony.Unity
 
             texture.Apply(false, true);
             return Sprite.Create(texture, new Rect(0, 0, size, 1), new Vector2(0.5f, 0.5f), size, 0, SpriteMeshType.FullRect);
-        }
-
-        private static Sprite Blurred(Sprite sprite, int mip)
-        {
-            var source = sprite.texture;
-            if (SystemInfo.copyTextureSupport == CopyTextureSupport.None || source.mipmapCount <= mip
-                || GraphicsFormatUtility.IsCompressedFormat(source.graphicsFormat))
-            {
-                return null;
-            }
-
-            var copy = new Texture2D(Mathf.Max(1, source.width >> mip), Mathf.Max(1, source.height >> mip), source.graphicsFormat,
-                TextureCreationFlags.None)
-            {
-                name = source.name + " blurred",
-                wrapMode = TextureWrapMode.Clamp,
-                filterMode = FilterMode.Bilinear,
-            };
-            Graphics.CopyTexture(source, 0, mip, copy, 0, 0);
-            var scale = 1f / (1 << mip);
-            var rect = sprite.rect;
-            var x = Mathf.Floor(rect.x * scale);
-            var y = Mathf.Floor(rect.y * scale);
-            var area = new Rect(x, y, Mathf.Min(Mathf.Floor(rect.width * scale), copy.width - x), Mathf.Min(Mathf.Floor(rect.height * scale), copy.height - y));
-            return Sprite.Create(copy, area, new Vector2(0.5f, 0.5f), sprite.pixelsPerUnit * scale, 0, SpriteMeshType.FullRect);
         }
 
         private SpriteRenderer Make(Sprite sprite, int order)

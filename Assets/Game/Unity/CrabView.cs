@@ -40,8 +40,6 @@ namespace Chromacolony.Unity
 
         public int Walking => _walking.Count;
 
-        public bool Dancing => _dancing.Count > 0;
-
         public System.Action<Vector2> Lifted { get; set; }
 
         public System.Action<Vector2> Entered { get; set; }

@@ -20,10 +20,6 @@ namespace Chromacolony.Unity
         public const string LessonRope = "lesson_rope";
         public const string LessonSlots = "lesson_slots";
         public const string LessonTap = "lesson_tap";
-        public const string LineHello = "line_hello";
-        public const string LineHooray = "line_hooray";
-        public const string LineOops = "line_oops";
-        public const string LineThanks = "line_thanks";
         public const string Music = "music";
         public const string Next = "next";
         public const string NoCoins = "no_coins";
@@ -132,12 +128,9 @@ namespace Chromacolony.Unity
     public static class ArtKeys
     {
         public const string Beach = "Art/beach";
-        public const string Bubble = "Art/bubble";
         public const string Bucket = "Art/bucket";
         public const string BucketCover = "Art/bucket-cover";
         public const string BucketRope = "Art/bucket-rope";
-        public const string ButtonPrimary = "Art/button-primary";
-        public const string ButtonSecondary = "Art/button-secondary";
         public const string Castle = "Art/castle";
         public const string Coin = "Art/coin";
         public const string Crab = "Art/crab";
@@ -145,25 +138,16 @@ namespace Chromacolony.Unity
         public const string CrabLeg = "Art/crab-leg";
         public const string CrabShell = "Art/crab-shell";
         public const string IconBack = "Art/icon-back";
-        public const string IconMenu = "Art/icon-menu";
-        public const string IconNext = "Art/icon-next";
         public const string IconPause = "Art/icon-pause";
-        public const string IconRetry = "Art/icon-retry";
-        public const string IconSettings = "Art/icon-settings";
         public const string IconShuffle = "Art/icon-shuffle";
         public const string IconSlot = "Art/icon-slot";
-        public const string IconSoundOff = "Art/icon-sound-off";
-        public const string IconSoundOn = "Art/icon-sound-on";
         public const string IconSpeed = "Art/icon-speed";
-        public const string Moon = "Art/moon";
-        public const string MosaicBed = "Art/mosaic-bed";
         public const string Panel = "Art/panel";
         public const string Pebble = "Art/pebble";
         public const string Pointer = "Art/pointer";
         public const string SandPuff = "Art/sand-puff";
         public const string Slot = "Art/slot";
         public const string Sparkle = "Art/sparkle";
-        public const string Surf = "Art/surf";
     }
 
     public static class SoundKeys
