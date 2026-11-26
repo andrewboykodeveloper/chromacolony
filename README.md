@@ -30,17 +30,19 @@ flowchart LR
     end
     subgraph Core["Chromacolony.Core: no engine references"]
         Model["GameModel"]
-        Around["Tutorial, HelperShop,<br/>Progress"]
+        Around["BoardSession, Tutorial,<br/>HelperShop, Progress"]
         Saves["SaveStore"]
     end
     Root --> Presenters
     Root --> Views
     Root -- "loads, saves" --> Saves
     Presenters --> UI
-    Presenters -- "taps, helpers" --> Model
+    Presenters -- "taps" --> Model
+    Presenters -- "starts, helpers" --> Around
     Model -- "events" --> Views
+    Model -- "events" --> Around
     Model -- "events" --> Presenters
-    Presenters --> Around
+    Around -- "events" --> Presenters
 ```
 
 The [architecture overview](docs/architecture/overview.md) shows how the parts fit together and what one frame does.

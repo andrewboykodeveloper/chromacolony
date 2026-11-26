@@ -32,6 +32,7 @@ namespace Chromacolony.Game
         private Effects _effects;
         private BoardView _boardView;
         private AudioService _audio;
+        private HelperShop _shop;
         private SettingsPresenter _settings;
         private MenuPresenter _menu;
         private ResultPresenter _result;
@@ -48,7 +49,6 @@ namespace Chromacolony.Game
             _progress = Progress.FromText(_saves.Load(SaveKey), prices, boards.Count);
             var text = new Localization(_localizationCsv.text, StartLanguage());
             _model = new GameModel(new Rules(config.Int(ConfigKeys.Slots), config.Float(ConfigKeys.CrabInterval)));
-            var shop = new HelperShop(_model, _progress, prices);
             _ticker = new GameTicker(1f / 60f, _model.Tick);
             _camera = Camera.main;
             _camera.backgroundColor = Hex(config.String(ConfigKeys.ColorNight));
@@ -62,23 +62,23 @@ namespace Chromacolony.Game
             _screens = new ScreenHost();
             _input = new PointerInput();
             ulong seed = (ulong)DateTime.Now.Ticks;
-            var random = new Pcg32(seed);
             _beach = new BeachView(_camera, _spriteMaterial, config.Float(ConfigKeys.BeachShore), _content.Beach);
             _effects = new Effects(_spriteMaterial, new Pcg32(seed + 2), _content);
-            // Before any presenter: the board view and its crews view subscribe to the model first, so a presenter that reacts to an
-            // event finds the pieces in their new places.
             _boardView = new BoardView(_camera, _model, _crewMaterial, _spriteMaterial, colors, _effects, _content);
             _audio = new AudioService(new UnityAudio(gameObject, _content.Sounds, _content.VoiceLines, _content.Tracks), _progress, text,
                 config.Float(ConfigKeys.SoundGap), config.Float(ConfigKeys.SoundGapPick), config.Float(ConfigKeys.SoundGapCoin));
             _audio.ApplyMusic();
             _boardView.Sound = _audio.Play;
+            _shop = new HelperShop(_model, _progress, prices, new Pcg32(seed));
+            var session = new BoardSession(_model, boards, _progress, prices);
+            _shop.Used += _ => Save();
+            session.Ended += OnBoardEnded;
 
             _settings = new SettingsPresenter(_screens, text, _progress, _audio, Save);
             _menu = new MenuPresenter(_screens, text, _progress, _camera, _boardView);
-            _result = new ResultPresenter(_screens, text, _model, _progress, prices, shop, boards.Count, _boardView, _camera, _audio, Save);
-            _helpers = new HelperPresenter(_screens, text, _model, _progress, prices, shop, _boardView, _audio, random, Save);
-            _board = new BoardPresenter(_screens, text, _model, boards, _progress, _boardView, _beach, _effects, _audio, _helpers, _result,
-                Save);
+            _result = new ResultPresenter(_screens, text, _progress, session, _shop, _boardView, _camera, _audio);
+            _helpers = new HelperPresenter(_screens, text, _shop, _audio);
+            _board = new BoardPresenter(_screens, text, _model, session, _shop, _progress, _boardView, _beach, _effects, _audio, Save);
             _settings.LanguageChanged += ShowTexts;
             _menu.PlayPressed += () => _board.StartBoard(_progress.Board);
             _result.NextPressed += () => _board.StartBoard(_progress.Board);
@@ -185,9 +185,9 @@ namespace Chromacolony.Game
             {
                 _screens.CloseDialog();
             }
-            else if (_helpers.Picking)
+            else if (_shop.Picking)
             {
-                _helpers.CancelPick();
+                _shop.StopPicking();
             }
             else
             {
@@ -219,6 +219,14 @@ namespace Chromacolony.Game
             _result.ShowTexts();
             _helpers.ShowTexts();
             _board.ShowTexts();
+        }
+
+        private void OnBoardEnded(BoardEnded end)
+        {
+            if (end.Won)
+            {
+                Save();
+            }
         }
 
         private void Save()

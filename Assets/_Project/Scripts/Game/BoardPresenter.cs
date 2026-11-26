@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Chromacolony.Core;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -11,17 +10,14 @@ namespace Chromacolony.Game
         private readonly ScreenHost _screens;
         private readonly Localization _text;
         private readonly GameModel _model;
-        private readonly IReadOnlyList<BoardSpec> _boards;
+        private readonly BoardSession _session;
+        private readonly HelperShop _shop;
         private readonly Progress _progress;
         private readonly BoardView _boardView;
         private readonly BeachView _beach;
         private readonly Effects _effects;
         private readonly AudioService _audio;
-        private readonly HelperPresenter _helpers;
-        private readonly ResultPresenter _result;
         private readonly Action _save;
-        private Tutorial _tutorial = new Tutorial(Lesson.None);
-        private int _boardIndex;
         private Label _boardName;
         private Label _hint;
         private Button _speed;
@@ -34,33 +30,25 @@ namespace Chromacolony.Game
 
         public bool Paused { get; private set; }
 
-        public BoardPresenter(ScreenHost screens, Localization text, GameModel model, IReadOnlyList<BoardSpec> boards, Progress progress,
-            BoardView boardView, BeachView beach, Effects effects, AudioService audio, HelperPresenter helpers, ResultPresenter result,
-            Action save)
+        public BoardPresenter(ScreenHost screens, Localization text, GameModel model, BoardSession session, HelperShop shop,
+            Progress progress, BoardView boardView, BeachView beach, Effects effects, AudioService audio, Action save)
         {
             _screens = screens;
             _text = text;
             _model = model;
-            _boards = boards;
+            _session = session;
+            _shop = shop;
             _progress = progress;
             _boardView = boardView;
             _beach = beach;
             _effects = effects;
             _audio = audio;
-            _helpers = helpers;
-            _result = result;
             _save = save;
 
-            model.BoardWon += () => OnBoardEnded(true);
-            model.BoardStuck += () => OnBoardEnded(false);
-            model.SlotAdded += _ => OnSlotAdded();
-            model.CrewSent += e => OnCrewSent(e.Crew);
-            model.CrewDone += _ => OnCrewDone();
-            model.CrewRevealed += _ => OnCrewRevealed();
-            model.CrewBack += _ => Refresh();
-            model.QueueShuffled += ShowTutorial;
-            helpers.PickingChanged += ShowHint;
-            helpers.Used += OnHelperUsed;
+            session.Started += OnStarted;
+            session.TutorialChanged += ShowTutorial;
+            shop.PickingChanged += ShowHint;
+            model.CrewSent += _ => _audio.Play(SoundKeys.Tap);
         }
 
         public void Bind(VisualElement root, ButtonBindings bindings)
@@ -90,7 +78,7 @@ namespace Chromacolony.Game
             _pauseMenu.text = _text.Get(TextKeys.ToMenu);
             if (_screens.CurrentScreen == UiNames.Game)
             {
-                _boardName.text = _text.Format(TextKeys.Board, _boardIndex + 1);
+                _boardName.text = _text.Format(TextKeys.Board, _session.Board + 1);
                 ShowHint();
             }
         }
@@ -98,38 +86,20 @@ namespace Chromacolony.Game
         public void StartBoard(int index)
         {
             Paused = false;
-            _result.Reset();
             _effects.Clear();
-            _helpers.CancelPick();
-            _boardIndex = index % _boards.Count;
             _beach.OnBoard = true;
-            _model.Start(_boards[_boardIndex]);
-            _model.Fast = _progress.Fast;
-            _speed.EnableInClassList(UiClasses.On, _model.Fast);
-            _boardName.text = _text.Format(TextKeys.Board, _boardIndex + 1);
-            _screens.Show(UiNames.Game);
-            if (_boardIndex == 0)
-            {
-                _audio.Say(LineKeys.Hello);
-            }
-
-            // After the model starts, so the reveals of the opening crews cannot teach this board's lesson.
-            _tutorial = new Tutorial(Lessons.For(_boardIndex, _boards));
-            ShowTutorial();
-            Refresh();
+            _session.Start(index);
         }
 
         public void Retry()
         {
-            StartBoard(_boardIndex);
+            StartBoard(_session.Board);
         }
 
         public void ToMenu()
         {
             Paused = false;
-            _result.Reset();
             _effects.Clear();
-            _helpers.CancelPick();
             _model.BackToMenu();
             _beach.OnBoard = false;
             _boardView.Clear();
@@ -143,9 +113,9 @@ namespace Chromacolony.Game
                 return;
             }
 
-            if (_helpers.Picking)
+            if (_shop.Picking)
             {
-                _helpers.Pick(world);
+                _shop.TryBack(_boardView.SlotUnder(world));
                 return;
             }
 
@@ -178,6 +148,19 @@ namespace Chromacolony.Game
             _screens.CloseDialog();
         }
 
+        private void OnStarted()
+        {
+            _speed.EnableInClassList(UiClasses.On, _model.Fast);
+            _boardName.text = _text.Format(TextKeys.Board, _session.Board + 1);
+            _screens.Show(UiNames.Game);
+            if (_session.Board == 0)
+            {
+                _audio.Say(LineKeys.Hello);
+            }
+
+            ShowTutorial();
+        }
+
         private void ToggleSpeed()
         {
             _model.Fast = !_model.Fast;
@@ -186,63 +169,22 @@ namespace Chromacolony.Game
             _save();
         }
 
-        private void OnCrewSent(Crew crew)
-        {
-            _audio.Play(SoundKeys.Tap);
-            _tutorial.OnCrewSent(crew);
-            ShowTutorial();
-            Refresh();
-        }
-
-        private void OnCrewDone()
-        {
-            _tutorial.OnCrewDone();
-            ShowTutorial();
-            Refresh();
-        }
-
-        private void OnCrewRevealed()
-        {
-            _tutorial.OnCrewRevealed();
-            ShowTutorial();
-        }
-
-        // The lesson on places shows their count.
-        private void OnSlotAdded()
-        {
-            ShowHint();
-            Refresh();
-        }
-
-        private void OnBoardEnded(bool won)
-        {
-            _helpers.CancelPick();
-            _result.Begin(won, _boardIndex);
-            Refresh();
-        }
-
-        private void OnHelperUsed()
-        {
-            _result.DropPending();
-            Refresh();
-        }
-
         private void ShowTutorial()
         {
-            _boardView.Point(_tutorial.PointedColumn(_model));
+            _boardView.Point(_session.PointedColumn());
             ShowHint();
         }
 
         private void ShowHint()
         {
-            string text = _helpers.Picking ? _text.Get(TextKeys.PickCrew) : LessonText();
+            string text = _shop.Picking ? _text.Get(TextKeys.PickCrew) : LessonText();
             _hint.text = text ?? string.Empty;
             _hint.EnableInClassList(UiClasses.Hidden, string.IsNullOrEmpty(text));
         }
 
         private string LessonText()
         {
-            return _tutorial.Lesson switch
+            return _session.Lesson switch
             {
                 Lesson.Tap => _text.Get(TextKeys.LessonTap),
                 Lesson.Slots => _text.Format(TextKeys.LessonSlots, _model.SlotCount),
@@ -251,12 +193,6 @@ namespace Chromacolony.Game
                 Lesson.Cover => _text.Get(TextKeys.LessonCover),
                 _ => null,
             };
-        }
-
-        private void Refresh()
-        {
-            _result.ShowCoins();
-            _helpers.Refresh();
         }
     }
 }
