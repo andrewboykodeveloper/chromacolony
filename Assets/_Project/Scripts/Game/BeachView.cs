@@ -101,21 +101,21 @@ namespace Chromacolony.Game
 
         private static Sprite Shadow()
         {
-            const int size = 64;
-            var texture = new Texture2D(size, 1, TextureFormat.RGBA32, false)
+            const int Size = 64;
+            var texture = new Texture2D(Size, 1, TextureFormat.RGBA32, false)
             {
                 name = "Column shadow",
                 wrapMode = TextureWrapMode.Clamp,
                 filterMode = FilterMode.Bilinear,
             };
-            for (int x = 0; x < size; x++)
+            for (int x = 0; x < Size; x++)
             {
-                float t = 1f - (x + 0.5f) / size;
+                float t = 1f - (x + 0.5f) / Size;
                 texture.SetPixel(x, 0, new Color(0.01f, 0.02f, 0.08f, ShadowAlpha * t * t));
             }
 
             texture.Apply(false, true);
-            return Sprite.Create(texture, new Rect(0, 0, size, 1), new Vector2(0.5f, 0.5f), size, 0, SpriteMeshType.FullRect);
+            return Sprite.Create(texture, new Rect(0, 0, Size, 1), new Vector2(0.5f, 0.5f), Size, 0, SpriteMeshType.FullRect);
         }
 
         private SpriteRenderer Make(Sprite sprite, int order)

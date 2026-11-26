@@ -308,25 +308,25 @@ namespace Chromacolony.Game
 
         internal static Sprite SoftOval()
         {
-            const int size = 32;
-            var texture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+            const int Size = 32;
+            var texture = new Texture2D(Size, Size, TextureFormat.RGBA32, false)
             {
                 name = "Soft oval",
                 wrapMode = TextureWrapMode.Clamp,
                 filterMode = FilterMode.Bilinear,
             };
-            for (int y = 0; y < size; y++)
+            for (int y = 0; y < Size; y++)
             {
-                for (int x = 0; x < size; x++)
+                for (int x = 0; x < Size; x++)
                 {
-                    float d = new Vector2(x + 0.5f - size / 2f, y + 0.5f - size / 2f).magnitude / (size / 2f);
+                    float d = new Vector2(x + 0.5f - Size / 2f, y + 0.5f - Size / 2f).magnitude / (Size / 2f);
                     float a = Mathf.Clamp01(1f - d);
                     texture.SetPixel(x, y, new Color(1f, 1f, 1f, a * a * (3f - 2f * a)));
                 }
             }
 
             texture.Apply(false, true);
-            return Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), size, 0, SpriteMeshType.FullRect);
+            return Sprite.Create(texture, new Rect(0, 0, Size, Size), new Vector2(0.5f, 0.5f), Size, 0, SpriteMeshType.FullRect);
         }
 
         private static Transform Joint(Transform parent, Vector2 at, float sign)
