@@ -107,7 +107,6 @@ namespace Chromacolony.Game
         private const float EnterSeconds = 0.25f;
 
         private const float PebbleHeight = 0.36f;
-        private const int Order = 40;
 
         private const float StarSize = 2.9f;
 
@@ -320,7 +319,7 @@ namespace Chromacolony.Game
                     {
                         crab.Leg = Leg.Lift;
                         crab.Time = 0f;
-                        crab.Take(Order + 3, PebbleHeight);
+                        crab.Take(SortingOrder.CarriedPebble, PebbleHeight);
                         Lifted?.Invoke(crab.Target);
                     }
 
@@ -394,20 +393,20 @@ namespace Chromacolony.Game
             shade.sprite = _shadow;
             shade.sharedMaterial = _shadowMaterial;
             shade.color = new Color(0.02f, 0.04f, 0.12f, 0.42f);
-            shade.sortingOrder = Order - 1;
+            shade.sortingOrder = SortingOrder.CrabShadow;
 
             crab.Body = new GameObject("Body").transform;
             crab.Body.SetParent(crab.Root, false);
-            Part(_shell, crab.Body, new Vector2(0f, 0.1f), 0.78f, Order + 1);
+            Part(_shell, crab.Body, new Vector2(0f, 0.1f), 0.78f, SortingOrder.CrabShell);
             for (int side = 0; side < 2; side++)
             {
                 float sign = side == 0 ? -1f : 1f;
                 crab.Claws[side] = Joint(crab.Body, new Vector2(0.25f * sign, 0f), sign);
-                Part(_claw, crab.Claws[side], new Vector2(0.05f, 0.14f), 0.3f, Order + 2);
+                Part(_claw, crab.Claws[side], new Vector2(0.05f, 0.14f), 0.3f, SortingOrder.CrabClaw);
                 for (int i = 0; i < 3; i++)
                 {
                     Transform hip = Joint(crab.Body, new Vector2(0.17f * sign, -0.14f - 0.07f * i), sign);
-                    Part(_leg, hip, new Vector2(0.09f, -0.08f), 0.2f, Order);
+                    Part(_leg, hip, new Vector2(0.09f, -0.08f), 0.2f, SortingOrder.CrabLeg);
                     crab.Legs[side * 3 + i] = hip;
                 }
             }

@@ -6,8 +6,6 @@ namespace Chromacolony.Game
 {
     public sealed class BeachView : IDisposable
     {
-        private const int Order = -100;
-
         private const float BoardShoreY = -0.3f;
 
         private const float Glide = 3f;
@@ -39,13 +37,13 @@ namespace Chromacolony.Game
             _shore = Mathf.Clamp(shore, 0.1f, 0.9f);
             _sprite = sprite;
             _root = new GameObject("Beach").transform;
-            _picture = Make(_sprite, Order);
-            _backdrop = Make(_sprite, Order - 2);
+            _picture = Make(_sprite, SortingOrder.Beach);
+            _backdrop = Make(_sprite, SortingOrder.Backdrop);
             _backdrop.color = BackdropTint;
             _shadow = Shadow();
             for (int i = 0; i < _shadows.Length; i++)
             {
-                _shadows[i] = Make(_shadow, Order - 1);
+                _shadows[i] = Make(_shadow, SortingOrder.BeachShadow);
                 _shadows[i].flipX = i == 0;
             }
         }

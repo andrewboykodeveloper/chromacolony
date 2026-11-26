@@ -22,8 +22,6 @@ namespace Chromacolony.Game
             public float Age;
         }
 
-        private const int Order = 55;
-
         private readonly Transform _holder;
         private readonly Material _material;
         private readonly IRandom _random;
@@ -125,7 +123,7 @@ namespace Chromacolony.Game
                 go.transform.SetParent(_holder, false);
                 renderer = go.AddComponent<SpriteRenderer>();
                 renderer.sharedMaterial = _material;
-                renderer.sortingOrder = Order;
+                renderer.sortingOrder = SortingOrder.Effect;
             }
 
             renderer.sprite = sprite;
