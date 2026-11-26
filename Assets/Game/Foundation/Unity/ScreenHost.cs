@@ -16,7 +16,6 @@ namespace Chromacolony.Foundation.Unity
 
         public ScreenHost(VisualElement root)
         {
-            Root = root;
             root.Query<VisualElement>(className: ScreenClass).ForEach(e => Add(_screens, e));
             root.Query<VisualElement>(className: DialogClass).ForEach(e => Add(_dialogs, e));
             foreach (var element in _screens.Values)
@@ -29,10 +28,6 @@ namespace Chromacolony.Foundation.Unity
                 element.AddToClassList(HiddenClass);
             }
         }
-
-        public event Action<string> Changed;
-
-        public VisualElement Root { get; }
 
         public string CurrentScreen { get; private set; }
 
@@ -48,7 +43,6 @@ namespace Chromacolony.Foundation.Unity
             }
 
             CurrentScreen = screen;
-            Changed?.Invoke(screen);
         }
 
         public void Open(string dialog)
@@ -59,7 +53,6 @@ namespace Chromacolony.Foundation.Unity
 
             target.schedule.Execute(() => target.AddToClassList(OpenClass)).StartingIn(16);
             CurrentDialog = dialog;
-            Changed?.Invoke(dialog);
         }
 
         public void CloseDialog()

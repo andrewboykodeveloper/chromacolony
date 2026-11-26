@@ -10,10 +10,5 @@ namespace Chromacolony.Foundation.Unity
             camera.orthographic = true;
             camera.orthographicSize = WorldFit.HalfHeight(designHalfWidth, designHalfHeight, camera.aspect);
         }
-
-        public static Vector2 HalfSize(Camera camera)
-        {
-            return new Vector2(camera.orthographicSize * camera.aspect, camera.orthographicSize);
-        }
     }
 }
