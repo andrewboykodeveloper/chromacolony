@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca22f8b5db094d7e9bb5f1c425232dde, type: 3}
+  m_Name: GameContent
+  m_EditorClassIdentifier: Chromacolony.Game::Chromacolony.Game.GameContent
+  _beach: {fileID: 21300000, guid: 8fc606bd399f4f83ac07d7fe0329d2a6, type: 3}
+  _castle: {fileID: 21300000, guid: bb572a3e74244d958184a460eecf408c, type: 3}
+  _panel: {fileID: 21300000, guid: e4392611505745ce86b3560a2a7a4ddd, type: 3}
+  _slot: {fileID: 21300000, guid: 63ec2d687abc45d1956370679de7bc1e, type: 3}
+  _pebble: {fileID: 21300000, guid: ce5a86059d3a4123be80f663edd4f739, type: 3}
+  _bucket: {fileID: 21300000, guid: 71713fe80ee944238c8ef89287fe8667, type: 3}
+  _bucketCover: {fileID: 21300000, guid: 35479aedeac04943a892524defa2d7ad, type: 3}
+  _bucketRope: {fileID: 21300000, guid: ff1824f67b5e4dc2b79d2599bd6c2f6a, type: 3}
+  _pointer: {fileID: 21300000, guid: 494eb27b063746d699ebe9db2b02ee48, type: 3}
+  _crab: {fileID: 21300000, guid: d4f92e0fddad49409b62269d5d83e862, type: 3}
+  _crabShell: {fileID: 21300000, guid: 77f18803b21046d28ee319fc60103e45, type: 3}
+  _crabClaw: {fileID: 21300000, guid: dbad121c80834fd19319109d90c299af, type: 3}
+  _crabLeg: {fileID: 21300000, guid: a3dad9966747478ab1d7af32dbac0d93, type: 3}
+  _sandPuff: {fileID: 21300000, guid: ccc238e04afc4fd2bd35cfd4e714aa80, type: 3}
+  _sparkle: {fileID: 21300000, guid: 0e9dd3f991e540ad94cd51aaedace013, type: 3}
+  _tracks:
+  - {fileID: 8300000, guid: be5411521c784c6ea105d65fcc6f99e8, type: 3}
+  _sounds:
+  - {fileID: 8300000, guid: 4a6823d66501462b8f7446089befa10d, type: 3}
+  - {fileID: 8300000, guid: 7409d9c030f34c8094413c4f115edb28, type: 3}
+  - {fileID: 8300000, guid: ace48183f0eb4c90b46df07e52655f6f, type: 3}
+  - {fileID: 8300000, guid: 41e002a02f734298ac2a77dc2b0d39a4, type: 3}
+  - {fileID: 8300000, guid: 26ff8ea65cfb43608188898b1b831171, type: 3}
+  - {fileID: 8300000, guid: fe1f804b933f4f9397b99923fed5312c, type: 3}
+  - {fileID: 8300000, guid: 120fe9f5451b475b929765d58abe6386, type: 3}
+  - {fileID: 8300000, guid: c94061330c8c4fb281b231f49714624e, type: 3}
+  - {fileID: 8300000, guid: e52968c69d914978a8f759bf06a7c210, type: 3}
+  - {fileID: 8300000, guid: ff33d4b31a4848a1876550ed2767a7a3, type: 3}
+  - {fileID: 8300000, guid: 1f6f77e1a3584541a769d5ab952d5880, type: 3}
+  - {fileID: 8300000, guid: 9397659c00ab4f1fb61be7f01bcfa9b3, type: 3}
+  _voiceLines:
+  - {fileID: 8300000, guid: c0c6a52a43624511869128c5f8bec091, type: 3}
+  - {fileID: 8300000, guid: 60064b795fb94c998fd4e6a6d32cadf1, type: 3}
+  - {fileID: 8300000, guid: 78946ac4731f446d973c266a5f5f4164, type: 3}
+  - {fileID: 8300000, guid: b00bc753be264d5b80814fb27aee4c84, type: 3}
+  - {fileID: 8300000, guid: 3981db5f954c49e9a2a0debb2c2ce21b, type: 3}
+  - {fileID: 8300000, guid: bad99b1ae6644584accc124ce8da0b43, type: 3}
+  - {fileID: 8300000, guid: a0d9e9ff96454141b220a81440363d77, type: 3}
+  - {fileID: 8300000, guid: 9e88eada3ca142c38e0d3c3158fa0cfd, type: 3}
