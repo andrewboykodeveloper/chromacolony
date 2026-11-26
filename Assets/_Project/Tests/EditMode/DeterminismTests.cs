@@ -31,18 +31,17 @@ namespace Chromacolony.Tests.EditMode
 
         private static List<string> Replay(BoardSpec board, Rules rules)
         {
-            var events = new EventBus();
-            var model = new GameModel(events, rules);
+            var model = new GameModel(rules);
             var random = new Pcg32(ShuffleSeed);
             var log = new List<string>();
             int tick = 0;
-            events.Subscribe<CrewSent>(e => log.Add($"{tick} sent {e.Crew.Id} {e.Column} {e.Slot}"));
-            events.Subscribe<CrabSent>(e => log.Add($"{tick} crab {e.Crew.Id} {e.Cell}"));
-            events.Subscribe<CrewDone>(e => log.Add($"{tick} done {e.Crew.Id}"));
-            events.Subscribe<CrewRevealed>(e => log.Add($"{tick} revealed {e.Crew.Id}"));
-            events.Subscribe<QueueShuffled>(_ => log.Add($"{tick} shuffled"));
-            events.Subscribe<BoardWon>(_ => log.Add($"{tick} won"));
-            events.Subscribe<BoardStuck>(_ => log.Add($"{tick} stuck"));
+            model.CrewSent += e => log.Add($"{tick} sent {e.Crew.Id} {e.Column} {e.Slot}");
+            model.CrabSent += e => log.Add($"{tick} crab {e.Crew.Id} {e.Cell}");
+            model.CrewDone += e => log.Add($"{tick} done {e.Crew.Id}");
+            model.CrewRevealed += e => log.Add($"{tick} revealed {e.Crew.Id}");
+            model.QueueShuffled += () => log.Add($"{tick} shuffled");
+            model.BoardWon += () => log.Add($"{tick} won");
+            model.BoardStuck += () => log.Add($"{tick} stuck");
 
             model.Start(board);
             for (; tick < MaxTicks && model.Phase == GamePhase.Playing; tick++)

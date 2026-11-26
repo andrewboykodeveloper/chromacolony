@@ -10,14 +10,6 @@ namespace Chromacolony.Tests.EditMode
         private const float Step = 0.125f;
         private const string Ring = "board ring\nRRR\nRYR\nRRR\n= R8\n= Y1\n";
 
-        private EventBus _events;
-
-        [SetUp]
-        public void NewEvents()
-        {
-            _events = new EventBus();
-        }
-
         [Test]
         public void AnExtraSlotLetsAStuckBoardPlayOn()
         {
@@ -25,7 +17,7 @@ namespace Chromacolony.Tests.EditMode
             model.TrySend(1);
             model.Tick(Step);
             Assert.That(model.Phase, Is.EqualTo(GamePhase.Stuck));
-            Assert.That(model.CanAddSlot, Is.True);
+            Assert.That(model.CanUse(Helper.Slot), Is.True);
 
             model.AddSlot();
 
@@ -44,14 +36,16 @@ namespace Chromacolony.Tests.EditMode
         public void AStuckBoardOffersTheHelpersThatFreeASlotButNoShuffle()
         {
             GameModel model = Start("board ring\nRRR\nRYR\nRRR\n= R4 R4\n= Y1\n", slots: 1);
-            Assert.That(model.CanShuffle, Is.True);
+            Assert.That(model.CanUse(Helper.Shuffle), Is.True);
+            Assert.That(model.CanUse(Helper.Back), Is.False, "no crew has left its column yet");
 
             model.TrySend(1);
             model.Tick(Step);
 
             Assert.That(model.Phase, Is.EqualTo(GamePhase.Stuck));
-            Assert.That(model.CanShuffle, Is.False);
-            Assert.That(model.CanAddSlot, Is.True);
+            Assert.That(model.CanUse(Helper.Shuffle), Is.False);
+            Assert.That(model.CanUse(Helper.Slot), Is.True);
+            Assert.That(model.CanUse(Helper.Back), Is.True);
             Assert.That(model.CanBack(0), Is.True);
         }
 
@@ -63,7 +57,7 @@ namespace Chromacolony.Tests.EditMode
             model.Tick(Step);
             Assert.That(model.Phase, Is.EqualTo(GamePhase.Stuck));
             bool shuffled = false;
-            _events.Subscribe<QueueShuffled>(_ => shuffled = true);
+            model.QueueShuffled += () => shuffled = true;
 
             model.Shuffle(new Pcg32(7));
 
@@ -77,7 +71,7 @@ namespace Chromacolony.Tests.EditMode
             GameModel model = Start(Ring, slots: 5);
 
             model.AddSlot();
-            Assert.That(model.CanAddSlot, Is.False);
+            Assert.That(model.CanUse(Helper.Slot), Is.False);
             model.AddSlot();
 
             Assert.That(model.SlotCount, Is.EqualTo(6));
@@ -91,7 +85,7 @@ namespace Chromacolony.Tests.EditMode
             model.Tick(Step);
             Assert.That(model.Phase, Is.EqualTo(GamePhase.Stuck));
             var backs = new List<CrewBack>();
-            _events.Subscribe<CrewBack>(backs.Add);
+            model.CrewBack += backs.Add;
             Assert.That(model.CanBack(0), Is.True);
 
             model.Back(0);
@@ -184,7 +178,7 @@ namespace Chromacolony.Tests.EditMode
 
         private GameModel Start(string board, int slots)
         {
-            var model = new GameModel(_events, new Rules(slots, 0.25f));
+            var model = new GameModel(new Rules(slots, 0.25f));
             model.Start(BoardText.Parse(board)[0]);
             return model;
         }

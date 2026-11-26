@@ -76,7 +76,7 @@ namespace Chromacolony.Tests.EditMode
         {
             _seen.Clear();
             Positions = 0;
-            var model = new GameModel(new EventBus(), _rules);
+            var model = new GameModel(_rules);
             model.Start(board);
             return Search(model);
         }

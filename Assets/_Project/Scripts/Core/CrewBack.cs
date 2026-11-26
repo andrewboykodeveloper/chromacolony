@@ -4,15 +4,9 @@ namespace Chromacolony.Core
     {
         public Crew Crew { get; }
 
-        public int Slot { get; }
-
-        public int Column { get; }
-
-        public CrewBack(Crew crew, int slot, int column)
+        public CrewBack(Crew crew)
         {
             Crew = crew;
-            Slot = slot;
-            Column = column;
         }
     }
 }

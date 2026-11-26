@@ -29,7 +29,6 @@ namespace Chromacolony.Game
         [SerializeField] private Material _spriteMaterial;
         [SerializeField] private GameContent _content;
 
-        private readonly EventBus _events = new EventBus();
         private readonly Dictionary<string, float> _played = new Dictionary<string, float>();
         private readonly Button[] _helpers = new Button[3];
         private readonly Label[] _badges = new Label[3];
@@ -49,7 +48,6 @@ namespace Chromacolony.Game
         private VisualElement _resultDialog;
         private float _time;
         private bool _settingsFromPause;
-        private bool _claw;
         private bool _celebrated;
         private bool _coinsHeld;
         private int _coinsFrom;
@@ -66,7 +64,7 @@ namespace Chromacolony.Game
         private bool _resultPending;
         private bool _resultWon;
         private Helper _buying;
-        private Lesson _lesson;
+        private Tutorial _tutorial = new Tutorial(Lesson.None);
         private Label _boardName;
         private Label _coins;
         private Label _hint;
@@ -94,7 +92,7 @@ namespace Chromacolony.Game
             _saves = new SaveStore(new FileSaveStorage(), SaveVersion, problem => Debug.LogWarning("Saves: " + problem));
             _progress = Progress.FromText(_saves.Load(SaveKey), _prices, _boards.Count);
             _text = new Localization(_localizationCsv.text, StartLanguage());
-            _model = new GameModel(_events, new Rules(config.Int(ConfigKeys.Slots), config.Float(ConfigKeys.CrabInterval)));
+            _model = new GameModel(new Rules(config.Int(ConfigKeys.Slots), config.Float(ConfigKeys.CrabInterval)));
             _ticker = new GameTicker(1f / 60f, _model.Tick);
             _camera = Camera.main;
             _camera.backgroundColor = Hex(config.String(ConfigKeys.ColorNight));
@@ -113,7 +111,7 @@ namespace Chromacolony.Game
             _random = new Pcg32(seed);
             _beach = new BeachView(_camera, _spriteMaterial, config.Float(ConfigKeys.BeachShore), _content.Beach);
             _effects = new Effects(_spriteMaterial, new Pcg32(seed + 2), _content);
-            _board = new BoardView(_camera, _model, _crewMaterial, _spriteMaterial, colors, root, root.Q(UiNames.Labels), _events, _effects, _content);
+            _board = new BoardView(_camera, _model, _crewMaterial, _spriteMaterial, colors, root, root.Q(UiNames.Labels), _effects, _content);
             _audio = new UnityAudio(gameObject, _content.Sounds, _content.VoiceLines, _content.Tracks);
             _soundGap = config.Float(ConfigKeys.SoundGap);
             _pickGap = config.Float(ConfigKeys.SoundGapPick);
@@ -122,13 +120,13 @@ namespace Chromacolony.Game
             _board.Sound = Play;
             Bind(root);
             _coinFlight = new CoinFlight(root.Q(UiNames.Labels), _coins) { Landed = () => Play(SoundKeys.Coin) };
-            _events.Subscribe<BoardWon>(_ => Result(true));
-            _events.Subscribe<BoardStuck>(_ => Result(false));
-            _events.Subscribe<SlotAdded>(_ => Refresh());
-            _events.Subscribe<CrewSent>(e => Sent(e.Crew));
-            _events.Subscribe<CrewDone>(_ => Done());
-            _events.Subscribe<CrewRevealed>(_ => Learned(Lesson.Cover));
-            _events.Subscribe<CrewBack>(_ => Refresh());
+            _model.BoardWon += () => Result(true);
+            _model.BoardStuck += () => Result(false);
+            _model.SlotAdded += _ => Refresh();
+            _model.CrewSent += e => Sent(e.Crew);
+            _model.CrewDone += _ => Done();
+            _model.CrewRevealed += _ => Revealed();
+            _model.CrewBack += _ => Refresh();
             ToMenu();
         }
 
@@ -459,70 +457,45 @@ namespace Chromacolony.Game
                 Say(LineKeys.Hello);
             }
 
-            _lesson = Lessons.For(_boardIndex, _boards);
-            Hint(LessonText());
-            bool teaching = _lesson == Lesson.Tap || _lesson == Lesson.Slots || _lesson == Lesson.Inside;
-            _claw = teaching;
-            _board.Point(teaching ? FirstTap() : -1);
+            // After the model starts, so the reveals of the opening crews cannot teach this board's lesson.
+            _tutorial = new Tutorial(Lessons.For(_boardIndex, _boards));
+            ShowTutorial();
             Refresh();
-        }
-
-        private int FirstTap()
-        {
-            for (int c = 0; c < _model.ColumnCount; c++)
-            {
-                IReadOnlyList<Crew> column = _model.Column(c);
-                if (column.Count > 0 && column[0].Link < 0 && _model.Mosaic.AnyInReach(column[0].Color))
-                {
-                    return c;
-                }
-            }
-
-            return -1;
         }
 
         private void Sent(Crew crew)
         {
             Play(SoundKeys.Tap);
-            _claw = false;
-            _board.Point(-1);
-            if (_lesson == Lesson.Tap || (_lesson == Lesson.Rope && crew.Link >= 0))
-            {
-                Learned(_lesson);
-            }
-
+            _tutorial.OnCrewSent(crew);
+            ShowTutorial();
             Refresh();
         }
 
         private void Done()
         {
-            if (_lesson == Lesson.Slots || _lesson == Lesson.Inside)
-            {
-                Learned(_lesson);
-            }
-
+            _tutorial.OnCrewDone();
+            ShowTutorial();
             Refresh();
         }
 
-        private void Learned(Lesson lesson)
+        private void Revealed()
         {
-            if (_lesson != lesson || lesson == Lesson.None)
-            {
-                return;
-            }
+            _tutorial.OnCrewRevealed();
+            ShowTutorial();
+        }
 
-            _lesson = Lesson.None;
-            _claw = false;
-            _board.Point(-1);
+        private void ShowTutorial()
+        {
+            _board.Point(_tutorial.PointedColumn(_model));
             if (!_picking)
             {
-                Hint(null);
+                Hint(LessonText());
             }
         }
 
         private string LessonText()
         {
-            switch (_lesson)
+            switch (_tutorial.Lesson)
             {
                 case Lesson.Tap:
                     return _text.Get(TextKeys.LessonTap);
@@ -615,7 +588,7 @@ namespace Chromacolony.Game
 
         private void Ask(Helper helper)
         {
-            if (!Usable(helper) || _screens.CurrentDialog != null)
+            if (!_model.CanUse(helper) || _screens.CurrentDialog != null)
             {
                 return;
             }
@@ -652,7 +625,7 @@ namespace Chromacolony.Game
                 return;
             }
 
-            if (!Usable(helper) || !_progress.Pay(helper, _prices))
+            if (!_model.CanUse(helper) || !_progress.Pay(helper, _prices))
             {
                 return;
             }
@@ -665,11 +638,7 @@ namespace Chromacolony.Game
             else
             {
                 _model.Shuffle(_random);
-
-                if (_claw)
-                {
-                    _board.Point(FirstTap());
-                }
+                ShowTutorial();
             }
 
             _resultPending = false;
@@ -696,24 +665,11 @@ namespace Chromacolony.Game
             _hint.style.display = string.IsNullOrEmpty(text) ? DisplayStyle.None : DisplayStyle.Flex;
         }
 
-        private bool Usable(Helper helper)
-        {
-            switch (helper)
-            {
-                case Helper.Slot:
-                    return _model.CanAddSlot;
-                case Helper.Shuffle:
-                    return _model.CanShuffle;
-                default:
-                    return _model.AnyToBack();
-            }
-        }
-
         private bool AnyHelperToUse()
         {
             for (int h = 0; h < _helpers.Length; h++)
             {
-                if (Usable((Helper)h) && _progress.PaymentFor((Helper)h, _prices) != Payment.None)
+                if (_model.CanUse((Helper)h) && _progress.PaymentFor((Helper)h, _prices) != Payment.None)
                 {
                     return true;
                 }
@@ -748,7 +704,7 @@ namespace Chromacolony.Game
                 int stock = _progress.Stock(helper);
                 _badges[h].text = stock > 0 ? stock.ToString() : _prices.Of(helper).ToString();
                 _badges[h].EnableInClassList(PriceClass, stock == 0);
-                _helpers[h].EnableInClassList(OffClass, !Usable(helper) || _progress.PaymentFor(helper, _prices) == Payment.None);
+                _helpers[h].EnableInClassList(OffClass, !_model.CanUse(helper) || _progress.PaymentFor(helper, _prices) == Payment.None);
             }
         }
 
