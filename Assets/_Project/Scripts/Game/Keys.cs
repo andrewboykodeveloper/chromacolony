@@ -141,6 +141,12 @@ namespace Chromacolony.Game
         public const string Win = "win";
     }
 
+    public static class Languages
+    {
+        public const string English = "en";
+        public const string Russian = "ru";
+    }
+
     public static class MusicKeys
     {
         public const string Theme = "theme";

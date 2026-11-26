@@ -15,11 +15,7 @@ namespace Chromacolony.Game
         private const string SecondaryClass = "btn-secondary";
         private const string SaveKey = "progress";
 
-        private const string Russian = "ru";
-        private const string English = "en";
         private const int SaveVersion = 1;
-
-        private const float MenuCrabShare = 0.44f;
 
         [SerializeField] private UIDocument _document;
         [SerializeField] private TextAsset _configCsv;
@@ -42,7 +38,6 @@ namespace Chromacolony.Game
         private AudioService _audio;
         private VisualElement _ui;
         private VisualElement _resultDialog;
-        private bool _settingsFromPause;
         private bool _celebrated;
         private bool _coinsHeld;
         private int _coinsFrom;
@@ -68,16 +63,12 @@ namespace Chromacolony.Game
         private Label _resultText;
         private Label _buyText;
         private Label _noteText;
-        private Button _play;
         private Button _next;
         private Button _useHelper;
         private Button _retry;
         private Button _speed;
-        private Button _languageRu;
-        private Button _languageEn;
-        private Button _musicSwitch;
-        private Button _soundsSwitch;
-        private Button _voiceSwitch;
+        private SettingsPresenter _settings;
+        private MenuPresenter _menu;
 
         private void Awake()
         {
@@ -113,6 +104,12 @@ namespace Chromacolony.Game
                 config.Float(ConfigKeys.SoundGap), config.Float(ConfigKeys.SoundGapPick), config.Float(ConfigKeys.SoundGapCoin));
             _audio.ApplyMusic();
             _board.Sound = _audio.Play;
+            _settings = new SettingsPresenter(_screens, _text, _progress, _audio, Save);
+            _menu = new MenuPresenter(_screens, _text, _progress, _settings, _camera, _board);
+            _settings.LanguageChanged += ShowTexts;
+            _menu.PlayPressed += () => StartBoard(_progress.Board);
+            _settings.Bind(root);
+            _menu.Bind(root);
             Bind(root);
             _coinFlight = new CoinFlight(root.Q(UiNames.Labels), _coins) { Landed = () => _audio.Play(SoundKeys.Coin) };
             _model.BoardWon += () => Result(true);
@@ -132,7 +129,7 @@ namespace Chromacolony.Game
                 return _progress.Language;
             }
 
-            return Application.systemLanguage == SystemLanguage.Russian ? Russian : English;
+            return Application.systemLanguage == SystemLanguage.Russian ? Languages.Russian : Languages.English;
         }
 
         private void Bind(VisualElement root)
@@ -145,16 +142,10 @@ namespace Chromacolony.Game
             _resultText = root.Q<Label>(UiNames.ResultText);
             _buyText = root.Q<Label>(UiNames.BuyText);
             _noteText = root.Q<Label>(UiNames.NoteText);
-            _play = root.Q<Button>(UiNames.Play);
             _next = root.Q<Button>(UiNames.Next);
             _useHelper = root.Q<Button>(UiNames.UseHelper);
             _retry = root.Q<Button>(UiNames.Retry);
             _speed = root.Q<Button>(UiNames.HudSpeed);
-            _languageRu = root.Q<Button>(UiNames.LanguageRu);
-            _languageEn = root.Q<Button>(UiNames.LanguageEn);
-            _musicSwitch = root.Q<Button>(UiNames.MusicSwitch);
-            _soundsSwitch = root.Q<Button>(UiNames.SoundsSwitch);
-            _voiceSwitch = root.Q<Button>(UiNames.VoiceSwitch);
             _resultDialog = root.Q(UiNames.Result);
             _helpers[(int)Helper.Slot] = root.Q<Button>(UiNames.HelperSlot);
             _helpers[(int)Helper.Shuffle] = root.Q<Button>(UiNames.HelperShuffle);
@@ -165,7 +156,6 @@ namespace Chromacolony.Game
 
             ShowTexts();
 
-            _play.clicked += () => StartBoard(_progress.Board);
             _next.clicked += () => StartBoard(_progress.Board);
             _retry.clicked += () => StartBoard(_boardIndex);
             _useHelper.clicked += _screens.CloseDialog;
@@ -178,14 +168,7 @@ namespace Chromacolony.Game
             root.Q<Button>(UiNames.BuyNo).clicked += _screens.CloseDialog;
             root.Q<Button>(UiNames.NoteOk).clicked += _screens.CloseDialog;
             _speed.clicked += ToggleSpeed;
-            root.Q<Button>(UiNames.MenuSettings).clicked += () => OpenSettings(false);
-            root.Q<Button>(UiNames.PauseSettings).clicked += () => OpenSettings(true);
-            root.Q<Button>(UiNames.SettingsDone).clicked += CloseSettings;
-            _languageRu.clicked += () => ChooseLanguage(Russian);
-            _languageEn.clicked += () => ChooseLanguage(English);
-            _musicSwitch.clicked += ToggleMusic;
-            _soundsSwitch.clicked += ToggleSounds;
-            _voiceSwitch.clicked += ToggleVoice;
+            root.Q<Button>(UiNames.PauseSettings).clicked += () => _settings.Open(fromPause: true);
             _helpers[(int)Helper.Slot].clicked += () => Ask(Helper.Slot);
             _helpers[(int)Helper.Shuffle].clicked += () => Ask(Helper.Shuffle);
             _helpers[(int)Helper.Back].clicked += () => Ask(Helper.Back);
@@ -195,7 +178,6 @@ namespace Chromacolony.Game
 
         private void ShowTexts()
         {
-            _ui.Q<Label>(UiNames.Title).text = _text.Get(TextKeys.Title);
             _next.text = _text.Get(TextKeys.Next);
             _useHelper.text = _text.Get(TextKeys.UseHelper);
             _retry.text = _text.Get(TextKeys.Retry);
@@ -209,15 +191,7 @@ namespace Chromacolony.Game
             _ui.Q<Button>(UiNames.BuyYes).text = _text.Get(TextKeys.Buy);
             _ui.Q<Button>(UiNames.BuyNo).text = _text.Get(TextKeys.Cancel);
             _ui.Q<Button>(UiNames.NoteOk).text = _text.Get(TextKeys.Ok);
-            _ui.Q<Label>(UiNames.SettingsTitle).text = _text.Get(TextKeys.Settings);
-            _ui.Q<Label>(UiNames.SettingsLanguage).text = _text.Get(TextKeys.Language);
-            _ui.Q<Label>(UiNames.SettingsMusic).text = _text.Get(TextKeys.Music);
-            _ui.Q<Label>(UiNames.SettingsSounds).text = _text.Get(TextKeys.Sounds);
-            _ui.Q<Label>(UiNames.SettingsVoice).text = _text.Get(TextKeys.Voice);
-            _ui.Q<Button>(UiNames.SettingsDone).text = _text.Get(TextKeys.Done);
-            _languageRu.text = _text.Get(TextKeys.LanguageRu);
-            _languageEn.text = _text.Get(TextKeys.LanguageEn);
-            _play.text = PlayText();
+            _menu.ShowTexts();
             if (_screens.CurrentScreen == UiNames.Game)
             {
                 _boardName.text = _text.Format(TextKeys.Board, _boardIndex + 1);
@@ -225,90 +199,12 @@ namespace Chromacolony.Game
             }
         }
 
-        private string PlayText()
-        {
-            return _progress.Board == 0 && !_progress.Finished ? _text.Get(TextKeys.Play) : _text.Format(TextKeys.PlayBoard, _progress.Board + 1);
-        }
-
-        private void OpenSettings(bool fromPause)
-        {
-            if (_screens.CurrentDialog != (fromPause ? UiNames.Pause : null))
-            {
-                return;
-            }
-
-            _settingsFromPause = fromPause;
-            ShowSettings();
-            _screens.Open(UiNames.Settings);
-        }
-
-        private void CloseSettings()
-        {
-            if (_screens.CurrentDialog != UiNames.Settings)
-            {
-                return;
-            }
-
-            if (_settingsFromPause && _screens.CurrentScreen == UiNames.Game)
-            {
-                _screens.Open(UiNames.Pause);
-            }
-            else
-            {
-                _screens.CloseDialog();
-            }
-        }
-
-        private void ShowSettings()
-        {
-            _musicSwitch.EnableInClassList(OnClass, _progress.Music);
-            _soundsSwitch.EnableInClassList(OnClass, _progress.Sound);
-            _voiceSwitch.EnableInClassList(OnClass, _progress.Voice);
-            _languageRu.EnableInClassList(OnClass, _text.Language == Russian);
-            _languageEn.EnableInClassList(OnClass, _text.Language == English);
-        }
-
-        private void ChooseLanguage(string language)
-        {
-            _progress.Language = language;
-            Save();
-            if (_text.Language != language)
-            {
-                _text.Use(language);
-                ShowTexts();
-            }
-
-            ShowSettings();
-        }
-
-        private void ToggleMusic()
-        {
-            _progress.Music = !_progress.Music;
-            _audio.ApplyMusic();
-            ShowSettings();
-            Save();
-        }
-
-        private void ToggleSounds()
-        {
-            _progress.Sound = !_progress.Sound;
-            ShowSettings();
-            Save();
-        }
-
-        private void ToggleVoice()
-        {
-            _progress.Voice = !_progress.Voice;
-            ShowSettings();
-            Save();
-        }
-
         private void Update()
         {
             WorldView.Fit(_camera, BoardLayout.HalfWidth, BoardLayout.HalfHeight);
             _audio.Update(Time.deltaTime);
             _beach.Update(Time.deltaTime);
-            Bob();
+            _menu.Update();
             if (BackKey.WasPressedThisFrame())
             {
                 Back();
@@ -344,14 +240,6 @@ namespace Chromacolony.Game
                     ShowResult();
                 }
             }
-        }
-
-        private void Bob()
-        {
-            bool onMenu = _screens.CurrentScreen == UiNames.Menu && _screens.CurrentDialog == null;
-            float top = _camera.transform.position.y + _camera.orthographicSize;
-            var spot = new Vector2(_camera.transform.position.x, top - _camera.orthographicSize * 2f * MenuCrabShare);
-            _board.ShowOff(spot, onMenu);
         }
 
         private void OnApplicationPause(bool paused)
@@ -485,8 +373,7 @@ namespace Chromacolony.Game
             _model.BackToMenu();
             _beach.OnBoard = false;
             _board.Clear();
-            _play.text = PlayText();
-            _screens.Show(UiNames.Menu);
+            _menu.Show();
         }
 
         private void Pause()
@@ -517,7 +404,7 @@ namespace Chromacolony.Game
         {
             if (_screens.CurrentDialog == UiNames.Settings)
             {
-                CloseSettings();
+                _settings.Close();
             }
             else if (_screens.CurrentDialog == UiNames.Pause)
             {

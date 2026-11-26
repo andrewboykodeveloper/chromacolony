@@ -83,6 +83,14 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
+        public void TheLocalizationTableHasAColumnForEveryLanguageAndNoOther()
+        {
+            List<string> columns = Rows(LocalizationGuid)[0].Skip(1).ToList();
+
+            Assert.That(columns, Is.EquivalentTo(Constants(typeof(Languages))));
+        }
+
+        [Test]
         public void TheConfigTableHasOneRowForEveryConfigKeyAndNoOther()
         {
             List<string> keys = Constants(typeof(ConfigKeys));
