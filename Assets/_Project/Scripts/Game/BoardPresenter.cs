@@ -154,7 +154,7 @@ namespace Chromacolony.Game
                 return;
             }
 
-            int column = _boardView.ColumnAt(world);
+            int column = _boardView.ColumnUnder(world);
             if (column >= 0)
             {
                 _model.TrySend(column);

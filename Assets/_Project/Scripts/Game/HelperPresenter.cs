@@ -103,7 +103,7 @@ namespace Chromacolony.Game
 
         public void Pick(Vector2 world)
         {
-            int slot = _boardView.SlotAt(world);
+            int slot = _boardView.SlotUnder(world);
             bool taken = slot >= 0 && _model.CanBack(slot) && _progress.Pay(Helper.Back, _prices);
             if (taken)
             {

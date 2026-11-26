@@ -74,5 +74,38 @@ namespace Chromacolony.Game
         {
             return Mathf.Max(0.6f, 1f - 0.14f * depth);
         }
+
+        /// <summary>
+        /// The column whose visible crews a tap at this point is on, or -1. A tap on a crew behind the front one still counts for its
+        /// column.
+        /// </summary>
+        public int ColumnUnder(Vector2 world)
+        {
+            float top = QueueAt(0, 0).y + BucketSize * 0.75f;
+            float bottom = QueueAt(0, VisibleDepth - 1).y - BucketSize * 0.75f;
+            if (world.y > top || world.y < bottom)
+            {
+                return -1;
+            }
+
+            int best = -1;
+            float bestDistance = float.MaxValue;
+            for (int c = 0; c < _columns; c++)
+            {
+                float distance = Mathf.Abs(world.x - QueueAt(c, 0).x);
+                if (distance < bestDistance && distance < BucketSize)
+                {
+                    best = c;
+                    bestDistance = distance;
+                }
+            }
+
+            return best;
+        }
+
+        public bool SlotCovers(int slot, Vector2 world)
+        {
+            return Vector2.Distance(world, SlotAt(slot)) < SlotSize * 0.6f;
+        }
     }
 }

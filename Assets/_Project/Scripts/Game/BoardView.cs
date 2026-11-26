@@ -180,33 +180,27 @@ namespace Chromacolony.Game
             _crabs.ShowOff(at, on);
         }
 
-        public int ColumnAt(Vector2 world)
+        public int ColumnUnder(Vector2 world)
+        {
+            return _layout == null ? -1 : _layout.ColumnUnder(world);
+        }
+
+        public int SlotUnder(Vector2 world)
         {
             if (_layout == null)
             {
                 return -1;
             }
 
-            float top = _layout.QueueAt(0, 0).y + _layout.BucketSize * 0.75f;
-            float bottom = _layout.QueueAt(0, BoardLayout.VisibleDepth - 1).y - _layout.BucketSize * 0.75f;
-            if (world.y > top || world.y < bottom)
+            for (int s = 0; s < _model.SlotCount; s++)
             {
-                return -1;
-            }
-
-            int best = -1;
-            float bestDistance = float.MaxValue;
-            for (int c = 0; c < _model.ColumnCount; c++)
-            {
-                float distance = Mathf.Abs(world.x - _layout.QueueAt(c, 0).x);
-                if (distance < bestDistance && distance < _layout.BucketSize)
+                if (_model.SlotAt(s) != null && _layout.SlotCovers(s, world))
                 {
-                    best = c;
-                    bestDistance = distance;
+                    return s;
                 }
             }
 
-            return best;
+            return -1;
         }
 
         public void Clear()
@@ -573,24 +567,6 @@ namespace Chromacolony.Game
                     }
                 }
             }
-        }
-
-        public int SlotAt(Vector2 world)
-        {
-            if (_layout == null)
-            {
-                return -1;
-            }
-
-            for (int s = 0; s < _model.SlotCount; s++)
-            {
-                if (_model.SlotAt(s) != null && Vector2.Distance(world, _layout.SlotAt(s)) < _layout.SlotSize * 0.6f)
-                {
-                    return s;
-                }
-            }
-
-            return -1;
         }
 
         private void AddNest(int slot)
