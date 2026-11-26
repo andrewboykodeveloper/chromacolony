@@ -12,8 +12,6 @@ namespace Chromacolony.Foundation
             Current = initial;
         }
 
-        public event Action<TState, TState> Changed;
-
         public TState Current { get; private set; }
 
         public StateMachine<TState> Allow(TState from, TState to)
@@ -34,9 +32,7 @@ namespace Chromacolony.Foundation
                 throw new InvalidOperationException($"no transition from {Current} to {to}");
             }
 
-            var from = Current;
             Current = to;
-            Changed?.Invoke(from, to);
         }
     }
 }

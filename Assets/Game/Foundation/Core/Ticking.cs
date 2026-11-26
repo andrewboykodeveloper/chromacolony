@@ -2,21 +2,6 @@ using System;
 
 namespace Chromacolony.Foundation
 {
-    public interface IClock
-    {
-        double Now { get; }
-    }
-
-    public sealed class ManualClock : IClock
-    {
-        public double Now { get; set; }
-
-        public void Advance(double seconds)
-        {
-            Now += seconds;
-        }
-    }
-
     public sealed class FixedStepTicker
     {
         private readonly double _step;

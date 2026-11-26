@@ -58,18 +58,4 @@ namespace Chromacolony.Foundation
             return (NextUInt() >> 8) * (1f / 16777216f);
         }
     }
-
-    public static class StableHash
-    {
-        public static uint Of(string text)
-        {
-            var hash = 2166136261u;
-            foreach (var c in text)
-            {
-                hash = unchecked((hash ^ c) * 16777619u);
-            }
-
-            return hash;
-        }
-    }
 }
