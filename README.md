@@ -6,7 +6,7 @@ Unity 6000.6.7f1, with Web Build Support for the web build and Android Build Sup
 
 ## Getting started
 
-Open the folder in Unity Hub, open `Assets/Scenes/Bootstrap.unity` and press Play.
+Open the folder in Unity Hub, open `Assets/_Project/Scenes/Game.unity` and press Play.
 
 ## Tests
 

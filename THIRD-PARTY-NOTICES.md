@@ -11,7 +11,7 @@ keeps saved files in the browser's storage. Its files, the Unity logo among them
 
 ## Inter
 
-- `Assets/UI/Fonts/Inter-Regular.ttf`
+- `Assets/_Project/UI/Fonts/Inter-Regular.ttf`
 
 ```text
 Copyright (c) 2016 The Inter Project Authors (https://github.com/rsms/inter)
