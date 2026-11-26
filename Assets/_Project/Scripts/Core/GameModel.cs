@@ -2,27 +2,6 @@ using System.Collections.Generic;
 
 namespace Chromacolony.Core
 {
-    public enum GamePhase
-    {
-        Menu,
-        Playing,
-        Won,
-        Stuck,
-    }
-
-    public sealed class Rules
-    {
-        public Rules(int slots, float crabInterval)
-        {
-            Slots = slots;
-            CrabInterval = crabInterval;
-        }
-
-        public int Slots { get; }
-
-        public float CrabInterval { get; }
-    }
-
     public sealed class GameModel
     {
         private readonly StateMachine<GamePhase> _phase = new StateMachine<GamePhase>(GamePhase.Menu)

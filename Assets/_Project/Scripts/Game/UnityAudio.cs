@@ -1,59 +1,9 @@
-using System;
 using System.Collections.Generic;
-using System.IO;
 using Chromacolony.Core;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace Chromacolony.Game
 {
-    public sealed class FileSaveStorage : ISaveStorage
-    {
-        private readonly string _folder;
-
-        public static string DefaultFolder => Path.Combine(Application.persistentDataPath, "saves");
-
-        public FileSaveStorage(string folder = null)
-        {
-            _folder = folder ?? DefaultFolder;
-        }
-
-        public string Read(string key)
-        {
-            string path = PathOf(key);
-            return File.Exists(path) ? File.ReadAllText(path) : null;
-        }
-
-        public void Write(string key, string text)
-        {
-            try
-            {
-                Directory.CreateDirectory(_folder);
-                string path = PathOf(key);
-                string temp = path + ".tmp";
-                File.WriteAllText(temp, text);
-                if (File.Exists(path))
-                {
-                    File.Replace(temp, path, null);
-                }
-                else
-                {
-                    File.Move(temp, path);
-                }
-            }
-            catch (Exception e) when (e is IOException || e is UnauthorizedAccessException)
-            {
-                Debug.LogWarning($"FileSaveStorage: {key} could not be written: {e.Message}");
-                throw;
-            }
-        }
-
-        private string PathOf(string key)
-        {
-            return Path.Combine(_folder, key + ".txt");
-        }
-    }
-
     public sealed class UnityAudio : IAudio
     {
         private readonly GameObject _host;
@@ -155,58 +105,6 @@ namespace Chromacolony.Game
             }
 
             return null;
-        }
-    }
-
-    public sealed class PointerInput : IInput
-    {
-        public bool TryGetPress(out float x, out float y)
-        {
-            Pointer pointer = Pointer.current;
-            if (pointer != null && pointer.press.wasPressedThisFrame)
-            {
-                Vector2 position = pointer.position.ReadValue();
-                x = position.x;
-                y = Screen.height - position.y;
-                return true;
-            }
-
-            x = 0;
-            y = 0;
-            return false;
-        }
-    }
-
-    public static class BackKey
-    {
-        public static bool WasPressedThisFrame()
-        {
-            foreach (InputDevice device in InputSystem.devices)
-            {
-                if (device is Keyboard keyboard && keyboard.escapeKey.wasPressedThisFrame)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-    }
-
-    public sealed class GameTicker
-    {
-        private readonly FixedStepTicker _ticker;
-        private readonly Action<float> _step;
-
-        public GameTicker(float stepSeconds, Action<float> step)
-        {
-            _ticker = new FixedStepTicker(stepSeconds);
-            _step = step;
-        }
-
-        public void Update()
-        {
-            _ticker.Advance(Time.deltaTime, _step);
         }
     }
 }

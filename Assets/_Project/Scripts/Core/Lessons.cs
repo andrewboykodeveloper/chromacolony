@@ -2,21 +2,6 @@ using System.Collections.Generic;
 
 namespace Chromacolony.Core
 {
-    public enum Lesson
-    {
-        None,
-
-        Tap,
-
-        Slots,
-
-        Inside,
-
-        Rope,
-
-        Cover,
-    }
-
     public static class Lessons
     {
         public static Lesson For(int board, IReadOnlyList<BoardSpec> boards)

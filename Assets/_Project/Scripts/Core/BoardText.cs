@@ -4,59 +4,6 @@ using System.Globalization;
 
 namespace Chromacolony.Core
 {
-    public static class Palette
-    {
-        public const string Letters = "ROYGTBPK";
-
-        public static int Count => Letters.Length;
-
-        public static int Of(char letter)
-        {
-            return Letters.IndexOf(letter);
-        }
-    }
-
-    public sealed class CrewSpec
-    {
-        public CrewSpec(int color, int crabs, int link = -1, bool hidden = false)
-        {
-            Color = color;
-            Crabs = crabs;
-            Link = link;
-            Hidden = hidden;
-        }
-
-        public int Color { get; }
-
-        public int Crabs { get; }
-
-        public int Link { get; }
-
-        public bool Hidden { get; }
-    }
-
-    public sealed class BoardSpec
-    {
-        public BoardSpec(string name, int width, int height, IReadOnlyList<int> cells, IReadOnlyList<IReadOnlyList<CrewSpec>> columns)
-        {
-            Name = name;
-            Width = width;
-            Height = height;
-            Cells = cells;
-            Columns = columns;
-        }
-
-        public string Name { get; }
-
-        public int Width { get; }
-
-        public int Height { get; }
-
-        public IReadOnlyList<int> Cells { get; }
-
-        public IReadOnlyList<IReadOnlyList<CrewSpec>> Columns { get; }
-    }
-
     public static class BoardText
     {
         public static IReadOnlyList<BoardSpec> Parse(string text)

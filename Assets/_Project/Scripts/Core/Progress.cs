@@ -4,43 +4,6 @@ using System.Text;
 
 namespace Chromacolony.Core
 {
-    public enum Helper
-    {
-        Slot,
-
-        Shuffle,
-
-        Back,
-    }
-
-    public enum Payment
-    {
-        Stock,
-        Coins,
-        None,
-    }
-
-    public sealed class Prices
-    {
-        private readonly int[] _helpers;
-
-        public Prices(int coinsPerWin, int startStock, int slot, int shuffle, int back)
-        {
-            CoinsPerWin = coinsPerWin;
-            StartStock = startStock;
-            _helpers = new[] { slot, shuffle, back };
-        }
-
-        public int CoinsPerWin { get; }
-
-        public int StartStock { get; }
-
-        public int Of(Helper helper)
-        {
-            return _helpers[(int)helper];
-        }
-    }
-
     public sealed class Progress
     {
         private readonly int[] _stock = new int[3];

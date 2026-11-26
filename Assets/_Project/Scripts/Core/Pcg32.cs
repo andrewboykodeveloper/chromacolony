@@ -1,14 +1,5 @@
 namespace Chromacolony.Core
 {
-    public interface IRandom
-    {
-        uint NextUInt();
-
-        int Range(int minInclusive, int maxExclusive);
-
-        float Value();
-    }
-
     public sealed class Pcg32 : IRandom
     {
         private const ulong Multiplier = 6364136223846793005UL;
