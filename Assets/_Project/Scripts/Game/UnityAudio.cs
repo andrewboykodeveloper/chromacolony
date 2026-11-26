@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Chromacolony.Core;
 using UnityEngine;
 
 namespace Chromacolony.Game

@@ -1,31 +1,50 @@
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Chromacolony.Game
 {
     public static class SafeAreas
     {
-        public static void Apply(VisualElement safeElement, ISafeArea area)
+        /// <summary>
+        /// How far a safe area on the screen lies inside each edge, in the panel's own units: the panel settings scale the screen, so
+        /// the screen's points go through the panel.
+        /// </summary>
+        public static (float Top, float Bottom, float Left, float Right) Insets(IPanel panel, Rect safe, Vector2 screen)
         {
-            (float top, float bottom, float left, float right) = area.Insets;
-            safeElement.style.top = top;
-            safeElement.style.bottom = bottom;
-            safeElement.style.left = left;
-            safeElement.style.right = right;
+            // The screen's y runs up, and the interface's down from the top.
+            Vector2 origin = RuntimePanelUtils.ScreenToPanel(panel, Vector2.zero);
+            Vector2 topLeft = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(safe.xMin, screen.y - safe.yMax)) - origin;
+            Vector2 bottomRight = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(safe.xMax, screen.y - safe.yMin)) - origin;
+            Vector2 size = RuntimePanelUtils.ScreenToPanel(panel, screen) - origin;
+            return (topLeft.y, size.y - bottomRight.y, topLeft.x, size.x - bottomRight.x);
         }
 
-        public static IVisualElementScheduledItem Keep(VisualElement safeElement, ISafeArea area)
+        public static IVisualElementScheduledItem Keep(VisualElement safeElement)
         {
-            (float Top, float Bottom, float Left, float Right) applied = area.Insets;
-            Apply(safeElement, area);
+            (float Top, float Bottom, float Left, float Right) applied = ScreenInsets(safeElement.panel);
+            Apply(safeElement, applied);
             return safeElement.schedule.Execute(() =>
             {
-                (float Top, float Bottom, float Left, float Right) insets = area.Insets;
+                (float Top, float Bottom, float Left, float Right) insets = ScreenInsets(safeElement.panel);
                 if (!insets.Equals(applied))
                 {
                     applied = insets;
-                    Apply(safeElement, area);
+                    Apply(safeElement, insets);
                 }
             }).Every(500);
+        }
+
+        private static (float Top, float Bottom, float Left, float Right) ScreenInsets(IPanel panel)
+        {
+            return Insets(panel, Screen.safeArea, new Vector2(Screen.width, Screen.height));
+        }
+
+        private static void Apply(VisualElement safeElement, (float Top, float Bottom, float Left, float Right) insets)
+        {
+            safeElement.style.top = insets.Top;
+            safeElement.style.bottom = insets.Bottom;
+            safeElement.style.left = insets.Left;
+            safeElement.style.right = insets.Right;
         }
     }
 }

@@ -1,4 +1,4 @@
-namespace Chromacolony.Core
+namespace Chromacolony.Game
 {
     public interface IAudio
     {
