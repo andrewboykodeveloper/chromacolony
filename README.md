@@ -2,9 +2,11 @@
 
 A puzzle game that runs in the browser, laid out for a phone held upright. Crews of crabs wait in columns of buckets under a mosaic, one colour to a bucket. Tap a column and the crew at its front takes one of five places; its crabs then carry the pebbles of their colour home, one at a time. A board is done when every pebble is home, and then the picture puts itself together again.
 
+![A tap sends a crew to a place, its crabs carry the pebbles home, and the picture puts itself together again](docs/media/play.gif)
+
 **Play it in the browser:** [andrewboykodeveloper.itch.io/chromacolony](https://andrewboykodeveloper.itch.io/chromacolony)
 
-![Board 1 at its start](docs/media/board.png)
+<img src="docs/media/menu.png" alt="The menu" width="240"> <img src="docs/media/board.png" alt="Board 1 at its start" width="240"> <img src="docs/media/win.png" alt="A won board" width="240">
 
 ## Status
 
