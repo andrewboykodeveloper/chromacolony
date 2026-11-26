@@ -1,0 +1,262 @@
+using System;
+using System.Collections.Generic;
+using Chromacolony.Core;
+using UnityEngine;
+using UnityEngine.UIElements;
+
+namespace Chromacolony.Game
+{
+    public sealed class BoardPresenter
+    {
+        private readonly ScreenHost _screens;
+        private readonly Localization _text;
+        private readonly GameModel _model;
+        private readonly IReadOnlyList<BoardSpec> _boards;
+        private readonly Progress _progress;
+        private readonly BoardView _boardView;
+        private readonly BeachView _beach;
+        private readonly Effects _effects;
+        private readonly AudioService _audio;
+        private readonly HelperPresenter _helpers;
+        private readonly ResultPresenter _result;
+        private readonly Action _save;
+        private Tutorial _tutorial = new Tutorial(Lesson.None);
+        private int _boardIndex;
+        private Label _boardName;
+        private Label _hint;
+        private Button _speed;
+        private Label _pauseTitle;
+        private Button _resume;
+        private Button _pauseRetry;
+        private Button _pauseMenu;
+
+        public event Action LeftBoard;
+
+        public bool Paused { get; private set; }
+
+        public BoardPresenter(ScreenHost screens, Localization text, GameModel model, IReadOnlyList<BoardSpec> boards, Progress progress,
+            BoardView boardView, BeachView beach, Effects effects, AudioService audio, HelperPresenter helpers, ResultPresenter result,
+            Action save)
+        {
+            _screens = screens;
+            _text = text;
+            _model = model;
+            _boards = boards;
+            _progress = progress;
+            _boardView = boardView;
+            _beach = beach;
+            _effects = effects;
+            _audio = audio;
+            _helpers = helpers;
+            _result = result;
+            _save = save;
+
+            model.BoardWon += () => OnBoardEnded(true);
+            model.BoardStuck += () => OnBoardEnded(false);
+            model.SlotAdded += _ => OnSlotAdded();
+            model.CrewSent += e => OnCrewSent(e.Crew);
+            model.CrewDone += _ => OnCrewDone();
+            model.CrewRevealed += _ => OnCrewRevealed();
+            model.CrewBack += _ => Refresh();
+            model.QueueShuffled += ShowTutorial;
+            helpers.PickingChanged += ShowHint;
+            helpers.Used += OnHelperUsed;
+        }
+
+        public void Bind(VisualElement root, ButtonBindings bindings)
+        {
+            _boardName = root.Q<Label>(UiNames.BoardName);
+            _hint = root.Q<Label>(UiNames.Hint);
+            _speed = root.Q<Button>(UiNames.HudSpeed);
+            _pauseTitle = root.Q<Label>(UiNames.PauseTitle);
+            _resume = root.Q<Button>(UiNames.Resume);
+            _pauseRetry = root.Q<Button>(UiNames.PauseRetry);
+            _pauseMenu = root.Q<Button>(UiNames.PauseMenu);
+
+            bindings.Click(root.Q<Button>(UiNames.HudPause), Pause);
+            bindings.Click(_speed, ToggleSpeed);
+            bindings.Click(_resume, Resume);
+            bindings.Click(_pauseRetry, Retry);
+            bindings.Click(_pauseMenu, ToMenu);
+            ShowTexts();
+            _speed.EnableInClassList(UiClasses.On, _model.Fast);
+        }
+
+        public void ShowTexts()
+        {
+            _pauseTitle.text = _text.Get(TextKeys.Pause);
+            _resume.text = _text.Get(TextKeys.Resume);
+            _pauseRetry.text = _text.Get(TextKeys.Retry);
+            _pauseMenu.text = _text.Get(TextKeys.ToMenu);
+            if (_screens.CurrentScreen == UiNames.Game)
+            {
+                _boardName.text = _text.Format(TextKeys.Board, _boardIndex + 1);
+                ShowHint();
+            }
+        }
+
+        public void StartBoard(int index)
+        {
+            Paused = false;
+            _result.Reset();
+            _effects.Clear();
+            _helpers.CancelPick();
+            _boardIndex = index % _boards.Count;
+            _beach.OnBoard = true;
+            _model.Start(_boards[_boardIndex]);
+            _model.Fast = _progress.Fast;
+            _speed.EnableInClassList(UiClasses.On, _model.Fast);
+            _boardName.text = _text.Format(TextKeys.Board, _boardIndex + 1);
+            _screens.Show(UiNames.Game);
+            if (_boardIndex == 0)
+            {
+                _audio.Say(LineKeys.Hello);
+            }
+
+            // After the model starts, so the reveals of the opening crews cannot teach this board's lesson.
+            _tutorial = new Tutorial(Lessons.For(_boardIndex, _boards));
+            ShowTutorial();
+            Refresh();
+        }
+
+        public void Retry()
+        {
+            StartBoard(_boardIndex);
+        }
+
+        public void ToMenu()
+        {
+            Paused = false;
+            _result.Reset();
+            _effects.Clear();
+            _helpers.CancelPick();
+            _model.BackToMenu();
+            _beach.OnBoard = false;
+            _boardView.Clear();
+            LeftBoard?.Invoke();
+        }
+
+        public void Tap(Vector2 world)
+        {
+            if (_screens.CurrentDialog != null || _screens.CurrentScreen != UiNames.Game)
+            {
+                return;
+            }
+
+            if (_helpers.Picking)
+            {
+                _helpers.Pick(world);
+                return;
+            }
+
+            if (_model.Phase != GamePhase.Playing)
+            {
+                return;
+            }
+
+            int column = _boardView.ColumnUnder(world);
+            if (column >= 0)
+            {
+                _model.TrySend(column);
+            }
+        }
+
+        public void Pause()
+        {
+            if (_screens.CurrentScreen != UiNames.Game || _screens.CurrentDialog != null)
+            {
+                return;
+            }
+
+            Paused = true;
+            _screens.Open(UiNames.Pause);
+        }
+
+        public void Resume()
+        {
+            Paused = false;
+            _screens.CloseDialog();
+        }
+
+        private void ToggleSpeed()
+        {
+            _model.Fast = !_model.Fast;
+            _progress.Fast = _model.Fast;
+            _speed.EnableInClassList(UiClasses.On, _model.Fast);
+            _save();
+        }
+
+        private void OnCrewSent(Crew crew)
+        {
+            _audio.Play(SoundKeys.Tap);
+            _tutorial.OnCrewSent(crew);
+            ShowTutorial();
+            Refresh();
+        }
+
+        private void OnCrewDone()
+        {
+            _tutorial.OnCrewDone();
+            ShowTutorial();
+            Refresh();
+        }
+
+        private void OnCrewRevealed()
+        {
+            _tutorial.OnCrewRevealed();
+            ShowTutorial();
+        }
+
+        // The lesson on places shows their count.
+        private void OnSlotAdded()
+        {
+            ShowHint();
+            Refresh();
+        }
+
+        private void OnBoardEnded(bool won)
+        {
+            _helpers.CancelPick();
+            _result.Begin(won, _boardIndex);
+            Refresh();
+        }
+
+        private void OnHelperUsed()
+        {
+            _result.DropPending();
+            Refresh();
+        }
+
+        private void ShowTutorial()
+        {
+            _boardView.Point(_tutorial.PointedColumn(_model));
+            ShowHint();
+        }
+
+        private void ShowHint()
+        {
+            string text = _helpers.Picking ? _text.Get(TextKeys.PickCrew) : LessonText();
+            _hint.text = text ?? string.Empty;
+            _hint.EnableInClassList(UiClasses.Hidden, string.IsNullOrEmpty(text));
+        }
+
+        private string LessonText()
+        {
+            return _tutorial.Lesson switch
+            {
+                Lesson.Tap => _text.Get(TextKeys.LessonTap),
+                Lesson.Slots => _text.Format(TextKeys.LessonSlots, _model.SlotCount),
+                Lesson.Inside => _text.Get(TextKeys.LessonInside),
+                Lesson.Rope => _text.Get(TextKeys.LessonRope),
+                Lesson.Cover => _text.Get(TextKeys.LessonCover),
+                _ => null,
+            };
+        }
+
+        private void Refresh()
+        {
+            _result.ShowCoins();
+            _helpers.Refresh();
+        }
+    }
+}

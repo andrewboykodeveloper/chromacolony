@@ -1,0 +1,123 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="Theme.uss" />
+    <ui:VisualElement name="root" class="root" picking-mode="Ignore">
+        <ui:VisualElement name="labels" class="labels" picking-mode="Ignore" />
+        <ui:VisualElement name="safe" class="safe" picking-mode="Ignore">
+            <ui:VisualElement name="menu" class="screen menu">
+                <ui:Label name="title" class="title" />
+                <ui:Button name="play" class="btn btn-primary">
+                    <ui:VisualElement class="glyph glyph-next" picking-mode="Ignore" />
+                </ui:Button>
+                <ui:VisualElement class="menu-top" picking-mode="Ignore">
+                    <ui:Button name="menu-settings" class="btn-icon menu-settings" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="game" class="screen game" picking-mode="Ignore">
+                <ui:VisualElement class="hud" picking-mode="Ignore">
+                    <ui:Button name="hud-pause" class="btn-icon hud-pause" />
+                    <ui:Label name="board-name" class="pill" picking-mode="Ignore" />
+                    <ui:VisualElement class="coins pill" picking-mode="Ignore">
+                        <ui:VisualElement name="coin-icon" class="coin-icon" picking-mode="Ignore" />
+                        <ui:Label name="coins" class="coins-count" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                    <ui:Button name="hud-speed" class="btn-icon hud-speed" />
+                </ui:VisualElement>
+                <ui:VisualElement class="spacer" picking-mode="Ignore" />
+                <ui:Label name="hint" class="hint" picking-mode="Ignore" />
+                <ui:VisualElement class="helpers" picking-mode="Ignore">
+                    <ui:Button name="helper-slot" class="helper helper-slot">
+                        <ui:Label name="helper-slot-badge" class="badge" picking-mode="Ignore" />
+                    </ui:Button>
+                    <ui:Button name="helper-shuffle" class="helper helper-shuffle">
+                        <ui:Label name="helper-shuffle-badge" class="badge" picking-mode="Ignore" />
+                    </ui:Button>
+                    <ui:Button name="helper-back" class="helper helper-back">
+                        <ui:Label name="helper-back-badge" class="badge" picking-mode="Ignore" />
+                    </ui:Button>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="result" class="dialog">
+            <ui:VisualElement class="dialog-card">
+                <ui:Label name="result-title" class="dialog-title" />
+                <ui:Label name="result-text" class="dialog-text" />
+                <ui:Button name="next" class="btn btn-primary">
+                    <ui:VisualElement class="glyph glyph-next" picking-mode="Ignore" />
+                </ui:Button>
+                <ui:Button name="use-helper" class="btn btn-primary">
+                    <ui:VisualElement class="glyph glyph-helper" picking-mode="Ignore" />
+                </ui:Button>
+                <ui:Button name="retry" class="btn btn-secondary">
+                    <ui:VisualElement class="glyph glyph-retry" picking-mode="Ignore" />
+                </ui:Button>
+                <ui:Button name="result-menu" class="btn btn-secondary">
+                    <ui:VisualElement class="glyph glyph-menu" picking-mode="Ignore" />
+                </ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="pause" class="dialog">
+            <ui:VisualElement class="dialog-card">
+                <ui:Label name="pause-title" class="dialog-title" />
+                <ui:Button name="resume" class="btn btn-primary">
+                    <ui:VisualElement class="glyph glyph-next" picking-mode="Ignore" />
+                </ui:Button>
+                <ui:Button name="pause-settings" class="btn btn-secondary">
+                    <ui:VisualElement class="glyph glyph-settings" picking-mode="Ignore" />
+                </ui:Button>
+                <ui:Button name="pause-retry" class="btn btn-secondary">
+                    <ui:VisualElement class="glyph glyph-retry" picking-mode="Ignore" />
+                </ui:Button>
+                <ui:Button name="pause-menu" class="btn btn-secondary">
+                    <ui:VisualElement class="glyph glyph-menu" picking-mode="Ignore" />
+                </ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="buy" class="dialog">
+            <ui:VisualElement class="dialog-card">
+                <ui:Label name="buy-title" class="dialog-title" />
+                <ui:Label name="buy-text" class="dialog-text" />
+                <ui:Button name="buy-yes" class="btn btn-primary">
+                    <ui:VisualElement class="glyph glyph-coin" picking-mode="Ignore" />
+                </ui:Button>
+                <ui:Button name="buy-no" class="btn btn-secondary" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="settings" class="dialog">
+            <ui:VisualElement class="dialog-card">
+                <ui:Label name="settings-title" class="dialog-title" />
+                <ui:VisualElement class="setting">
+                    <ui:Label name="settings-language" class="setting-name" />
+                    <ui:VisualElement class="choice">
+                        <ui:Button name="language-ru" class="choice-option" />
+                        <ui:Button name="language-en" class="choice-option" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="setting">
+                    <ui:Label name="settings-music" class="setting-name" />
+                    <ui:Button name="music-switch" class="switch">
+                        <ui:VisualElement class="switch-knob" picking-mode="Ignore" />
+                    </ui:Button>
+                </ui:VisualElement>
+                <ui:VisualElement class="setting">
+                    <ui:Label name="settings-sounds" class="setting-name" />
+                    <ui:Button name="sounds-switch" class="switch">
+                        <ui:VisualElement class="switch-knob" picking-mode="Ignore" />
+                    </ui:Button>
+                </ui:VisualElement>
+                <ui:VisualElement class="setting">
+                    <ui:Label name="settings-voice" class="setting-name" />
+                    <ui:Button name="voice-switch" class="switch">
+                        <ui:VisualElement class="switch-knob" picking-mode="Ignore" />
+                    </ui:Button>
+                </ui:VisualElement>
+                <ui:Button name="settings-done" class="btn btn-primary settings-done" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="note" class="dialog">
+            <ui:VisualElement class="dialog-card">
+                <ui:Label name="note-text" class="dialog-text" />
+                <ui:Button name="note-ok" class="btn btn-primary" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
