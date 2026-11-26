@@ -82,7 +82,7 @@ namespace Chromacolony.Game
         private readonly Sprite _pointerSprite;
         private readonly Sprite _sitterSprite;
         private readonly Sprite _tray;
-        private readonly Sprite _glow = CrabView.SoftOval();
+        private readonly Sprite _softOval = SoftOval();
         private readonly Effects _effects;
         private readonly List<Label> _more = new List<Label>();
         private readonly List<Piece> _picture = new List<Piece>();
@@ -130,7 +130,7 @@ namespace Chromacolony.Game
             _pointerSprite = content.Pointer;
             _sitterSprite = content.Crab;
             _tray = Sliced(content.Panel);
-            _crabs = new CrabView(crewMaterial, spriteMaterial, content);
+            _crabs = new CrabView(content.CrabRig, _softOval);
 
             _crabs.Lifted = at =>
             {
@@ -244,10 +244,10 @@ namespace Chromacolony.Game
 
             _crabs.Dispose();
             _signs.Dispose();
-            if (_glow != null)
+            if (_softOval != null)
             {
-                Object.Destroy(_glow.texture);
-                Object.Destroy(_glow);
+                Object.Destroy(_softOval.texture);
+                Object.Destroy(_softOval);
             }
 
             if (_tray != null)
@@ -718,7 +718,7 @@ namespace Chromacolony.Game
 
                 if (glow == null)
                 {
-                    glow = Make(_glow, _spriteMaterial, "Glow " + cell, SortingOrder.PebbleGlow);
+                    glow = Make(_softOval, _spriteMaterial, "Glow " + cell, SortingOrder.PebbleGlow);
                     _glows[cell] = glow;
                 }
 
@@ -727,7 +727,7 @@ namespace Chromacolony.Game
                 glow.enabled = true;
                 glow.color = light;
                 glow.transform.position = pebble.transform.position;
-                glow.transform.localScale = Scale(_glow, _layout.Cell * (1.75f + 0.25f * breath));
+                glow.transform.localScale = Scale(_softOval, _layout.Cell * (1.75f + 0.25f * breath));
                 pebble.sortingOrder = SortingOrder.PebbleLit;
                 pebble.transform.localScale = _pebbleScale * (1f + 0.08f * breath);
             }
@@ -790,6 +790,31 @@ namespace Chromacolony.Game
             {
                 _labels.Add(label);
             }
+        }
+
+        private static Sprite SoftOval()
+        {
+            const int Size = 32;
+            var texture = new Texture2D(Size, Size, TextureFormat.RGBA32, false)
+            {
+                name = RuntimeArt.SoftOval,
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Bilinear,
+            };
+            for (int y = 0; y < Size; y++)
+            {
+                for (int x = 0; x < Size; x++)
+                {
+                    float d = new Vector2(x + 0.5f - Size / 2f, y + 0.5f - Size / 2f).magnitude / (Size / 2f);
+                    float a = Mathf.Clamp01(1f - d);
+                    texture.SetPixel(x, y, new Color(1f, 1f, 1f, a * a * (3f - 2f * a)));
+                }
+            }
+
+            texture.Apply(false, true);
+            Sprite sprite = Sprite.Create(texture, new Rect(0, 0, Size, Size), new Vector2(0.5f, 0.5f), Size, 0, SpriteMeshType.FullRect);
+            sprite.name = texture.name;
+            return sprite;
         }
 
         private static Sprite Sliced(Sprite sprite)

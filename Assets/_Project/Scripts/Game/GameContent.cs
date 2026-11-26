@@ -3,7 +3,9 @@ using UnityEngine;
 
 namespace Chromacolony.Game
 {
-    /// <summary>The sprites the world draws and the clips the audio plays. The UI's images are named by its style sheet.</summary>
+    /// <summary>
+    /// The sprites and the crab prefab the world draws, and the clips the audio plays. The UI's images are named by its style sheet.
+    /// </summary>
     public sealed class GameContent : ScriptableObject
     {
         [Header("Beach and board")]
@@ -19,9 +21,7 @@ namespace Chromacolony.Game
 
         [Header("Crabs")]
         [SerializeField] private Sprite _crab;
-        [SerializeField] private Sprite _crabShell;
-        [SerializeField] private Sprite _crabClaw;
-        [SerializeField] private Sprite _crabLeg;
+        [SerializeField] private CrabRig _crabRig;
 
         [Header("Effects")]
         [SerializeField] private Sprite _sandPuff;
@@ -52,11 +52,7 @@ namespace Chromacolony.Game
 
         public Sprite Crab => _crab;
 
-        public Sprite CrabShell => _crabShell;
-
-        public Sprite CrabClaw => _crabClaw;
-
-        public Sprite CrabLeg => _crabLeg;
+        public CrabRig CrabRig => _crabRig;
 
         public Sprite SandPuff => _sandPuff;
 
