@@ -8,7 +8,7 @@ namespace Chromacolony.Game
 {
     public sealed class Effects : IDisposable
     {
-        private sealed class Bit
+        private sealed class Particle
         {
             public SpriteRenderer Renderer;
             public Vector2 From;
@@ -27,7 +27,7 @@ namespace Chromacolony.Game
         private readonly IRandom _random;
         private readonly Sprite _puff;
         private readonly Sprite _sparkle;
-        private readonly List<Bit> _live = new List<Bit>();
+        private readonly List<Particle> _live = new List<Particle>();
         private readonly Stack<SpriteRenderer> _pool = new Stack<SpriteRenderer>();
 
         public Effects(Material material, IRandom random, GameContent content)
@@ -70,21 +70,21 @@ namespace Chromacolony.Game
         {
             for (int i = _live.Count - 1; i >= 0; i--)
             {
-                Bit bit = _live[i];
-                bit.Age += dt;
-                float t = Mathf.Clamp01(bit.Age / bit.Life);
-                Transform transform = bit.Renderer.transform;
-                transform.position = (Vector3)(bit.From + bit.Way * (1f - (1f - t) * (1f - t)) * bit.Life / 2f);
-                float size = Mathf.Lerp(bit.SizeFrom, bit.SizeTo, Mathf.Sin(t * Mathf.PI * 0.5f));
-                transform.localScale = SpriteRenderers.HeightScale(bit.Renderer.sprite, size);
-                transform.localRotation = Quaternion.Euler(0f, 0f, bit.Spin * bit.Age);
-                Color tint = bit.Tint;
-                tint.a = bit.Alpha * (t < 0.2f ? t / 0.2f : 1f - (t - 0.2f) / 0.8f);
-                bit.Renderer.color = tint;
+                Particle particle = _live[i];
+                particle.Age += dt;
+                float t = Mathf.Clamp01(particle.Age / particle.Life);
+                Transform transform = particle.Renderer.transform;
+                transform.position = (Vector3)(particle.From + particle.Way * (1f - (1f - t) * (1f - t)) * particle.Life / 2f);
+                float size = Mathf.Lerp(particle.SizeFrom, particle.SizeTo, Mathf.Sin(t * Mathf.PI * 0.5f));
+                transform.localScale = SpriteRenderers.HeightScale(particle.Renderer.sprite, size);
+                transform.localRotation = Quaternion.Euler(0f, 0f, particle.Spin * particle.Age);
+                Color tint = particle.Tint;
+                tint.a = particle.Alpha * (t < 0.2f ? t / 0.2f : 1f - (t - 0.2f) / 0.8f);
+                particle.Renderer.color = tint;
                 if (t >= 1f)
                 {
-                    bit.Renderer.gameObject.SetActive(false);
-                    _pool.Push(bit.Renderer);
+                    particle.Renderer.gameObject.SetActive(false);
+                    _pool.Push(particle.Renderer);
                     _live.RemoveAt(i);
                 }
             }
@@ -92,10 +92,10 @@ namespace Chromacolony.Game
 
         public void Clear()
         {
-            foreach (Bit bit in _live)
+            foreach (Particle particle in _live)
             {
-                bit.Renderer.gameObject.SetActive(false);
-                _pool.Push(bit.Renderer);
+                particle.Renderer.gameObject.SetActive(false);
+                _pool.Push(particle.Renderer);
             }
 
             _live.Clear();
@@ -126,7 +126,7 @@ namespace Chromacolony.Game
             renderer.transform.position = at;
             renderer.transform.localScale = SpriteRenderers.HeightScale(sprite, sizeFrom);
             renderer.color = new Color(tint.r, tint.g, tint.b, 0f);
-            _live.Add(new Bit
+            _live.Add(new Particle
             {
                 Renderer = renderer,
                 From = at,
