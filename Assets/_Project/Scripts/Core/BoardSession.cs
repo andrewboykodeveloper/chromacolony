@@ -4,8 +4,7 @@ using System.Collections.Generic;
 namespace Chromacolony.Core
 {
     /// <summary>
-    /// The board in play: starts it, keeps its tutorial up to date, and when it ends pays a win into the progress and says how
-    /// it ended.
+    /// The board in play: starts it, keeps its tutorial up to date, and pays a win when it ends.
     /// </summary>
     public sealed class BoardSession
     {

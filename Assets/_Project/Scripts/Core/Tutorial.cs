@@ -15,8 +15,8 @@ namespace Chromacolony.Core
         }
 
         /// <summary>
-        /// The column the claw points at: the first whose front crew could go on its own and find a pebble of its colour in
-        /// reach, or -1 while the claw is hidden or no column is ready.
+        /// The column the pointer shows: the first whose front crew could go on its own and find a pebble of its colour in
+        /// reach, or -1 while the pointer is hidden or no column is ready.
         /// </summary>
         public int PointedColumn(GameModel model)
         {

@@ -22,8 +22,7 @@ namespace Chromacolony.Game
             public float Age;
         }
 
-        // Spins are in degrees per second.
-        private const float PuffSpinSpread = 60f;
+        private const float PuffSpinSpreadDegreesPerSecond = 60f;
         private const float PuffRiseSpeed = 0.6f;
         private const float PuffSizeFrom = 0.5f;
         private const float PuffSizeTo = 1.25f;
@@ -37,11 +36,11 @@ namespace Chromacolony.Game
         private const float SparkleSizeSpread = 0.18f;
         private const float SparkleSizeTo = 0.4f;
         private const float SparkleLife = 0.55f;
-        private const float SparkleSpinSpread = 220f;
+        private const float SparkleSpinSpreadDegreesPerSecond = 220f;
 
         private const float TwinkleSizeFrom = 0.2f;
         private const float TwinkleLife = 0.35f;
-        private const float TwinkleSpin = 90f;
+        private const float TwinkleSpinDegreesPerSecond = 90f;
 
         private const float FadeInShare = 0.2f;
 
@@ -64,7 +63,7 @@ namespace Chromacolony.Game
 
         public void Puff(Vector2 at, float size)
         {
-            float spin = (_random.Value() - 0.5f) * PuffSpinSpread;
+            float spin = (_random.Value() - 0.5f) * PuffSpinSpreadDegreesPerSecond;
             Spawn(_puff, at, way: new Vector2(0f, size * PuffRiseSpeed), sizeFrom: size * PuffSizeFrom, sizeTo: size * PuffSizeTo,
                 life: PuffLife, alpha: PuffAlpha, spin: spin, tint: Color.white);
         }
@@ -80,7 +79,7 @@ namespace Chromacolony.Game
 
                 // A particle moves by its way times half its life in all, so this way ends the sparkle at its reach.
                 Spawn(_sparkle, at, way: reach * 2f / SparkleLife, sizeFrom: size, sizeTo: size * SparkleSizeTo, life: SparkleLife,
-                    alpha: 1f, spin: SparkleSpinSpread * (_random.Value() - 0.5f), tint: tint);
+                    alpha: 1f, spin: SparkleSpinSpreadDegreesPerSecond * (_random.Value() - 0.5f), tint: tint);
             }
         }
 
@@ -92,7 +91,7 @@ namespace Chromacolony.Game
         public void Twinkle(Vector2 at, float size, Color tint)
         {
             Spawn(_sparkle, at, way: Vector2.zero, sizeFrom: size * TwinkleSizeFrom, sizeTo: size, life: TwinkleLife, alpha: 1f,
-                spin: TwinkleSpin, tint: tint);
+                spin: TwinkleSpinDegreesPerSecond, tint: tint);
         }
 
         public void Update(float dt)

@@ -17,8 +17,7 @@ namespace Chromacolony.Game
             public bool Twinkled;
         }
 
-        // A pebble fills this share of its cell.
-        private const float PebbleFill = 0.94f;
+        private const float PebbleCellShare = 0.94f;
 
         private const float BreathSpeed = 5f;
         private const float GlowWhiteness = 0.55f;
@@ -64,7 +63,7 @@ namespace Chromacolony.Game
         {
             _root = root;
             _cells = board.Cells;
-            _pebbleScale = SpriteRenderers.HeightScale(_pebble, layout.Cell * PebbleFill);
+            _pebbleScale = SpriteRenderers.HeightScale(_pebble, layout.Cell * PebbleCellShare);
             _pebbles = new SpriteRenderer[board.Width * board.Height];
             _glows = new SpriteRenderer[_pebbles.Length];
             _lit = new bool[_pebbles.Length];
@@ -185,7 +184,7 @@ namespace Chromacolony.Game
             pebble.transform.localScale = _pebbleScale * (1f + LitGrowth * breath);
         }
 
-        // A dark pebble is set back once, when it goes dark, so the pebbles that stay dark cost nothing each frame.
+        // A dark pebble is set back once, when it goes dark, and is not touched again while it stays dark.
         private void Dim(int cell, SpriteRenderer pebble)
         {
             _glows[cell].enabled = false;

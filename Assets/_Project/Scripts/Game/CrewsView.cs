@@ -8,7 +8,7 @@ using Object = UnityEngine.Object;
 namespace Chromacolony.Game
 {
     /// <summary>
-    /// The crews in their queues and places: their buckets and signs, the crab that sits on a waiting crew, the ropes between
+    /// The crews in their queues and slots: their buckets and signs, the crab that sits on a waiting crew, the ropes between
     /// crews, and their labels.
     /// </summary>
     public sealed class CrewsView : IDisposable
@@ -143,7 +143,6 @@ namespace Chromacolony.Game
             TieRopes();
         }
 
-        /// <summary>Moves the crews in places to where the places are now, after a place is added.</summary>
         public void Relayout(BoardLayout layout)
         {
             _layout = layout;
@@ -188,7 +187,6 @@ namespace Chromacolony.Game
             return false;
         }
 
-        /// <summary>Where the front crew of a column stands, if the column has one on the board.</summary>
         public bool TryGetFront(int column, out Vector3 position)
         {
             IReadOnlyList<Crew> crews = _model.Column(column);
