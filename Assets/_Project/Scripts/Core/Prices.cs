@@ -1,8 +1,12 @@
+using System;
+
 namespace Chromacolony.Core
 {
     public sealed class Prices
     {
-        private readonly int[] _helpers;
+        private readonly int _slot;
+        private readonly int _shuffle;
+        private readonly int _back;
 
         public int CoinsPerWin { get; }
 
@@ -12,12 +16,20 @@ namespace Chromacolony.Core
         {
             CoinsPerWin = coinsPerWin;
             StartStock = startStock;
-            _helpers = new[] { slot, shuffle, back };
+            _slot = slot;
+            _shuffle = shuffle;
+            _back = back;
         }
 
         public int Of(Helper helper)
         {
-            return _helpers[(int)helper];
+            return helper switch
+            {
+                Helper.Slot => _slot,
+                Helper.Shuffle => _shuffle,
+                Helper.Back => _back,
+                _ => throw new ArgumentOutOfRangeException(nameof(helper), helper, "no such helper"),
+            };
         }
     }
 }

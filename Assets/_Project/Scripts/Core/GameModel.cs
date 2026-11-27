@@ -5,6 +5,8 @@ namespace Chromacolony.Core
 {
     public sealed class GameModel
     {
+        private const float FastSpeed = 2f;
+
         private readonly StateMachine<GamePhase> _phase = new StateMachine<GamePhase>(GamePhase.Menu)
             .Allow(GamePhase.Menu, GamePhase.Playing)
             .Allow(GamePhase.Playing, GamePhase.Playing)
@@ -53,6 +55,11 @@ namespace Chromacolony.Core
         public Mosaic Mosaic { get; private set; }
 
         public bool Fast { get; set; }
+
+        /// <summary>
+        /// How much faster than real time the board plays: at double speed, each tick counts twice.
+        /// </summary>
+        public float Speed => Fast ? FastSpeed : 1f;
 
         public int SlotCount { get; private set; }
 
@@ -196,7 +203,7 @@ namespace Chromacolony.Core
                 return;
             }
 
-            float step = Fast ? dt * 2f : dt;
+            float step = dt * Speed;
             for (int s = 0; s < SlotCount; s++)
             {
                 Crew crew = _slots[s];

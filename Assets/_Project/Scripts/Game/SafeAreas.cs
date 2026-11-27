@@ -5,6 +5,8 @@ namespace Chromacolony.Game
 {
     public static class SafeAreas
     {
+        private const long CheckMilliseconds = 500;
+
         /// <summary>
         /// How far a safe area on the screen lies inside each edge, in the panel's own units: the panel settings scale the screen, so
         /// the screen's points go through the panel.
@@ -31,7 +33,7 @@ namespace Chromacolony.Game
                     applied = insets;
                     Apply(safeElement, insets);
                 }
-            }).Every(500);
+            }).Every(CheckMilliseconds);
         }
 
         private static (float Top, float Bottom, float Left, float Right) ScreenInsets(IPanel panel)

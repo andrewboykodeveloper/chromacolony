@@ -10,6 +10,9 @@ namespace Chromacolony.Game
         private const int Coins = 7;
         private const float Stagger = 0.08f;
         private const float FlySeconds = 0.6f;
+        private const float ArcHeight = 320f;
+        private const float Shrink = 0.35f;
+        private const float Idle = -1f;
 
         private readonly VisualElement _layer;
         private readonly Label _counter;
@@ -19,7 +22,7 @@ namespace Chromacolony.Game
         private int _start;
         private int _end;
         private int _counted;
-        private float _time = -1f;
+        private float _time = Idle;
 
         public bool Flying => _time >= 0f;
 
@@ -79,11 +82,11 @@ namespace Chromacolony.Game
                 }
 
                 float eased = t * t * (3f - 2f * t);
-                Vector2 point = Vector2.Lerp(_from, _to, eased) + new Vector2(0f, -320f * Mathf.Sin(eased * Mathf.PI));
+                Vector2 point = Vector2.Lerp(_from, _to, eased) + new Vector2(0f, -ArcHeight * Mathf.Sin(eased * Mathf.PI));
                 coin.style.left = point.x;
                 coin.style.top = point.y;
                 coin.style.opacity = t > 0f ? 1f : 0f;
-                float scale = 1f - 0.35f * eased;
+                float scale = 1f - Shrink * eased;
                 coin.style.scale = new Scale(new Vector3(scale, scale, 1f));
             }
 
@@ -113,7 +116,7 @@ namespace Chromacolony.Game
                 _counter.text = _end.ToString(CultureInfo.InvariantCulture);
             }
 
-            _time = -1f;
+            _time = Idle;
         }
     }
 }

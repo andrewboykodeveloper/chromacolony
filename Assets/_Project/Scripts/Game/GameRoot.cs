@@ -10,6 +10,11 @@ namespace Chromacolony.Game
     {
         private const string SaveKey = "progress";
         private const int SaveVersion = 1;
+        private const float TickSeconds = 1f / 60f;
+
+        // One seed, and a stream of its own for each user of chance.
+        private const ulong ShuffleStream = 1;
+        private const ulong EffectsStream = 2;
 
         [SerializeField] private UIDocument _document;
         [SerializeField] private TextAsset _configCsv;
@@ -49,7 +54,7 @@ namespace Chromacolony.Game
             _progress = Progress.FromText(_saves.Load(SaveKey), prices, boards.Count);
             var text = new Localization(_localizationCsv.text, StartLanguage());
             _model = new GameModel(new Rules(config.Int(ConfigKeys.Slots), config.Float(ConfigKeys.CrabInterval)));
-            _ticker = new GameTicker(1f / 60f, _model.Tick);
+            _ticker = new GameTicker(TickSeconds, _model.Tick);
             _camera = Camera.main;
             _camera.backgroundColor = Hex(config.String(ConfigKeys.ColorNight));
             Color[] colors =
@@ -63,13 +68,13 @@ namespace Chromacolony.Game
             _input = new PointerInput();
             ulong seed = (ulong)DateTime.Now.Ticks;
             _beach = new BeachView(_camera, _spriteMaterial, config.Float(ConfigKeys.BeachShore), _content.Beach);
-            _effects = new Effects(_spriteMaterial, new Pcg32(seed + 2), _content);
+            _effects = new Effects(_spriteMaterial, new Pcg32(seed, EffectsStream), _content);
             _boardView = new BoardView(_camera, _model, _crewMaterial, _spriteMaterial, colors, _effects, _content);
             _audio = new AudioService(new UnityAudio(gameObject, _content.Sounds, _content.VoiceLines, _content.Tracks), _progress, text,
                 config.Float(ConfigKeys.SoundGap), config.Float(ConfigKeys.SoundGapPick), config.Float(ConfigKeys.SoundGapCoin));
             _audio.ApplyMusic();
             _boardView.Sound = _audio.Play;
-            _shop = new HelperShop(_model, _progress, prices, new Pcg32(seed));
+            _shop = new HelperShop(_model, _progress, prices, new Pcg32(seed, ShuffleStream));
             var session = new BoardSession(_model, boards, _progress, prices);
             _shop.Used += _ => Save();
             session.Ended += OnBoardEnded;
@@ -133,9 +138,8 @@ namespace Chromacolony.Game
             }
 
             _ticker.Update();
-            float speed = _model.Fast ? 2f : 1f;
-            _boardView.Update(Time.deltaTime, speed);
-            _effects.Update(Time.deltaTime * speed);
+            _boardView.Update(Time.deltaTime, _model.Speed);
+            _effects.Update(Time.deltaTime * _model.Speed);
             _result.Update(Time.deltaTime);
         }
 

@@ -7,10 +7,10 @@ namespace Chromacolony.Core
         private readonly ulong _increment;
         private ulong _state;
 
-        public Pcg32(ulong seed, ulong sequence = 54)
+        public Pcg32(ulong seed, ulong stream = 54)
         {
             _state = 0;
-            _increment = (sequence << 1) | 1UL;
+            _increment = (stream << 1) | 1UL;
             NextUInt();
             _state = unchecked(_state + seed);
             NextUInt();

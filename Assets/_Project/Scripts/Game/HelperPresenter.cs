@@ -11,8 +11,8 @@ namespace Chromacolony.Game
         private readonly Localization _text;
         private readonly HelperShop _shop;
         private readonly AudioService _audio;
-        private readonly Button[] _buttons = new Button[3];
-        private readonly Label[] _badges = new Label[3];
+        private readonly Button[] _buttons = new Button[Helpers.Count];
+        private readonly Label[] _badges = new Label[Helpers.Count];
         private Label _buyTitle;
         private Label _buyText;
         private Button _buy;

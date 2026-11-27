@@ -7,6 +7,8 @@ namespace Chromacolony.Game
     public sealed class BeachView : IDisposable
     {
         private const float BoardShoreY = -0.3f;
+        private const float ShoreMin = 0.1f;
+        private const float ShoreMax = 0.9f;
 
         private const float Glide = 3f;
 
@@ -14,6 +16,7 @@ namespace Chromacolony.Game
 
         private const float ShadowWidth = 0.9f;
         private const float ShadowAlpha = 0.6f;
+        private const float WideMargin = 0.01f;
 
         private readonly Camera _camera;
         private readonly Material _material;
@@ -30,11 +33,13 @@ namespace Chromacolony.Game
 
         private static Color BackdropTint => new Color(0.55f, 0.57f, 0.7f);
 
+        private static Color ShadowShade => new Color(0.01f, 0.02f, 0.08f);
+
         public BeachView(Camera camera, Material material, float shore, Sprite sprite)
         {
             _camera = camera;
             _material = material;
-            _shore = Mathf.Clamp(shore, 0.1f, 0.9f);
+            _shore = Mathf.Clamp(shore, ShoreMin, ShoreMax);
             _sprite = sprite;
             _root = new GameObject("Beach").transform;
             _picture = SpriteRenderers.Create(_root, _sprite, _material, "Beach picture", SortingOrder.Beach);
@@ -75,7 +80,7 @@ namespace Chromacolony.Game
             _picture.transform.position = new Vector3(center.x, pictureTop - height / 2f, 0f);
             _picture.transform.localScale = new Vector3(scale, scale, 1f);
 
-            bool wide = halfWidth > width / 2f + 0.01f;
+            bool wide = halfWidth > width / 2f + WideMargin;
             _backdrop.enabled = wide;
             if (wide)
             {
@@ -127,7 +132,9 @@ namespace Chromacolony.Game
             for (int x = 0; x < Size; x++)
             {
                 float t = 1f - (x + 0.5f) / Size;
-                texture.SetPixel(x, 0, new Color(0.01f, 0.02f, 0.08f, ShadowAlpha * t * t));
+                Color shade = ShadowShade;
+                shade.a = ShadowAlpha * t * t;
+                texture.SetPixel(x, 0, shade);
             }
 
             texture.Apply(false, true);
