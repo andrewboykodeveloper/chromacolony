@@ -38,7 +38,8 @@ namespace Chromacolony.Tests.PlayMode
         private readonly IReadOnlyList<BoardSpec> _boards;
         private readonly int _slots;
         private readonly List<InputDevice> _disabled = new List<InputDevice>();
-        private InputSettings _settings;
+        private InputSettings.BackgroundBehavior? _background;
+        private InputSettings.EditorInputBehaviorInPlayMode? _editorInput;
         private Mouse _mouse;
         private Keyboard _keyboard;
         private UIDocument _document;
@@ -333,12 +334,13 @@ namespace Chromacolony.Tests.PlayMode
 
         private void IsolateInput()
         {
-            InputSettings original = InputSystem.settings;
-            _settings = original;
-            InputSettings copy = UnityEngine.Object.Instantiate(original);
-            copy.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
-            copy.editorInputBehaviorInPlayMode = InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
-            InputSystem.settings = copy;
+            // The input system destroys its temporary settings when another object replaces them, so the driver changes two
+            // values and sets them back. Leaving Play Mode puts them back too.
+            InputSettings settings = InputSystem.settings;
+            _background = settings.backgroundBehavior;
+            _editorInput = settings.editorInputBehaviorInPlayMode;
+            settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
+            settings.editorInputBehaviorInPlayMode = InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
             foreach (InputDevice device in InputSystem.devices)
             {
                 if (device.enabled)
@@ -374,15 +376,9 @@ namespace Chromacolony.Tests.PlayMode
             }
 
             _disabled.Clear();
-            if (_settings != null)
-            {
-                InputSettings copy = InputSystem.settings;
-                InputSystem.settings = _settings;
-                if (copy != _settings)
-                {
-                    UnityEngine.Object.Destroy(copy);
-                }
-            }
+            InputSettings settings = InputSystem.settings;
+            settings.backgroundBehavior = _background ?? settings.backgroundBehavior;
+            settings.editorInputBehaviorInPlayMode = _editorInput ?? settings.editorInputBehaviorInPlayMode;
         }
 
         private VisualElement Pressable(string name)
