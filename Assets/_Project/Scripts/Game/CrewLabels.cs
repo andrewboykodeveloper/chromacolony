@@ -70,8 +70,7 @@ namespace Chromacolony.Game
         {
             Label count = _counts[crew];
             Vector2 point = WorldToPanel.Point(_camera, world, _panelRoot);
-            count.style.left = point.x;
-            count.style.top = point.y;
+            count.style.translate = new Translate(point.x, point.y);
             count.style.scale = new Scale(new Vector3(scale, scale, 1f));
             count.style.opacity = shown ? 1f : 0f;
         }
