@@ -32,6 +32,7 @@ namespace Chromacolony.Game
         private const float PictureSeconds = 1.1f;
         private const float PictureRowsShare = 0.7f;
         private const float PieceGrowSeconds = 0.22f;
+        private const float PiecePopArc = 0.75f;
         private const int TwinkleEvery = 4;
         private const float TwinkleCells = 1.2f;
 
@@ -142,7 +143,7 @@ namespace Chromacolony.Game
                     continue;
                 }
 
-                float pop = grow < 1f ? Mathf.Sin(grow * Mathf.PI * 0.75f) / Mathf.Sin(Mathf.PI * 0.75f) : 1f;
+                float pop = grow < 1f ? Mathf.Sin(grow * Mathf.PI * PiecePopArc) / Mathf.Sin(Mathf.PI * PiecePopArc) : 1f;
                 piece.Renderer.transform.localScale = _pebbleScale * pop;
                 if (!piece.Twinkled)
                 {

@@ -10,6 +10,7 @@ namespace Chromacolony.Game
     {
         private const string SaveKey = "progress";
         private const int SaveVersion = 1;
+        private const float TickSeconds = 1f / 60f;
 
         // One seed, and a stream of its own for each user of chance.
         private const ulong ShuffleStream = 1;
@@ -53,7 +54,7 @@ namespace Chromacolony.Game
             _progress = Progress.FromText(_saves.Load(SaveKey), prices, boards.Count);
             var text = new Localization(_localizationCsv.text, StartLanguage());
             _model = new GameModel(new Rules(config.Int(ConfigKeys.Slots), config.Float(ConfigKeys.CrabInterval)));
-            _ticker = new GameTicker(1f / 60f, _model.Tick);
+            _ticker = new GameTicker(TickSeconds, _model.Tick);
             _camera = Camera.main;
             _camera.backgroundColor = Hex(config.String(ConfigKeys.ColorNight));
             Color[] colors =

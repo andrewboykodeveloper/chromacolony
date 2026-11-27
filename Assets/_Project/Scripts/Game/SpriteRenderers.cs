@@ -4,6 +4,9 @@ namespace Chromacolony.Game
 {
     public static class SpriteRenderers
     {
+        // Guards a division by a sprite's size.
+        private const float MinExtent = 0.0001f;
+
         public static SpriteRenderer Create(Transform parent, Sprite sprite, Material material, string name, int order)
         {
             var go = new GameObject(name);
@@ -23,7 +26,7 @@ namespace Chromacolony.Game
 
         public static Vector3 HeightScale(Sprite sprite, float height)
         {
-            float s = height / Mathf.Max(sprite.bounds.size.y, 0.0001f);
+            float s = height / Mathf.Max(sprite.bounds.size.y, MinExtent);
             return new Vector3(s, s, 1f);
         }
     }
