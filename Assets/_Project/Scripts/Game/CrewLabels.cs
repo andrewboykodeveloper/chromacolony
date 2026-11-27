@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -111,7 +112,7 @@ namespace Chromacolony.Game
         {
             while (_numbers.Count <= value)
             {
-                _numbers.Add(_numbers.Count.ToString());
+                _numbers.Add(_numbers.Count.ToString(CultureInfo.InvariantCulture));
             }
 
             return _numbers[value];
@@ -126,7 +127,7 @@ namespace Chromacolony.Game
 
             while (_moreTexts.Count <= hidden)
             {
-                _moreTexts.Add("+" + _moreTexts.Count);
+                _moreTexts.Add("+" + _moreTexts.Count.ToString(CultureInfo.InvariantCulture));
             }
 
             return _moreTexts[hidden];

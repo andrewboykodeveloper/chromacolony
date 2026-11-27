@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -49,7 +50,7 @@ namespace Chromacolony.Game
             }
 
             _counted = start;
-            _counter.text = start.ToString();
+            _counter.text = start.ToString(CultureInfo.InvariantCulture);
         }
 
         public void Update(float dt)
@@ -90,7 +91,7 @@ namespace Chromacolony.Game
             if (counted != _counted)
             {
                 _counted = counted;
-                _counter.text = counted.ToString();
+                _counter.text = counted.ToString(CultureInfo.InvariantCulture);
             }
 
             if (landed == Coins)
@@ -109,7 +110,7 @@ namespace Chromacolony.Game
             _shown.Clear();
             if (_time >= 0f)
             {
-                _counter.text = _end.ToString();
+                _counter.text = _end.ToString(CultureInfo.InvariantCulture);
             }
 
             _time = -1f;
