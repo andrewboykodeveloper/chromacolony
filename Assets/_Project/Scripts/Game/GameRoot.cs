@@ -50,7 +50,7 @@ namespace Chromacolony.Game
             IReadOnlyList<BoardSpec> boards = BoardText.Parse(_boardsText.text);
             var prices = new Prices(config.Int(ConfigKeys.CoinsPerWin), config.Int(ConfigKeys.StartStock), config.Int(ConfigKeys.PriceSlot),
                 config.Int(ConfigKeys.PriceShuffle), config.Int(ConfigKeys.PriceBack));
-            _saves = new SaveStore(new FileSaveStorage(), SaveVersion, problem => Debug.LogWarning("Saves: " + problem));
+            _saves = new SaveStore(new FileSaveStorage(SaveFolder.Current), SaveVersion, problem => Debug.LogWarning("Saves: " + problem));
             _progress = Progress.FromText(_saves.Load(SaveKey), prices, boards.Count);
             var text = new Localization(_localizationCsv.text, StartLanguage());
             _model = new GameModel(new Rules(config.Int(ConfigKeys.Slots), config.Float(ConfigKeys.CrabInterval)));

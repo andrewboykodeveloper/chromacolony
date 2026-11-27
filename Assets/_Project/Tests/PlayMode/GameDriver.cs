@@ -64,8 +64,7 @@ namespace Chromacolony.Tests.PlayMode
 
         public IEnumerator Boot()
         {
-            PlayModeSaves.ClearTestSaves();
-            Assert.That(Directory.Exists(FileSaveStorage.DefaultFolder), Is.False, "the game starts as a new player");
+            PlayModeSaves.Clear();
             Time.captureDeltaTime = FrameSeconds;
             // The tests check which sources play, not what they sound like, so nothing needs to reach the speakers.
             _listenerVolume = AudioListener.volume;
@@ -78,8 +77,8 @@ namespace Chromacolony.Tests.PlayMode
         public IEnumerator Reopen(string savesCopy)
         {
             yield return Unload();
-            PlayModeSaves.ClearTestSaves();
-            CopyFolder(savesCopy, FileSaveStorage.DefaultFolder);
+            PlayModeSaves.Clear();
+            CopyFolder(savesCopy, PlayModeSaves.Folder);
             yield return Load();
         }
 
@@ -100,7 +99,7 @@ namespace Chromacolony.Tests.PlayMode
         // Reloads the game as a player who has reached the given board, with nothing else saved.
         public IEnumerator ReopenAt(int board)
         {
-            string saves = Path.Combine(Application.temporaryCachePath, "saves at " + Guid.NewGuid().ToString("N"));
+            string saves = PlayModeSaves.NewCopy();
             new SaveStore(new FileSaveStorage(saves), SaveVersion, Assert.Fail)
                 .Save(SaveKey, "board=" + board.ToString(CultureInfo.InvariantCulture) + "\n");
             yield return Reopen(saves);
@@ -108,8 +107,8 @@ namespace Chromacolony.Tests.PlayMode
 
         public string CopySaves()
         {
-            string copy = Path.Combine(Application.temporaryCachePath, "saves copy " + Guid.NewGuid().ToString("N"));
-            CopyFolder(FileSaveStorage.DefaultFolder, copy);
+            string copy = PlayModeSaves.NewCopy();
+            CopyFolder(PlayModeSaves.Folder, copy);
             return copy;
         }
 
@@ -415,6 +414,7 @@ namespace Chromacolony.Tests.PlayMode
 
         private IEnumerator Load()
         {
+            Assert.That(SaveFolder.Current, Is.EqualTo(PlayModeSaves.Folder), "the game saves in the tests' own folder");
             _document = null;
             _camera = null;
             yield return SceneManager.LoadSceneAsync(ScenePath);

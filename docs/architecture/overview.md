@@ -115,7 +115,7 @@ A bad board, a bad number or a missing config key throws at start. A missing tex
 - A file from a newer version is kept, untouched.
 - Every problem is logged.
 
-`FileSaveStorage` writes to a temporary file and then replaces the old one. The web page keeps the saves folder in the browser's storage.
+`FileSaveStorage` writes into the folder that `SaveFolder` names, to a temporary file that then replaces the old one. The web page keeps the saves folder in the browser's storage.
 
 ## Tests
 
@@ -125,4 +125,4 @@ A bad board, a bad number or a missing config key throws at start. A missing tex
   - It taps the columns, and presses over a button, through a virtual mouse. It presses Escape on a virtual keyboard.
   - It covers the menu, a won board, the lessons, the pause, the helpers and the settings.
   - It also covers switching the game object off and on, and destroying the game.
-- **Isolation:** the PlayMode tests set the player's saves aside while they run, and mute the listener.
+- **Isolation:** the PlayMode tests save in a folder of their own under the temporary cache, where `SaveFolder` points the game, and mute the listener.
