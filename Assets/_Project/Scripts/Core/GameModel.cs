@@ -60,7 +60,7 @@ namespace Chromacolony.Core
 
         private bool CanAddSlot => InPlay && SlotCount < _slots.Length;
 
-        private bool CanShuffle => Phase == GamePhase.Playing && Shufflable().Count >= 2;
+        private bool CanShuffle => Phase == GamePhase.Playing && TwoCanBeShuffled();
 
         private bool InPlay => Phase == GamePhase.Playing || Phase == GamePhase.Stuck;
 
@@ -356,6 +356,24 @@ namespace Chromacolony.Core
             }
         }
 
+        // Helpers are checked after every change on the board, so this counts in place instead of listing the crews.
+        private bool TwoCanBeShuffled()
+        {
+            int found = 0;
+            for (int c = 0; c < _columns.Count; c++)
+            {
+                for (int d = 0; d < _columns[c].Count; d++)
+                {
+                    if (CanBeShuffled(_columns[c][d]) && ++found == 2)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         private List<(int Column, int Depth)> Shufflable()
         {
             var places = new List<(int Column, int Depth)>();
@@ -363,7 +381,7 @@ namespace Chromacolony.Core
             {
                 for (int d = 0; d < _columns[c].Count; d++)
                 {
-                    if (_columns[c][d].Link < 0)
+                    if (CanBeShuffled(_columns[c][d]))
                     {
                         places.Add((c, d));
                     }
@@ -371,6 +389,11 @@ namespace Chromacolony.Core
             }
 
             return places;
+        }
+
+        private static bool CanBeShuffled(Crew crew)
+        {
+            return crew.Link < 0;
         }
 
         private static Crew CopyOf(Crew crew, Dictionary<Crew, Crew> copies)
