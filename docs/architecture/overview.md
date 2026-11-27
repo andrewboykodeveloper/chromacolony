@@ -23,17 +23,18 @@ Everything else is made at run time, under four roots: the beach, the board, the
 
 `GameModel` plays one board.
 
-- **Phases:** `Menu`, `Playing`, `Won` and `Stuck`. A board starts in `Playing` and ends in `Won` or `Stuck`. The extra place or the back helper takes a stuck board back to `Playing`, and leaving a board goes to `Menu`.
-- **A tap** is `TrySend(column)`. The crew at the front of the column takes a free place, or the model raises `SendRefused`. A place is a slot in the code: `SlotCount`, `SlotAdded`.
-- **Time** enters only through `Tick(dt)`, which `GameTicker` calls 60 times a second. At double speed (`Fast`), each tick counts twice. As time passes, the crews in places send their crabs, one at a time, to the pebbles of their colour that the crabs can reach.
+- **Phases:** `Menu`, `Playing`, `Won` and `Stuck`. A board starts in `Playing` and ends in `Won` or `Stuck`. The extra slot or the back helper takes a stuck board back to `Playing`, and leaving a board goes to `Menu`.
+- **A tap** is `TrySend(column)`. The crew at the front of the column takes a free slot, or the model raises `SendRefused`.
+- **Time** enters only through `Tick(dt)`, which `GameTicker` calls 60 times a second. At double speed (`Fast`), `Speed` is 2: each tick advances the board by twice its time, and the crabs, the celebration and the effects play at that speed too. As time passes, the crews in slots send their crabs, one at a time, to the pebbles of their colour that the crabs can reach.
 - **Chance** enters only through an injected `IRandom`, for the shuffle helper. It is a PCG32 that the game seeds from the clock and the tests from a fixed number.
 
-The model raises typed C# events: `BoardStarted`, `CrewSent`, `CrabSent`, `CrewWaiting`, `CrewDone`, `CrewRevealed`, `SendRefused`, `SlotAdded`, `QueueShuffled`, `CrewBack`, `BoardWon` and `BoardStuck`. The board view and its crews view subscribe before any presenter, so the pieces have their new places when a presenter reacts.
+The model raises typed C# events: `BoardStarted`, `CrewSent`, `CrabSent`, `CrewWaiting`, `CrewDone`, `CrewRevealed`, `SendRefused`, `SlotAdded`, `QueueShuffled`, `CrewBack`, `BoardWon`, `BoardStuck` and `BoardLeft`, each after the change it names. A start, a send or a shuffle raises its event before it reveals the crews it brings to the front, so their `CrewRevealed` follows it, and the two crews on a rope raise `CrewSent` one after the other. Views and presenters may subscribe in any order: no presenter reads a view that follows the model when an event comes, and the board view aims its pointer and moves its pieces each frame.
 
 Around the model:
 
-- `Tutorial` holds the lesson of a board and where the tutorial's claw points (`PointedColumn`).
-- `HelperShop` says which helpers the player can take, from the board and the player's stock and coins.
+- `BoardSession` starts a board and keeps its `Tutorial` up to date. When the board ends, it pays a win into the progress and raises `Ended`; when the player leaves it, it raises `Left`.
+- `Tutorial` holds the lesson of a board and the column its pointer shows (`PointedColumn`).
+- `HelperShop` says which helpers the player can take, from the board and the player's stock and coins. It also takes them: `TryUse` pays for the extra slot or the shuffle and applies it, or starts the back helper's pick, and `TryBack` ends the pick, sending the picked crew back, paid then.
 - `Progress` holds the coins, the stock, the next board and the settings.
 - `SaveStore` writes them to the saves.
 
@@ -41,7 +42,7 @@ Around the model:
 
 `GameRoot` is the one composition root. It wires everything by hand, through constructors: no singleton, no service locator, no container.
 
-- **`Awake`** reads the tables and builds the core objects, the views, the `AudioService` and five presenters, then wires the presenters to each other.
+- **`Awake`** reads the tables and builds the core objects, the views, the `AudioService` and five presenters. A presenter takes core objects and views, never another presenter. The root wires the buttons that lead from one screen to the next, and saves when a helper is used or a board is won, and when the application pauses or quits. The settings and board presenters save the settings and the speed through the same call.
 - **`OnEnable`** binds the interface: the screens, the presenters' elements and handlers, and the crews' labels. The UI document builds its tree anew whenever its object is enabled, so this runs again then, and `OnDisable` takes the handlers back.
 - **`Start`** shows the menu.
 - **`OnDestroy`** destroys what the views made at run time, the textures included.
@@ -50,8 +51,8 @@ Around the model:
 |---|---|
 | `MenuPresenter` | The menu and the crab that dances on it. |
 | `SettingsPresenter` | The settings, the language and the way back to the pause. |
-| `BoardPresenter` | A board in play: its start, the taps, the tutorial's hint, the speed and the pause. |
-| `HelperPresenter` | The three helpers, the buy and no-coins dialogs, and the choice of the crew to send back. |
+| `BoardPresenter` | A board in play: its start, the taps, the pick of a crew to send back, the tutorial's hint, the speed and the pause. |
+| `HelperPresenter` | The three helpers, and the buy and no-coins dialogs. |
 | `ResultPresenter` | The celebration, the coins' flight and the result dialog. |
 
 ### A frame
@@ -66,7 +67,7 @@ Around the model:
    - rebuilds the picture after a win;
    - moves the crews with their labels and ropes;
    - pulses the glow on the pebbles a waiting crew needs;
-   - nods the claw at its column.
+   - nods the pointer at its column.
 6. The effects play.
 7. The result runs: the coins fly, and once the board view is still, the dialog opens.
 
@@ -77,22 +78,22 @@ The interface is one layout, `UI/Main.uxml`, and one style sheet, `UI/Theme.uss`
 - `ScreenHost` shows one screen and at most one dialog by toggling the `hidden` class.
   - The screens are `menu` and `game`.
   - The dialogs are `pause`, `settings`, `buy`, `note` (for no coins) and `result`.
-- A dialog fades in by its `open` class, added 16 ms after the dialog shows: a transition runs only from a style the dialog has already been drawn with.
+- A dialog fades in by its `open` class, added on the panel's second scheduler update after the dialog shows, so that the panel styles the shown dialog without it first.
 - Element names are kept in `UiNames` and class names in `UiClasses`. An EditMode test checks both against the layout and the style sheet.
 
 ## Views and pooling
 
 | View | Draws |
 |---|---|
-| `BoardView` | The castle, the places, the claw and the celebration. It builds a board on `BoardStarted`, and passes `SlotAdded` and `CrabSent` on to the crews, the mosaic and the crabs. A board's objects are built under one root and destroyed with it. |
-| `CrewsView` | The crews in their columns and places: their buckets and signs, the crab that sits on a waiting crew, and the ropes between crews. It follows the crews' own events. |
+| `BoardView` | The castle, the slots, the pointer and the celebration. It builds a board on `BoardStarted`, and passes `SlotAdded` and `CrabSent` on to the crews, the mosaic and the crabs. A board's objects are built under one root and destroyed with it. |
+| `CrewsView` | The crews in their columns and slots: their buckets and signs, the crab that sits on a waiting crew, and the ropes between crews. It follows the crews' own events. |
 | `MosaicView` | The pebbles, their glow, and the picture that puts itself together on a win. |
 | `CrewLabels` | The crews' counts and the columns' "+N" labels, as interface elements placed from the camera. |
 | `CrabView` | The crabs. Each is a copy of `Prefabs/Crab.prefab`, whose `CrabRig` names the parts that move. A crab goes back to a pool when it reaches the castle. |
 | `Effects` | Puffs and sparkles, from a pool of sprite renderers. |
 | `BeachView` | The beach behind the menu and the board. |
 
-`SortingOrder` lists every sprite's draw order, from back to front. While a board is played, the views make no new objects or strings each frame. The crabs and the effects come from pools, and each count and "+N" text is made once.
+`SortingOrder` lists every sprite's draw order, from back to front. The crabs and the effects come from pools, and the text of each count and each "+N" is made once and kept.
 
 ## Data
 
@@ -114,7 +115,7 @@ A bad board, a bad number or a missing config key throws at start. A missing tex
 - A file from a newer version is kept, untouched.
 - Every problem is logged.
 
-`FileSaveStorage` writes to a temporary file and then replaces the old one. The web page keeps the saves folder in the browser's storage.
+`FileSaveStorage` writes into the folder that `SaveFolder` names, to a temporary file that then replaces the old one. The web page keeps the saves folder in the browser's storage.
 
 ## Tests
 
@@ -124,4 +125,5 @@ A bad board, a bad number or a missing config key throws at start. A missing tex
   - It taps the columns, and presses over a button, through a virtual mouse. It presses Escape on a virtual keyboard.
   - It covers the menu, a won board, the lessons, the pause, the helpers and the settings.
   - It also covers switching the game object off and on, and destroying the game.
-- **Isolation:** the PlayMode tests set the player's saves aside while they run, and mute the listener.
+  - It also checks the input, the dialog fade and the safe area on their own.
+- **Isolation:** the PlayMode tests save in a folder of their own under the temporary cache, where `SaveFolder` points the game, and mute the listener.

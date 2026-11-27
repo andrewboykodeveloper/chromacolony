@@ -15,7 +15,7 @@ namespace Chromacolony.Tests.EditMode
         [TestCase(Lesson.Rope, false)]
         [TestCase(Lesson.Cover, false)]
         [TestCase(Lesson.None, false)]
-        public void TheFirstThreeLessonsShowTheWayUntilTheFirstSend(Lesson lesson, bool pointing)
+        public void FirstLessonsPointUntilTheFirstSend(Lesson lesson, bool pointing)
         {
             var tutorial = new Tutorial(lesson);
             Assert.That(tutorial.Pointing, Is.EqualTo(pointing));
@@ -32,7 +32,7 @@ namespace Chromacolony.Tests.EditMode
         [TestCase(Lesson.Slots, true, false)]
         [TestCase(Lesson.Inside, true, false)]
         [TestCase(Lesson.Cover, true, false)]
-        public void ASendTeachesTapAndARopedSendTeachesRope(Lesson lesson, bool roped, bool learned)
+        public void SendTeachesTapAndARopedSendTeachesRope(Lesson lesson, bool roped, bool learned)
         {
             var tutorial = new Tutorial(lesson);
 
@@ -46,7 +46,7 @@ namespace Chromacolony.Tests.EditMode
         [TestCase(Lesson.Tap, false)]
         [TestCase(Lesson.Rope, false)]
         [TestCase(Lesson.Cover, false)]
-        public void AFinishedCrewTeachesSlotsAndInside(Lesson lesson, bool learned)
+        public void FinishedCrewTeachesSlotsAndInside(Lesson lesson, bool learned)
         {
             var tutorial = new Tutorial(lesson);
 
@@ -60,7 +60,7 @@ namespace Chromacolony.Tests.EditMode
         [TestCase(Lesson.Slots, false)]
         [TestCase(Lesson.Inside, false)]
         [TestCase(Lesson.Rope, false)]
-        public void ARevealedCrewTeachesCover(Lesson lesson, bool learned)
+        public void RevealedCrewTeachesCover(Lesson lesson, bool learned)
         {
             var tutorial = new Tutorial(lesson);
 
@@ -70,7 +70,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ARevealedCrewLeavesTheClawPointing()
+        public void RevealedCrewLeavesThePointerShowing()
         {
             var tutorial = new Tutorial(Lesson.Tap);
 
@@ -80,7 +80,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ALearnedLessonStaysLearned()
+        public void LearnedLessonStaysLearned()
         {
             var tutorial = new Tutorial(Lesson.Slots);
             tutorial.OnCrewDone();
@@ -92,7 +92,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void TheClawPointsAtTheFirstFreeCrewThatCanReachItsColour()
+        public void PointerShowsTheFirstFreeCrewInReach()
         {
             GameModel model = Start(Board);
             var tutorial = new Tutorial(Lesson.Tap);
@@ -103,7 +103,7 @@ namespace Chromacolony.Tests.EditMode
 
             Assert.That(tutorial.PointedColumn(model), Is.EqualTo(4), "column 3 is empty now");
             Assert.That(tutorial.PointedColumn(Start(Blocked)), Is.EqualTo(-1), "no colour at the front is in reach");
-            Assert.That(new Tutorial(Lesson.Rope).PointedColumn(model), Is.EqualTo(-1), "the rope lesson shows no claw");
+            Assert.That(new Tutorial(Lesson.Rope).PointedColumn(model), Is.EqualTo(-1), "the rope lesson shows no pointer");
         }
 
         private static GameModel Start(string board)

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Chromacolony.Core;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -13,15 +14,11 @@ namespace Chromacolony.Game
     {
         private readonly ScreenHost _screens;
         private readonly Localization _text;
-        private readonly GameModel _model;
         private readonly Progress _progress;
-        private readonly Prices _prices;
         private readonly HelperShop _shop;
-        private readonly int _boardCount;
         private readonly BoardView _boardView;
         private readonly Camera _camera;
         private readonly AudioService _audio;
-        private readonly Action _save;
         private VisualElement _root;
         private VisualElement _dialog;
         private Label _title;
@@ -33,12 +30,10 @@ namespace Chromacolony.Game
         private Label _coins;
         private VisualElement _coinIcon;
         private CoinFlight _coinFlight;
-        private int _boardIndex;
+        private BoardEnded _end;
         private bool _pending;
-        private bool _won;
         private bool _celebrated;
         private bool _coinsHeld;
-        private int _coinsFrom;
 
         public event Action NextPressed;
 
@@ -46,20 +41,21 @@ namespace Chromacolony.Game
 
         public event Action MenuPressed;
 
-        public ResultPresenter(ScreenHost screens, Localization text, GameModel model, Progress progress, Prices prices, HelperShop shop,
-            int boardCount, BoardView boardView, Camera camera, AudioService audio, Action save)
+        public ResultPresenter(ScreenHost screens, Localization text, Progress progress, BoardSession session, HelperShop shop,
+            BoardView boardView, Camera camera, AudioService audio)
         {
             _screens = screens;
             _text = text;
-            _model = model;
             _progress = progress;
-            _prices = prices;
             _shop = shop;
-            _boardCount = boardCount;
             _boardView = boardView;
             _camera = camera;
             _audio = audio;
-            _save = save;
+
+            session.Started += Reset;
+            session.Left += Reset;
+            session.Ended += OnEnded;
+            shop.Used += _ => OnHelperUsed();
         }
 
         public void Bind(VisualElement root, ButtonBindings bindings)
@@ -101,40 +97,13 @@ namespace Chromacolony.Game
             _menu.text = _text.Get(TextKeys.ToMenu);
         }
 
-        public void Begin(bool won, int boardIndex)
-        {
-            _pending = true;
-            _won = won;
-            _boardIndex = boardIndex;
-            if (won)
-            {
-                // The counter keeps the coins from before the win until they have flown to it.
-                _coinsFrom = _progress.Coins;
-                _coinsHeld = true;
-                _progress.Won(boardIndex, _boardCount, _prices);
-                _save();
-            }
-        }
-
-        public void DropPending()
-        {
-            _pending = false;
-        }
-
         public void Reset()
         {
             _pending = false;
             _celebrated = false;
             _coinFlight.Stop();
             _coinsHeld = false;
-        }
-
-        public void ShowCoins()
-        {
-            if (!_coinFlight.Flying)
-            {
-                _coins.text = (_coinsHeld ? _coinsFrom : _progress.Coins).ToString();
-            }
+            ShowCoins();
         }
 
         public void Update(float dt)
@@ -145,31 +114,51 @@ namespace Chromacolony.Game
                 return;
             }
 
-            if (_won && !_celebrated && _model.Phase == GamePhase.Won)
+            if (_end.Won && !_celebrated)
             {
                 _celebrated = true;
                 _boardView.Celebrate();
                 Vector2 from = WorldToPanel.Point(_camera, _boardView.Layout.Gate, _root);
                 _coinsHeld = false;
-                _coinFlight.Fly(from, _coinIcon.worldBound.center, _coinsFrom, _progress.Coins);
+                _coinFlight.Fly(from, _coinIcon.worldBound.center, _end.CoinsBefore, _end.CoinsAfter);
                 return;
             }
 
             _pending = false;
+            Show();
+        }
 
-            // A helper taken while the result waited may have changed how the board ends.
-            if (_model.Phase == (_won ? GamePhase.Won : GamePhase.Stuck))
+        private void OnEnded(BoardEnded end)
+        {
+            _end = end;
+            _pending = true;
+
+            // The counter keeps the coins from before a win until they have flown to it.
+            _coinsHeld = end.Won;
+            ShowCoins();
+        }
+
+        // Only a helper takes a stuck board back to play, so the result it waited to show no longer holds.
+        private void OnHelperUsed()
+        {
+            _pending = false;
+            ShowCoins();
+        }
+
+        private void ShowCoins()
+        {
+            if (!_coinFlight.Flying)
             {
-                Show();
+                _coins.text = (_coinsHeld ? _end.CoinsBefore : _progress.Coins).ToString(CultureInfo.InvariantCulture);
             }
         }
 
         private void Show()
         {
             ShowContent();
-            if (_won)
+            if (_end.Won)
             {
-                _audio.Say(_boardIndex == _boardCount - 1 ? LineKeys.Thanks : LineKeys.Hooray);
+                _audio.Say(_end.Last ? LineKeys.Thanks : LineKeys.Hooray);
             }
             else
             {
@@ -182,21 +171,22 @@ namespace Chromacolony.Game
 
         private void ShowContent()
         {
-            bool helper = !_won && _shop.AnyUsable;
-            bool allDone = _won && _boardIndex == _boardCount - 1;
-            _title.text = _text.Get(_won ? TextKeys.Won : TextKeys.Stuck);
-            _message.text = _won
-                ? (allDone ? _text.Get(TextKeys.AllDone) : _text.Format(TextKeys.WonCoins, _prices.CoinsPerWin))
+            bool won = _end.Won;
+            bool helper = !won && _shop.AnyUsable;
+            bool allDone = won && _end.Last;
+            _title.text = _text.Get(won ? TextKeys.Won : TextKeys.Stuck);
+            _message.text = won
+                ? (allDone ? _text.Get(TextKeys.AllDone) : _text.Format(TextKeys.WonCoins, _end.CoinsAfter - _end.CoinsBefore))
                 : _text.Get(helper ? TextKeys.StuckHint : TextKeys.StuckRetry);
 
             _next.text = _text.Get(allDone ? TextKeys.PlayAgain : TextKeys.Next);
-            _next.EnableInClassList(UiClasses.Hidden, !_won);
+            _next.EnableInClassList(UiClasses.Hidden, !won);
             _useHelper.EnableInClassList(UiClasses.Hidden, !helper);
 
-            _retry.EnableInClassList(UiClasses.ButtonPrimary, !_won && !helper);
-            _retry.EnableInClassList(UiClasses.ButtonSecondary, _won || helper);
-            _retry.EnableInClassList(UiClasses.Hidden, _won);
-            _dialog.EnableInClassList(UiClasses.Won, _won);
+            _retry.EnableInClassList(UiClasses.ButtonPrimary, !won && !helper);
+            _retry.EnableInClassList(UiClasses.ButtonSecondary, won || helper);
+            _retry.EnableInClassList(UiClasses.Hidden, won);
+            _dialog.EnableInClassList(UiClasses.Won, won);
         }
     }
 }

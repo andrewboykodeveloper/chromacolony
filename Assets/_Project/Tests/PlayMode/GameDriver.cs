@@ -22,6 +22,9 @@ namespace Chromacolony.Tests.PlayMode
         public const string PriceClass = "price";
         public const float FrameSeconds = 1f / 30f;
 
+        // A dialog takes its open class on the panel's second scheduler update: two frames at most, and one to spare.
+        public const int DialogOpenFrames = 3;
+
         private const string ScenePath = "Assets/_Project/Scenes/Game.unity";
         private const string BoardsFile = "_Project/Data/Boards.txt";
         private const string ConfigFile = "_Project/Data/Config.csv";
@@ -35,7 +38,8 @@ namespace Chromacolony.Tests.PlayMode
         private readonly IReadOnlyList<BoardSpec> _boards;
         private readonly int _slots;
         private readonly List<InputDevice> _disabled = new List<InputDevice>();
-        private InputSettings _settings;
+        private InputSettings.BackgroundBehavior? _background;
+        private InputSettings.EditorInputBehaviorInPlayMode? _editorInput;
         private Mouse _mouse;
         private Keyboard _keyboard;
         private UIDocument _document;
@@ -64,8 +68,7 @@ namespace Chromacolony.Tests.PlayMode
 
         public IEnumerator Boot()
         {
-            PlayModeSaves.ClearTestSaves();
-            Assert.That(Directory.Exists(FileSaveStorage.DefaultFolder), Is.False, "the game starts as a new player");
+            PlayModeSaves.Clear();
             Time.captureDeltaTime = FrameSeconds;
             // The tests check which sources play, not what they sound like, so nothing needs to reach the speakers.
             _listenerVolume = AudioListener.volume;
@@ -78,8 +81,8 @@ namespace Chromacolony.Tests.PlayMode
         public IEnumerator Reopen(string savesCopy)
         {
             yield return Unload();
-            PlayModeSaves.ClearTestSaves();
-            CopyFolder(savesCopy, FileSaveStorage.DefaultFolder);
+            PlayModeSaves.Clear();
+            CopyFolder(savesCopy, PlayModeSaves.Folder);
             yield return Load();
         }
 
@@ -100,7 +103,7 @@ namespace Chromacolony.Tests.PlayMode
         // Reloads the game as a player who has reached the given board, with nothing else saved.
         public IEnumerator ReopenAt(int board)
         {
-            string saves = Path.Combine(Application.temporaryCachePath, "saves at " + Guid.NewGuid().ToString("N"));
+            string saves = PlayModeSaves.NewCopy();
             new SaveStore(new FileSaveStorage(saves), SaveVersion, Assert.Fail)
                 .Save(SaveKey, "board=" + board.ToString(CultureInfo.InvariantCulture) + "\n");
             yield return Reopen(saves);
@@ -108,8 +111,8 @@ namespace Chromacolony.Tests.PlayMode
 
         public string CopySaves()
         {
-            string copy = Path.Combine(Application.temporaryCachePath, "saves copy " + Guid.NewGuid().ToString("N"));
-            CopyFolder(FileSaveStorage.DefaultFolder, copy);
+            string copy = PlayModeSaves.NewCopy();
+            CopyFolder(PlayModeSaves.Folder, copy);
             return copy;
         }
 
@@ -140,7 +143,6 @@ namespace Chromacolony.Tests.PlayMode
             yield return null;
         }
 
-        // The elements under the named ones that take the pointer, apart from the buttons and what lies inside a button.
         public List<string> PointerTakersOutsideButtons(params string[] names)
         {
             var takers = new List<string>();
@@ -331,12 +333,13 @@ namespace Chromacolony.Tests.PlayMode
 
         private void IsolateInput()
         {
-            InputSettings original = InputSystem.settings;
-            _settings = original;
-            InputSettings copy = UnityEngine.Object.Instantiate(original);
-            copy.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
-            copy.editorInputBehaviorInPlayMode = InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
-            InputSystem.settings = copy;
+            // The input system destroys its temporary settings when another object replaces them, so the driver changes two
+            // values and sets them back. Leaving Play Mode puts them back too.
+            InputSettings settings = InputSystem.settings;
+            _background = settings.backgroundBehavior;
+            _editorInput = settings.editorInputBehaviorInPlayMode;
+            settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
+            settings.editorInputBehaviorInPlayMode = InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
             foreach (InputDevice device in InputSystem.devices)
             {
                 if (device.enabled)
@@ -372,15 +375,9 @@ namespace Chromacolony.Tests.PlayMode
             }
 
             _disabled.Clear();
-            if (_settings != null)
-            {
-                InputSettings copy = InputSystem.settings;
-                InputSystem.settings = _settings;
-                if (copy != _settings)
-                {
-                    UnityEngine.Object.Destroy(copy);
-                }
-            }
+            InputSettings settings = InputSystem.settings;
+            settings.backgroundBehavior = _background ?? settings.backgroundBehavior;
+            settings.editorInputBehaviorInPlayMode = _editorInput ?? settings.editorInputBehaviorInPlayMode;
         }
 
         private VisualElement Pressable(string name)
@@ -415,6 +412,7 @@ namespace Chromacolony.Tests.PlayMode
 
         private IEnumerator Load()
         {
+            Assert.That(SaveFolder.Current, Is.EqualTo(PlayModeSaves.Folder), "the game saves in the tests' own folder");
             _document = null;
             _camera = null;
             yield return SceneManager.LoadSceneAsync(ScenePath);

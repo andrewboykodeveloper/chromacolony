@@ -1,4 +1,5 @@
 using System;
+using Chromacolony.Core;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -9,7 +10,23 @@ namespace Chromacolony.Game
         private const int Size = 64;
         private const int Samples = 4;
 
-        private readonly Sprite[] _sprites = new Sprite[8];
+        private const float Radius = 0.72f;
+        private const float RimWidth = 0.14f;
+        private const float PointedReach = 1.12f;
+        private const float TriangleDrop = 0.08f;
+        private const float StarInner = 0.5f;
+        private const int StarPoints = 5;
+        private const float SquareHalf = 0.82f;
+        private const float HeartSpan = 1.15f;
+        private const float HeartDrop = 0.12f;
+        private const float RingInner = 0.38f;
+        private const float HexagonHalf = 0.9f;
+        private const float Cos30 = 0.866f;
+        private const float Sin30 = 0.5f;
+
+        private readonly Sprite[] _sprites = new Sprite[Palette.Count];
+
+        private static Color RimColor => new Color(0.04f, 0.07f, 0.18f, 0.85f);
 
         public Signs()
         {
@@ -56,14 +73,14 @@ namespace Chromacolony.Game
                             float px = (x + (sx + 0.5f) / Samples) / Size * 2f - 1f;
                             float py = (y + (sy + 0.5f) / Samples) / Size * 2f - 1f;
                             inside += In(color, px, py, 0f) ? 1f : 0f;
-                            rim += In(color, px, py, 0.14f) ? 1f : 0f;
+                            rim += In(color, px, py, RimWidth) ? 1f : 0f;
                         }
                     }
 
                     inside /= Samples * Samples;
                     rim /= Samples * Samples;
                     var white = new Color(1f, 1f, 1f, 1f);
-                    var dark = new Color(0.04f, 0.07f, 0.18f, 0.85f);
+                    Color dark = RimColor;
                     var c = Color.Lerp(dark, white, inside);
                     c.a = Mathf.Max(rim * dark.a, inside);
                     texture.SetPixel(x, y, c);
@@ -78,36 +95,36 @@ namespace Chromacolony.Game
 
         private static bool In(int color, float x, float y, float grow)
         {
-            float r = 0.72f + grow;
+            float r = Radius + grow;
             float d = Mathf.Sqrt(x * x + y * y);
             switch (color)
             {
                 case 0:
                     return d < r;
                 case 1:
-                    return Triangle(x, y + 0.08f, r * 1.12f);
+                    return Triangle(x, y + TriangleDrop, r * PointedReach);
                 case 2:
-                    return Star(x, y, r * 1.12f, r * 0.5f);
+                    return Star(x, y, r * PointedReach, r * StarInner);
                 case 3:
-                    return Mathf.Abs(x) < r * 0.82f && Mathf.Abs(y) < r * 0.82f;
+                    return Mathf.Abs(x) < r * SquareHalf && Mathf.Abs(y) < r * SquareHalf;
                 case 4:
-                    return Mathf.Abs(x) + Mathf.Abs(y) < r * 1.12f;
+                    return Mathf.Abs(x) + Mathf.Abs(y) < r * PointedReach;
                 case 5:
                     return Heart(x, y, r);
                 case 6:
-                    return d < r && d > 0.38f - grow;
+                    return d < r && d > RingInner - grow;
                 default:
                     float ax = Mathf.Abs(x);
                     float ay = Mathf.Abs(y);
-                    return Mathf.Max(ax * 0.866f + ay * 0.5f, ay) < r * 0.9f;
+                    return Mathf.Max(ax * Cos30 + ay * Sin30, ay) < r * HexagonHalf;
             }
         }
 
         private static bool Triangle(float x, float y, float r)
         {
             var a = new Vector2(0f, r);
-            var b = new Vector2(-r * 0.866f, -r * 0.5f);
-            var c = new Vector2(r * 0.866f, -r * 0.5f);
+            var b = new Vector2(-r * Cos30, -r * Sin30);
+            var c = new Vector2(r * Cos30, -r * Sin30);
             var p = new Vector2(x, y);
             return Side(p, a, b) >= 0f && Side(p, b, c) >= 0f && Side(p, c, a) >= 0f;
         }
@@ -119,9 +136,9 @@ namespace Chromacolony.Game
 
         private static bool Heart(float x, float y, float r)
         {
-            float k = r / 1.15f;
+            float k = r / HeartSpan;
             float u = x / k;
-            float v = y / k + 0.12f;
+            float v = y / k + HeartDrop;
             float a = u * u + v * v - 1f;
             return a * a * a - u * u * v * v * v <= 0f;
         }
@@ -129,10 +146,11 @@ namespace Chromacolony.Game
         private static bool Star(float x, float y, float outer, float inner)
         {
             bool inside = false;
-            for (int i = 0, j = 9; i < 10; j = i++)
+            int corners = 2 * StarPoints;
+            for (int i = 0, j = corners - 1; i < corners; j = i++)
             {
-                float ai = Mathf.PI / 2f + i * Mathf.PI / 5f;
-                float aj = Mathf.PI / 2f + j * Mathf.PI / 5f;
+                float ai = Mathf.PI / 2f + i * Mathf.PI / StarPoints;
+                float aj = Mathf.PI / 2f + j * Mathf.PI / StarPoints;
                 float ri = i % 2 == 0 ? outer : inner;
                 float rj = j % 2 == 0 ? outer : inner;
                 float xi = Mathf.Cos(ai) * ri;

@@ -24,7 +24,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void TheLegsAreThreeOnTheLeftThenThreeOnTheRight()
+        public void LegsAreThreeLeftThenThreeRight()
         {
             Assert.That(_rig.Legs.Count, Is.EqualTo(6));
             for (int i = 0; i < _rig.Legs.Count; i++)
@@ -38,7 +38,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void TheClawsAreLeftThenRight()
+        public void ClawsAreLeftThenRight()
         {
             Assert.That(_rig.Claws.Count, Is.EqualTo(2));
             Assert.That(_rig.Claws[0].localPosition.x, Is.LessThan(0f));
@@ -48,7 +48,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void PaintTintsEveryPartOfTheBodyAndNotTheShadow()
+        public void PaintTintsTheBodyNotTheShadow()
         {
             SerializedProperty painted = new SerializedObject(_rig).FindProperty("_painted");
             var parts = new List<Object>();
@@ -62,7 +62,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ThePartsDrawInTheirSortingOrder()
+        public void PartsDrawInTheirSortingOrder()
         {
             Assert.That(_rig.Shadow.sortingOrder, Is.EqualTo(SortingOrder.CrabShadow));
             foreach (SpriteRenderer part in _rig.Body.GetComponentsInChildren<SpriteRenderer>(true))

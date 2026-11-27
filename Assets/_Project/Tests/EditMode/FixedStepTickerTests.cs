@@ -7,7 +7,7 @@ namespace Chromacolony.Tests.EditMode
     public sealed class FixedStepTickerTests
     {
         [Test]
-        public void TheTickerRunsWholeStepsAndCarriesTheRestOver()
+        public void RunsWholeStepsAndCarriesTheRest()
         {
             var ticker = new FixedStepTicker(0.25);
             var steps = new List<float>();
@@ -18,7 +18,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void TheTickerDropsTimeItCannotCatchUpWith()
+        public void DropsTimeItCannotCatchUpWith()
         {
             var ticker = new FixedStepTicker(0.25, maxStepsPerAdvance: 3);
 

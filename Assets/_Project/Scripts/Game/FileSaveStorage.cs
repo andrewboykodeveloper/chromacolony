@@ -1,6 +1,5 @@
 using System.IO;
 using Chromacolony.Core;
-using UnityEngine;
 
 namespace Chromacolony.Game
 {
@@ -8,11 +7,9 @@ namespace Chromacolony.Game
     {
         private readonly string _folder;
 
-        public static string DefaultFolder => Path.Combine(Application.persistentDataPath, "saves");
-
-        public FileSaveStorage(string folder = null)
+        public FileSaveStorage(string folder)
         {
-            _folder = folder ?? DefaultFolder;
+            _folder = folder;
         }
 
         public string Read(string key)

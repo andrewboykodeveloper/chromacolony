@@ -5,6 +5,8 @@ namespace Chromacolony.Core
 {
     public sealed class GameModel
     {
+        private const float FastSpeed = 2f;
+
         private readonly StateMachine<GamePhase> _phase = new StateMachine<GamePhase>(GamePhase.Menu)
             .Allow(GamePhase.Menu, GamePhase.Playing)
             .Allow(GamePhase.Playing, GamePhase.Playing)
@@ -44,6 +46,8 @@ namespace Chromacolony.Core
 
         public event Action BoardStuck;
 
+        public event Action BoardLeft;
+
         public GamePhase Phase => _phase.Current;
 
         public BoardSpec Board { get; private set; }
@@ -52,13 +56,15 @@ namespace Chromacolony.Core
 
         public bool Fast { get; set; }
 
+        public float Speed => Fast ? FastSpeed : 1f;
+
         public int SlotCount { get; private set; }
 
         public int ColumnCount => _columns.Count;
 
         private bool CanAddSlot => InPlay && SlotCount < _slots.Length;
 
-        private bool CanShuffle => Phase == GamePhase.Playing && Shufflable().Count >= 2;
+        private bool CanShuffle => Phase == GamePhase.Playing && TwoCanBeShuffled();
 
         private bool InPlay => Phase == GamePhase.Playing || Phase == GamePhase.Stuck;
 
@@ -146,6 +152,7 @@ namespace Chromacolony.Core
             if (Phase != GamePhase.Menu)
             {
                 _phase.Go(GamePhase.Menu);
+                BoardLeft?.Invoke();
             }
         }
 
@@ -193,7 +200,7 @@ namespace Chromacolony.Core
                 return;
             }
 
-            float step = Fast ? dt * 2f : dt;
+            float step = dt * Speed;
             for (int s = 0; s < SlotCount; s++)
             {
                 Crew crew = _slots[s];
@@ -276,8 +283,8 @@ namespace Chromacolony.Core
             }
 
             SlotCount++;
-            SlotAdded?.Invoke(new SlotAdded(SlotCount - 1));
             PlayOn();
+            SlotAdded?.Invoke(new SlotAdded(SlotCount - 1));
         }
 
         public void Shuffle(IRandom random)
@@ -327,8 +334,8 @@ namespace Chromacolony.Core
             crew.Waiting = false;
             crew.Link = -1;
             _columns[crew.Column].Insert(0, crew);
-            CrewBack?.Invoke(new CrewBack(crew));
             PlayOn();
+            CrewBack?.Invoke(new CrewBack(crew));
         }
 
         public int FreeSlots()
@@ -353,6 +360,24 @@ namespace Chromacolony.Core
             }
         }
 
+        // Helpers are checked after every change on the board, so this counts in place instead of listing the crews.
+        private bool TwoCanBeShuffled()
+        {
+            int found = 0;
+            for (int c = 0; c < _columns.Count; c++)
+            {
+                for (int d = 0; d < _columns[c].Count; d++)
+                {
+                    if (CanBeShuffled(_columns[c][d]) && ++found == 2)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         private List<(int Column, int Depth)> Shufflable()
         {
             var places = new List<(int Column, int Depth)>();
@@ -360,7 +385,7 @@ namespace Chromacolony.Core
             {
                 for (int d = 0; d < _columns[c].Count; d++)
                 {
-                    if (_columns[c][d].Link < 0)
+                    if (CanBeShuffled(_columns[c][d]))
                     {
                         places.Add((c, d));
                     }
@@ -368,6 +393,11 @@ namespace Chromacolony.Core
             }
 
             return places;
+        }
+
+        private static bool CanBeShuffled(Crew crew)
+        {
+            return crew.Link < 0;
         }
 
         private static Crew CopyOf(Crew crew, Dictionary<Crew, Crew> copies)

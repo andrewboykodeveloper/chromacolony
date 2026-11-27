@@ -8,7 +8,7 @@ namespace Chromacolony.Tests.PlayMode
     public sealed class BoardFlowTests
     {
         private const int FirstBoard = 0;
-        private const int PlacesLessonBoard = 1;
+        private const int SlotsLessonBoard = 1;
         private const int MaxFramesToWin = 4000;
         private const string MoreClass = "crew-more";
 
@@ -28,7 +28,7 @@ namespace Chromacolony.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator TappingTheColumnsWinsTheFirstBoardAndTheWinIsSavedAtOnce()
+        public IEnumerator TapsWinTheFirstBoardAndSaveIt()
         {
             _game.Press("play");
             yield return null;
@@ -67,7 +67,7 @@ namespace Chromacolony.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator TheFirstTapEndsTheLessonOfTheFirstBoard()
+        public IEnumerator FirstTapEndsTheLessonOfTheFirstBoard()
         {
             _game.Press("play");
             yield return null;
@@ -81,7 +81,7 @@ namespace Chromacolony.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator ATapOnACrewDeepInAColumnSendsItsFrontCrew()
+        public IEnumerator DeepTapSendsTheFrontCrew()
         {
             _game.Press("play");
             yield return null;
@@ -95,7 +95,7 @@ namespace Chromacolony.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator AColumnCountsOnlyTheCrewsWaitingBehindItsVisibleOnes()
+        public IEnumerator ColumnCountsTheCrewsOutOfSight()
         {
             _game.Press("play");
             yield return null;
@@ -111,7 +111,7 @@ namespace Chromacolony.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator ThePauseHoldsTheCrabsAndResumeLetsThemGoOn()
+        public IEnumerator PauseHoldsTheCrabsAndResumeFreesThem()
         {
             _game.Press("play");
             yield return null;
@@ -132,22 +132,22 @@ namespace Chromacolony.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator TheLessonOnPlacesCountsThemAgainWhenOneIsAdded()
+        public IEnumerator SlotsLessonRecountsAnExtraSlot()
         {
-            yield return _game.ReopenAt(PlacesLessonBoard);
+            yield return _game.ReopenAt(SlotsLessonBoard);
             _game.Press("play");
             yield return null;
-            Assert.That(_game.IsShown("hint"), Is.True, "the board teaches the places");
-            Assert.That(_game.Text("hint"), Does.Contain(_game.Slots.ToString(CultureInfo.InvariantCulture)), "the lesson counts the places");
+            Assert.That(_game.IsShown("hint"), Is.True, "the board teaches the slots");
+            Assert.That(_game.Text("hint"), Does.Contain(_game.Slots.ToString(CultureInfo.InvariantCulture)), "the lesson counts the slots");
 
             _game.Press("helper-slot");
             yield return null;
             Assert.That(_game.Text("hint"), Does.Contain((_game.Slots + 1).ToString(CultureInfo.InvariantCulture)),
-                "the lesson counts the extra place");
+                "the lesson counts the extra slot");
         }
 
         [UnityTest]
-        public IEnumerator TheExtraSlotCanBeTakenOnlyOnceOnABoard()
+        public IEnumerator ExtraSlotCanBeTakenOnlyOnceOnABoard()
         {
             _game.Press("play");
             yield return null;
@@ -164,7 +164,7 @@ namespace Chromacolony.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator ANoteHoldsTheBoardUntilItIsClosed()
+        public IEnumerator NoteHoldsTheBoardUntilItIsClosed()
         {
             _game.Press("play");
             yield return null;
@@ -191,7 +191,7 @@ namespace Chromacolony.Tests.PlayMode
 
         // A pause would leave the pick waiting, so the test holds whether or not the interface also takes the press.
         [UnityTest]
-        public IEnumerator AMousePressOnAButtonDoesNotReachTheBoard()
+        public IEnumerator MousePressOnAButtonDoesNotReachTheBoard()
         {
             _game.Press("play");
             yield return null;
@@ -206,7 +206,7 @@ namespace Chromacolony.Tests.PlayMode
 
         // The game hands a press to the board unless the interface can pick something there.
         [UnityTest]
-        public IEnumerator OnlyTheButtonsOnTheGameScreenTakeThePointer()
+        public IEnumerator OnlyGameButtonsTakeThePointer()
         {
             _game.Press("play");
             yield return GameDriver.Frames(10);
@@ -214,7 +214,7 @@ namespace Chromacolony.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator ASecondPressOnTheWaitingBackHelperCallsThePickOff()
+        public IEnumerator SecondBackHelperPressCallsThePickOff()
         {
             _game.Press("play");
             yield return null;
@@ -231,7 +231,7 @@ namespace Chromacolony.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator TheBackKeyStepsBackOneLayerAtATimeAndCancelsAPickLast()
+        public IEnumerator BackKeyStepsBackOneLayerAtATime()
         {
             _game.Press("play");
             yield return null;

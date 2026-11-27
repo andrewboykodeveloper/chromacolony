@@ -5,6 +5,8 @@ date: 2026-11-26
 
 # Build the interface with UI Toolkit
 
+Recorded at 1.0, after the decision was taken.
+
 ## Context and Problem Statement
 
 The interface is a handful of screens and dialogs over the world: the menu, the board's HUD and helpers, the pause, the settings, the buy and no-coins dialogs, and the result. It runs in a browser, laid out in portrait, inside the device's safe area. Which UI system should draw it?

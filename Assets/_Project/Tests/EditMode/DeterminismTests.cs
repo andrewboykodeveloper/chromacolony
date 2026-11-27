@@ -16,7 +16,7 @@ namespace Chromacolony.Tests.EditMode
         [TestCase(2, GamePhase.Won, 303, TestName = "{m}(board 3)")]
         [TestCase(11, GamePhase.Stuck, 397, TestName = "{m}(board 12)")]
         [TestCase(19, GamePhase.Won, 1241, TestName = "{m}(board 20)")]
-        public void TheSameTapsAtTheSameMomentsGiveTheSameBoard(int boardIndex, GamePhase outcome, int lastTick)
+        public void SameTapsGiveTheSameBoard(int boardIndex, GamePhase outcome, int lastTick)
         {
             BoardSpec board = ShippedData.Boards()[boardIndex];
             Rules rules = ShippedData.Rules();

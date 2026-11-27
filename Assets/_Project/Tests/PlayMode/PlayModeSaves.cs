@@ -2,63 +2,45 @@ using System;
 using System.IO;
 using Chromacolony.Game;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Chromacolony.Tests.PlayMode
 {
-    // The PlayMode tests play as new players, so the player's own saves wait in another folder for the whole run.
+    // The PlayMode tests play as new players, in a saves folder of their own, and keep their copies of it beside it.
     [SetUpFixture]
     public sealed class PlayModeSaves
     {
-        private bool _setAside;
+        private static string Root => Path.Combine(Application.temporaryCachePath, "tests");
 
-        private static string Kept => FileSaveStorage.DefaultFolder + " kept during tests";
+        public static string Folder => Path.Combine(Root, "saves");
 
-        public static void ClearTestSaves()
+        public static string NewCopy()
         {
-            Assert.That(Directory.Exists(Kept), Is.True, "the player's saves are not set aside");
-            if (Directory.Exists(FileSaveStorage.DefaultFolder))
+            return Path.Combine(Root, "copies", Guid.NewGuid().ToString("N"));
+        }
+
+        public static void Clear()
+        {
+            if (Directory.Exists(Folder))
             {
-                Directory.Delete(FileSaveStorage.DefaultFolder, true);
+                Directory.Delete(Folder, true);
             }
         }
 
         [OneTimeSetUp]
-        public void SetThePlayersSavesAside()
+        public void UseAFolderOfTheirOwn()
         {
-            if (Directory.Exists(Kept))
-            {
-                throw new InvalidOperationException(
-                    $"{Kept} still holds the player's saves from a run that stopped early. Put them back in {FileSaveStorage.DefaultFolder} by hand, keeping anything newer there, before running the tests again.");
-            }
-
-            if (Directory.Exists(FileSaveStorage.DefaultFolder))
-            {
-                Directory.Move(FileSaveStorage.DefaultFolder, Kept);
-            }
-            else
-            {
-                Directory.CreateDirectory(Kept);
-            }
-
-            _setAside = true;
+            SaveFolder.UseForTests(Folder);
+            Clear();
         }
 
         [OneTimeTearDown]
-        public void BringThePlayersSavesBack()
+        public void LeaveNoSavesBehind()
         {
-            if (!_setAside)
+            SaveFolder.UseForTests(null);
+            if (Directory.Exists(Root))
             {
-                return;
-            }
-
-            ClearTestSaves();
-            if (Directory.GetFileSystemEntries(Kept).Length == 0)
-            {
-                Directory.Delete(Kept);
-            }
-            else
-            {
-                Directory.Move(Kept, FileSaveStorage.DefaultFolder);
+                Directory.Delete(Root, true);
             }
         }
     }

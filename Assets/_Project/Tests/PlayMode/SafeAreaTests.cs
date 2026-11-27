@@ -26,7 +26,7 @@ namespace Chromacolony.Tests.PlayMode
 
         // A safe area cut by a tenth at the top and the sides and by a twentieth at the bottom, as a notch and a home bar would.
         [Test]
-        public void TheInsetsAreTheSafeAreasEdgesInThePanelsUnits()
+        public void InsetsAreTheSafeAreaInPanelUnits()
         {
             VisualElement root = _game.Single<UIDocument>().rootVisualElement;
             Rect panel = root.worldBound;

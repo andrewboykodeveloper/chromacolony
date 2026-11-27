@@ -2,9 +2,11 @@ namespace Chromacolony.Game
 {
     public static class Sounds
     {
+        private const int PickSounds = 3;
+
         public static string Pick(int turn)
         {
-            switch (turn % 3)
+            switch (turn % PickSounds)
             {
                 case 0:
                     return SoundKeys.Pick1;

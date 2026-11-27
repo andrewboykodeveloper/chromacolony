@@ -21,7 +21,7 @@ namespace Chromacolony.Tests.EditMode
         [TestCase(4, Lesson.Rope)]
         [TestCase(5, Lesson.Cover)]
         [TestCase(6, Lesson.None)]
-        public void EachNewIdeaIsTaughtOnTheFirstBoardThatHasIt(int board, Lesson lesson)
+        public void EachIdeaIsTaughtOnItsFirstBoard(int board, Lesson lesson)
         {
             Assert.That(Lessons.For(board, BoardText.Parse(Boards)), Is.EqualTo(lesson));
         }

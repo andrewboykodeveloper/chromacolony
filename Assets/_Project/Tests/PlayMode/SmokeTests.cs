@@ -24,7 +24,7 @@ namespace Chromacolony.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator TheGameBootsToItsMenuWithMusicAndNoDialogOpen()
+        public IEnumerator BootsToTheMenuWithMusicAndNoDialog()
         {
             Assert.That(_game.IsShown("menu"), Is.True);
             Assert.That(_game.IsShown("game"), Is.False);

@@ -10,12 +10,26 @@ namespace Chromacolony.Game
         private const float MosaicCenterY = 4.48f;
         private const float MosaicMaxWidth = 9.4f;
         private const float MosaicMaxHeight = 6.3f;
+        private const float TrayMargin = 0.6f;
 
         private const float CastleY = 0.22f;
+        private const float GateDrop = 0.35f;
+
+        private const float RowWidth = 9.8f;
+
         private const float SlotsY = -1.75f;
+        private const float SlotMaxSize = 1.7f;
+        private const float SlotShare = 0.92f;
+        private const float SlotTapReach = 0.6f;
+
         private const float QueueTopY = -3.15f;
         private const float QueueStep = 1.2f;
-        private const float RowWidth = 9.8f;
+        private const float QueueMaxStep = 2.2f;
+        private const float QueueMinScale = 0.6f;
+        private const float QueueScaleStep = 0.14f;
+        private const float QueueTapReach = 0.75f;
+        private const float BucketMaxSize = 1.25f;
+        private const float BucketShare = 0.7f;
 
         private readonly int _width;
         private readonly int _height;
@@ -30,15 +44,15 @@ namespace Chromacolony.Game
 
         public Vector2 CastleCenter => new Vector2(0f, CastleY);
 
-        public Vector2 TraySize => MosaicSize + new Vector2(0.6f, 0.6f);
+        public Vector2 TraySize => MosaicSize + new Vector2(TrayMargin, TrayMargin);
 
-        public Vector2 Gate => CastleCenter + new Vector2(0f, -0.35f);
+        public Vector2 Gate => CastleCenter + new Vector2(0f, -GateDrop);
 
         public float CastleHeight => 1.5f;
 
-        public float SlotSize => Mathf.Min(1.7f, RowWidth / _slots * 0.92f);
+        public float SlotSize => Mathf.Min(SlotMaxSize, RowWidth / _slots * SlotShare);
 
-        public float BucketSize => Mathf.Min(1.25f, RowWidth / Mathf.Max(_columns, 1) * 0.7f);
+        public float BucketSize => Mathf.Min(BucketMaxSize, RowWidth / Mathf.Max(_columns, 1) * BucketShare);
 
         public BoardLayout(int width, int height, int slots, int columns)
         {
@@ -65,14 +79,14 @@ namespace Chromacolony.Game
 
         public Vector2 QueueAt(int column, int depth)
         {
-            float step = Mathf.Min(2.2f, RowWidth / Mathf.Max(_columns, 1));
+            float step = Mathf.Min(QueueMaxStep, RowWidth / Mathf.Max(_columns, 1));
             float x = -step * (_columns - 1) / 2f + step * column;
             return new Vector2(x, QueueTopY - QueueStep * depth);
         }
 
         public float QueueScale(int depth)
         {
-            return Mathf.Max(0.6f, 1f - 0.14f * depth);
+            return Mathf.Max(QueueMinScale, 1f - QueueScaleStep * depth);
         }
 
         /// <summary>
@@ -81,8 +95,8 @@ namespace Chromacolony.Game
         /// </summary>
         public int ColumnUnder(Vector2 world)
         {
-            float top = QueueAt(0, 0).y + BucketSize * 0.75f;
-            float bottom = QueueAt(0, VisibleDepth - 1).y - BucketSize * 0.75f;
+            float top = QueueAt(0, 0).y + BucketSize * QueueTapReach;
+            float bottom = QueueAt(0, VisibleDepth - 1).y - BucketSize * QueueTapReach;
             if (world.y > top || world.y < bottom)
             {
                 return -1;
@@ -105,7 +119,7 @@ namespace Chromacolony.Game
 
         public bool SlotCovers(int slot, Vector2 world)
         {
-            return Vector2.Distance(world, SlotAt(slot)) < SlotSize * 0.6f;
+            return Vector2.Distance(world, SlotAt(slot)) < SlotSize * SlotTapReach;
         }
     }
 }

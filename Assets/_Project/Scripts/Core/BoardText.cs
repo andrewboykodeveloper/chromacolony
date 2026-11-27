@@ -6,6 +6,8 @@ namespace Chromacolony.Core
 {
     public static class BoardText
     {
+        private const string BoardLine = "board ";
+
         public static IReadOnlyList<BoardSpec> Parse(string text)
         {
             var boards = new List<BoardSpec>();
@@ -21,14 +23,14 @@ namespace Chromacolony.Core
                     continue;
                 }
 
-                if (line.StartsWith("board ", StringComparison.Ordinal))
+                if (line.StartsWith(BoardLine, StringComparison.Ordinal))
                 {
                     if (name != null)
                     {
                         boards.Add(Build(name, rows, columns));
                     }
 
-                    name = line.Substring(6).Trim();
+                    name = line.Substring(BoardLine.Length).Trim();
                     rows = new List<string>();
                     columns = new List<IReadOnlyList<CrewSpec>>();
                     continue;

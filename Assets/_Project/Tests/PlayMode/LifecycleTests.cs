@@ -28,7 +28,7 @@ namespace Chromacolony.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator SwitchingGameRootOffAndOnAgainBuildsTheGameOnce()
+        public IEnumerator GameRootOffAndOnBuildsTheGameOnce()
         {
             GameRoot root = _game.Single<GameRoot>();
             root.enabled = false;
@@ -45,7 +45,7 @@ namespace Chromacolony.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator SwitchingTheGameObjectOffAndOnAgainKeepsTheInterfaceWorking()
+        public IEnumerator ObjectOffAndOnKeepsTheInterfaceWorking()
         {
             _game.Press("play");
             yield return GameDriver.Frames(2);
@@ -73,13 +73,13 @@ namespace Chromacolony.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator SwitchingTheGameObjectOffAndOnAgainKeepsAnOpenDialogOpen()
+        public IEnumerator ObjectOffAndOnKeepsAnOpenDialogOpen()
         {
             _game.Press("play");
             yield return null;
             _game.Press("hud-pause");
-            yield return new WaitForSecondsRealtime(0.2f);
-            Assert.That(_game.Has("pause", "open"), Is.True, "the pause has faded in");
+            yield return GameDriver.Frames(GameDriver.DialogOpenFrames);
+            Assert.That(_game.Has("pause", "open"), Is.True, "the pause has its open class");
 
             yield return SwitchTheGameOffAndOn();
 
@@ -91,7 +91,7 @@ namespace Chromacolony.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator DestroyingTheGameLeavesNothingItMadeBehind()
+        public IEnumerator DestroyedGameLeavesNothingBehind()
         {
             _game.Press("play");
             yield return null;

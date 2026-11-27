@@ -11,7 +11,7 @@ namespace Chromacolony.Tests.EditMode
         private readonly BoardLayout _layout = new BoardLayout(width: 13, height: 12, slots: 5, columns: Columns);
 
         [Test]
-        public void ATapOnAnyVisibleCrewFindsItsColumn()
+        public void TapOnAnyVisibleCrewFindsItsColumn()
         {
             for (int column = 0; column < Columns; column++)
             {
@@ -23,7 +23,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void TheQueuesReachThreeQuartersOfABucketAboveTheFrontCrewsAndBelowTheLastVisibleOnes()
+        public void QueuesReachPastTheirFirstAndLastCrews()
         {
             Vector2 front = _layout.QueueAt(0, 0);
             Vector2 last = _layout.QueueAt(0, BoardLayout.VisibleDepth - 1);
@@ -36,7 +36,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ATapBesideTheOuterColumnsFindsNoColumn()
+        public void TapBesideTheOuterColumnsFindsNoColumn()
         {
             float bucket = _layout.BucketSize;
 
@@ -46,7 +46,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ATapThatTwoColumnsReachFindsTheNearerOne()
+        public void TapThatTwoColumnsReachFindsTheNearerOne()
         {
             Vector2 first = _layout.QueueAt(0, 0);
             Vector2 second = _layout.QueueAt(1, 0);
@@ -57,7 +57,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ASlotCoversTheTapsNearItsCentreOnly()
+        public void SlotCoversTheTapsNearItsCentreOnly()
         {
             Vector2 centre = _layout.SlotAt(2);
 
