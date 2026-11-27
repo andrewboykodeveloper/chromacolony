@@ -22,7 +22,7 @@ The first release: twenty boards in English and Russian, played in a web browser
 - After a shuffle, the back helper returned a crew to the column it was first dealt into, not the one it was sent from.
 - A press on a button also reached the board, so it called off a back helper that waited for a crew.
 - A second press on the waiting back helper kept it waiting. It now calls the pick off.
-- The lesson on the second board still said "Only 5 places" after "+1 place for this board" made it six.
+- The lesson on the second board still said "Only five places" after "+1 place for this board" made it six.
 - A dialog closed right after it opened showed without its fade the next time.
 
 [Unreleased]: https://github.com/andrewboykodeveloper/chromacolony/compare/v1.0.1...HEAD
