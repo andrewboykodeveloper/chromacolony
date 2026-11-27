@@ -28,12 +28,13 @@ Everything else is made at run time, under four roots: the beach, the board, the
 - **Time** enters only through `Tick(dt)`, which `GameTicker` calls 60 times a second. At double speed (`Fast`), each tick counts twice. As time passes, the crews in places send their crabs, one at a time, to the pebbles of their colour that the crabs can reach.
 - **Chance** enters only through an injected `IRandom`, for the shuffle helper. It is a PCG32 that the game seeds from the clock and the tests from a fixed number.
 
-The model raises typed C# events: `BoardStarted`, `CrewSent`, `CrabSent`, `CrewWaiting`, `CrewDone`, `CrewRevealed`, `SendRefused`, `SlotAdded`, `QueueShuffled`, `CrewBack`, `BoardWon` and `BoardStuck`. The board view and its crews view subscribe before any presenter, so the pieces have their new places when a presenter reacts.
+The model raises typed C# events: `BoardStarted`, `CrewSent`, `CrabSent`, `CrewWaiting`, `CrewDone`, `CrewRevealed`, `SendRefused`, `SlotAdded`, `QueueShuffled`, `CrewBack`, `BoardWon`, `BoardStuck` and `BoardLeft`, each once the model's state is final. Views and presenters may subscribe in any order: no presenter reads a view that follows the model when an event comes, and the board view aims its pointer and moves its pieces each frame.
 
 Around the model:
 
-- `Tutorial` holds the lesson of a board and where the tutorial's claw points (`PointedColumn`).
-- `HelperShop` says which helpers the player can take, from the board and the player's stock and coins.
+- `BoardSession` starts a board and keeps its `Tutorial` up to date. When the board ends, it pays a win into the progress and raises `Ended`; when the player leaves it, it raises `Left`.
+- `Tutorial` holds the lesson of a board and the column its pointer shows (`PointedColumn`).
+- `HelperShop` says which helpers the player can take, from the board and the player's stock and coins. It also takes them: `TryUse` pays for the extra slot or the shuffle and applies it, or starts the back helper's pick, and `TryBack` ends the pick, sending the picked crew back, paid then.
 - `Progress` holds the coins, the stock, the next board and the settings.
 - `SaveStore` writes them to the saves.
 
@@ -41,7 +42,7 @@ Around the model:
 
 `GameRoot` is the one composition root. It wires everything by hand, through constructors: no singleton, no service locator, no container.
 
-- **`Awake`** reads the tables and builds the core objects, the views, the `AudioService` and five presenters, then wires the presenters to each other.
+- **`Awake`** reads the tables and builds the core objects, the views, the `AudioService` and five presenters. A presenter takes core objects and views, never another presenter. The root wires the buttons that lead from one screen to the next, and saves when a helper is used or a board is won.
 - **`OnEnable`** binds the interface: the screens, the presenters' elements and handlers, and the crews' labels. The UI document builds its tree anew whenever its object is enabled, so this runs again then, and `OnDisable` takes the handlers back.
 - **`Start`** shows the menu.
 - **`OnDestroy`** destroys what the views made at run time, the textures included.
@@ -50,8 +51,8 @@ Around the model:
 |---|---|
 | `MenuPresenter` | The menu and the crab that dances on it. |
 | `SettingsPresenter` | The settings, the language and the way back to the pause. |
-| `BoardPresenter` | A board in play: its start, the taps, the tutorial's hint, the speed and the pause. |
-| `HelperPresenter` | The three helpers, the buy and no-coins dialogs, and the choice of the crew to send back. |
+| `BoardPresenter` | A board in play: its start, the taps, the pick of a crew to send back, the tutorial's hint, the speed and the pause. |
+| `HelperPresenter` | The three helpers, and the buy and no-coins dialogs. |
 | `ResultPresenter` | The celebration, the coins' flight and the result dialog. |
 
 ### A frame

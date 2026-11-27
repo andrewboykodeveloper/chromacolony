@@ -1,6 +1,5 @@
 using System;
 using Chromacolony.Core;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Chromacolony.Game
@@ -9,14 +8,8 @@ namespace Chromacolony.Game
     {
         private readonly ScreenHost _screens;
         private readonly Localization _text;
-        private readonly GameModel _model;
-        private readonly Progress _progress;
-        private readonly Prices _prices;
         private readonly HelperShop _shop;
-        private readonly BoardView _boardView;
         private readonly AudioService _audio;
-        private readonly IRandom _random;
-        private readonly Action _save;
         private readonly Button[] _buttons = new Button[3];
         private readonly Label[] _badges = new Label[3];
         private Label _buyTitle;
@@ -27,27 +20,18 @@ namespace Chromacolony.Game
         private Button _ok;
         private Helper _buying;
 
-        public event Action PickingChanged;
-
-        public event Action Used;
-
-        public bool Picking { get; private set; }
-
         public bool HoldsBoard => _screens.CurrentDialog == UiNames.Buy || _screens.CurrentDialog == UiNames.Note;
 
-        public HelperPresenter(ScreenHost screens, Localization text, GameModel model, Progress progress, Prices prices, HelperShop shop,
-            BoardView boardView, AudioService audio, IRandom random, Action save)
+        public HelperPresenter(ScreenHost screens, Localization text, HelperShop shop, AudioService audio)
         {
             _screens = screens;
             _text = text;
-            _model = model;
-            _progress = progress;
-            _prices = prices;
             _shop = shop;
-            _boardView = boardView;
             _audio = audio;
-            _random = random;
-            _save = save;
+
+            shop.Changed += Refresh;
+            shop.Used += _ => _audio.Play(SoundKeys.Helper);
+            shop.PickingChanged += ShowPicking;
         }
 
         public void Bind(VisualElement root, ButtonBindings bindings)
@@ -73,7 +57,7 @@ namespace Chromacolony.Game
             bindings.Click(_buttons[(int)Helper.Back], () => OnHelperPressed(Helper.Back));
             ShowTexts();
             Refresh();
-            _buttons[(int)Helper.Back].EnableInClassList(UiClasses.On, Picking);
+            ShowPicking();
             if (_screens.CurrentDialog == UiNames.Buy)
             {
                 ShowBuyText();
@@ -89,58 +73,35 @@ namespace Chromacolony.Game
             _noteText.text = _text.Get(TextKeys.NoCoins);
         }
 
-        public void Refresh()
+        private void Refresh()
         {
             for (int h = 0; h < _buttons.Length; h++)
             {
                 var helper = (Helper)h;
-                int stock = _progress.Stock(helper);
-                _badges[h].text = stock > 0 ? stock.ToString() : _prices.Of(helper).ToString();
+                int stock = _shop.Stock(helper);
+                _badges[h].text = stock > 0 ? stock.ToString() : _shop.Price(helper).ToString();
                 _badges[h].EnableInClassList(UiClasses.Price, stock == 0);
                 _buttons[h].EnableInClassList(UiClasses.Off, !_shop.Usable(helper));
             }
         }
 
-        public void Pick(Vector2 world)
-        {
-            int slot = _boardView.SlotUnder(world);
-            bool taken = slot >= 0 && _model.CanBack(slot) && _progress.Pay(Helper.Back, _prices);
-            if (taken)
-            {
-                _model.Back(slot);
-                _audio.Play(SoundKeys.Helper);
-                _save();
-            }
-
-            SetPicking(false);
-            if (taken)
-            {
-                Used?.Invoke();
-            }
-        }
-
-        public void CancelPick()
-        {
-            SetPicking(false);
-        }
-
         private void OnHelperPressed(Helper helper)
         {
-            if (helper == Helper.Back && Picking)
+            if (helper == Helper.Back && _shop.Picking)
             {
-                CancelPick();
+                _shop.StopPicking();
                 return;
             }
 
-            if (!_model.CanUse(helper) || _screens.CurrentDialog != null)
+            if (!_shop.Allowed(helper) || _screens.CurrentDialog != null)
             {
                 return;
             }
 
-            switch (_progress.PaymentFor(helper, _prices))
+            switch (_shop.PaymentFor(helper))
             {
                 case Payment.Stock:
-                    Use(helper);
+                    _shop.TryUse(helper);
                     break;
                 case Payment.Coins:
                     _buying = helper;
@@ -156,47 +117,19 @@ namespace Chromacolony.Game
         private void OnBuyConfirmed()
         {
             _screens.CloseDialog();
-            Use(_buying);
-        }
-
-        private void Use(Helper helper)
-        {
-            if (helper == Helper.Back)
-            {
-                SetPicking(true);
-                return;
-            }
-
-            if (!_model.CanUse(helper) || !_progress.Pay(helper, _prices))
-            {
-                return;
-            }
-
-            _audio.Play(SoundKeys.Helper);
-            if (helper == Helper.Slot)
-            {
-                _model.AddSlot();
-            }
-            else
-            {
-                _model.Shuffle(_random);
-            }
-
-            _save();
-            Used?.Invoke();
+            _shop.TryUse(_buying);
         }
 
         private void ShowBuyText()
         {
-            int price = _prices.Of(_buying);
-            _buyText.text = _text.Format(TextKeys.BuyText, NameOf(_buying), price, _progress.Coins, _progress.Coins - price);
+            int price = _shop.Price(_buying);
+            int coins = _shop.Coins;
+            _buyText.text = _text.Format(TextKeys.BuyText, NameOf(_buying), price, coins, coins - price);
         }
 
-        private void SetPicking(bool on)
+        private void ShowPicking()
         {
-            Picking = on;
-            _buttons[(int)Helper.Back].EnableInClassList(UiClasses.On, on);
-            PickingChanged?.Invoke();
+            _buttons[(int)Helper.Back].EnableInClassList(UiClasses.On, _shop.Picking);
         }
 
         private string NameOf(Helper helper)

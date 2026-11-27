@@ -44,6 +44,8 @@ namespace Chromacolony.Core
 
         public event Action BoardStuck;
 
+        public event Action BoardLeft;
+
         public GamePhase Phase => _phase.Current;
 
         public BoardSpec Board { get; private set; }
@@ -146,6 +148,7 @@ namespace Chromacolony.Core
             if (Phase != GamePhase.Menu)
             {
                 _phase.Go(GamePhase.Menu);
+                BoardLeft?.Invoke();
             }
         }
 
@@ -276,8 +279,8 @@ namespace Chromacolony.Core
             }
 
             SlotCount++;
-            SlotAdded?.Invoke(new SlotAdded(SlotCount - 1));
             PlayOn();
+            SlotAdded?.Invoke(new SlotAdded(SlotCount - 1));
         }
 
         public void Shuffle(IRandom random)
@@ -327,8 +330,8 @@ namespace Chromacolony.Core
             crew.Waiting = false;
             crew.Link = -1;
             _columns[crew.Column].Insert(0, crew);
-            CrewBack?.Invoke(new CrewBack(crew));
             PlayOn();
+            CrewBack?.Invoke(new CrewBack(crew));
         }
 
         public int FreeSlots()
