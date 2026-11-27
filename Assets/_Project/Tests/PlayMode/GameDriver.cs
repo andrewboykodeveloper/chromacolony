@@ -22,6 +22,9 @@ namespace Chromacolony.Tests.PlayMode
         public const string PriceClass = "price";
         public const float FrameSeconds = 1f / 30f;
 
+        // A dialog takes its open class on the panel's second scheduler update: two frames at most, and one to spare.
+        public const int DialogOpenFrames = 3;
+
         private const string ScenePath = "Assets/_Project/Scenes/Game.unity";
         private const string BoardsFile = "_Project/Data/Boards.txt";
         private const string ConfigFile = "_Project/Data/Config.csv";

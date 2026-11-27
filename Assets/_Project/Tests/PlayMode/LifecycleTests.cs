@@ -78,8 +78,8 @@ namespace Chromacolony.Tests.PlayMode
             _game.Press("play");
             yield return null;
             _game.Press("hud-pause");
-            yield return new WaitForSecondsRealtime(0.2f);
-            Assert.That(_game.Has("pause", "open"), Is.True, "the pause has faded in");
+            yield return GameDriver.Frames(GameDriver.DialogOpenFrames);
+            Assert.That(_game.Has("pause", "open"), Is.True, "the pause has its open class");
 
             yield return SwitchTheGameOffAndOn();
 

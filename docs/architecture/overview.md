@@ -78,7 +78,7 @@ The interface is one layout, `UI/Main.uxml`, and one style sheet, `UI/Theme.uss`
 - `ScreenHost` shows one screen and at most one dialog by toggling the `hidden` class.
   - The screens are `menu` and `game`.
   - The dialogs are `pause`, `settings`, `buy`, `note` (for no coins) and `result`.
-- A dialog fades in by its `open` class, added 16 ms after the dialog shows: a transition runs only from a style the dialog has already been drawn with.
+- A dialog fades in by its `open` class, added on the panel's second scheduler update after the dialog shows, so that the panel styles the shown dialog without it first.
 - Element names are kept in `UiNames` and class names in `UiClasses`. An EditMode test checks both against the layout and the style sheet.
 
 ## Views and pooling
