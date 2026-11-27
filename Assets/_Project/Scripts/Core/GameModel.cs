@@ -56,9 +56,6 @@ namespace Chromacolony.Core
 
         public bool Fast { get; set; }
 
-        /// <summary>
-        /// How much faster than real time the board plays: at double speed, each tick counts twice.
-        /// </summary>
         public float Speed => Fast ? FastSpeed : 1f;
 
         public int SlotCount { get; private set; }

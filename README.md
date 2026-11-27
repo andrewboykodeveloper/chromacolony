@@ -1,8 +1,8 @@
 # Chromacolony
 
-A puzzle game that runs in the browser, laid out for a phone held upright. Crews of crabs wait in columns of buckets under a mosaic, one colour to a bucket. Tap a column and the crew at its front takes one of five places; its crabs then carry the pebbles of their colour home, one at a time. A board is done when every pebble is home, and then the picture puts itself together again.
+A puzzle game that runs in the browser, laid out for a phone held upright. Crews of crabs wait in columns of buckets under a mosaic, one colour to a bucket. Tap a column and the crew at its front takes one of five slots; its crabs then carry the pebbles of their colour home, one at a time. A board is done when every pebble is home, and then the picture puts itself together again.
 
-![A tap sends a crew to a place, its crabs carry the pebbles home, and the picture puts itself together again](docs/media/play.gif)
+![A tap sends a crew to a slot, its crabs carry the pebbles home, and the picture puts itself together again](docs/media/play.gif)
 
 **Play it in the browser:** [andrewboykodeveloper.itch.io/chromacolony](https://andrewboykodeveloper.itch.io/chromacolony)
 
@@ -10,7 +10,7 @@ A puzzle game that runs in the browser, laid out for a phone held upright. Crews
 
 ## Status
 
-Version 1.0.0: twenty boards, in English and Russian. Three helpers ease a hard board: an extra place for the board, a shuffle of the queue, and a crew sent back to the queue. They come from a small stock, and then for coins won on boards. The changes are in the [changelog](CHANGELOG.md).
+Version 1.0.0: twenty boards, in English and Russian. Three helpers ease a hard board: an extra slot for the board, a shuffle of the queue, and a crew sent back to the queue. They come from a small stock, and then for coins won on boards. The changes are in the [changelog](CHANGELOG.md).
 
 ## How it is built
 
@@ -65,9 +65,8 @@ Unity 6000.6.7f1, the version the game was built with. It is a supported Unity 6
   ```
 
   - **EditMode** tests cover the rules, a solver over every shipped board, a deterministic replay, the saves, the tables, the interface's element names and the board's hit tests.
-  - **PlayMode** tests play the game through its interface. They press only the buttons a player could see and reach, and tap the board with a virtual mouse.
+  - **PlayMode** tests boot the scene and play the game through its interface: they press only the buttons a player could see and reach, and tap the board with a virtual mouse. Others switch the game off and on or destroy it, and check the input, the dialog fade and the safe area on their own.
 
-  Both suites passed at the 1.0.0 tag.
 - **Build for the web:** use **Chromacolony > Build > Web**, or run from a shell:
 
   ```sh
@@ -109,10 +108,9 @@ docs/
 
 ## History
 
-- **Branches:** the history follows git-flow. It has `main` and `develop`, plus `feature/*`, `fix/*`, `release/*` and `hotfix/*` branches, merged with `--no-ff`.
-- **Commits:** every commit after the first, which imported the game, follows Conventional Commits. A pull request's merge commit keeps the "Merge pull request" line, with the pull request's title as its body.
-  - Types: `fix`, `perf`, `refactor`, `style`, `test`, `docs`, `build` and `chore`.
-  - Scopes, where one fits: `core`, `game`, `ui`, `data`, `assets`, `packages`, `editor`, `build`, `repo` and `project`.
+The game began as a quick prototype. The first commit imports it as it was, and the pull requests after it are the pass that brought it to a maintainable release.
+
+The history follows git-flow, with `--no-ff` merges. Every commit after the first, apart from the merges, follows Conventional Commits.
 
 ## Credits and license
 

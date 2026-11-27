@@ -25,7 +25,7 @@ namespace Chromacolony.Tests.EditMode
 
         // The saves folder would sit inside a file, so no write can succeed.
         [Test]
-        public void AWriteThatKeepsFailingIsReportedOnceAndLoggedNowhereElse()
+        public void FailingWriteIsReportedOnceAndNotLogged()
         {
             var problems = new List<string>();
             var saves = new SaveStore(new FileSaveStorage(Path.Combine(_file, "saves")), 1, problems.Add);

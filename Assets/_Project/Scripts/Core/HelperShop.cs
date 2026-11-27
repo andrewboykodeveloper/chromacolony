@@ -3,9 +3,8 @@ using System;
 namespace Chromacolony.Core
 {
     /// <summary>
-    /// The helpers of the board in play. A helper comes from the stock, or for coins once the stock is out. The extra slot and
-    /// the shuffle are paid and applied at once. The back helper first starts a pick, and is paid when the pick sends a crew
-    /// back.
+    /// The helpers of the board in play, from the stock or, once it is out, for coins. The back helper is paid only when its
+    /// pick sends a crew back.
     /// </summary>
     public sealed class HelperShop
     {
@@ -23,9 +22,6 @@ namespace Chromacolony.Core
 
         public event Action PickingChanged;
 
-        /// <summary>
-        /// Whether the back helper waits for a crew to be picked.
-        /// </summary>
         public bool Picking { get; private set; }
 
         public bool AnyUsable => Usable(Helper.Slot) || Usable(Helper.Shuffle) || Usable(Helper.Back);
@@ -112,9 +108,8 @@ namespace Chromacolony.Core
         }
 
         /// <summary>
-        /// Ends a pick. The crew in the slot goes back to its column and the back helper is paid; when the slot holds no crew that
-        /// can go back, or the player can no longer pay, nothing is taken. Without a pick, nothing happens. Returns whether a crew
-        /// went back.
+        /// Ends a pick. The crew in the slot goes back and the back helper is paid, unless no crew there can go back or the
+        /// player can no longer pay. Returns whether a crew went back.
         /// </summary>
         public bool TryBack(int slot)
         {

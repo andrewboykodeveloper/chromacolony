@@ -24,7 +24,7 @@ namespace Chromacolony.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator TheMenuSettingsChangeTheLanguageAndTheSoundAtOnceAndSaveThem()
+        public IEnumerator MenuSettingsApplyAndSaveAtOnce()
         {
             Assert.That(_game.MusicIsPlaying(), Is.True, "the music plays on the menu");
             _game.Press("menu-settings");
@@ -68,7 +68,7 @@ namespace Chromacolony.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator TheSettingsOpenedFromThePauseGoBackToItAndKeepTheBoardPaused()
+        public IEnumerator SettingsFromPauseKeepTheBoardPaused()
         {
             _game.Press("play");
             yield return null;

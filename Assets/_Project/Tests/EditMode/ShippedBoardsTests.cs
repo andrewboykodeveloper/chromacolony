@@ -23,7 +23,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void TheGameShipsTwentyBoardsWithDistinctNames()
+        public void TwentyBoardsWithDistinctNames()
         {
             Assert.That(_boards, Has.Count.EqualTo(BoardCount));
             Assert.That(_boards.Select(board => board.Name), Is.Unique);
@@ -41,7 +41,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void EveryBoardLaysOutWithPebblesLargeEnoughAndBucketsApart([Range(0, BoardCount - 1)] int index)
+        public void PebblesAreLargeEnoughAndBucketsApart([Range(0, BoardCount - 1)] int index)
         {
             BoardSpec board = _boards[index];
             var layout = new BoardLayout(board.Width, board.Height, _rules.Slots, board.Columns.Count);
@@ -53,7 +53,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void EveryBoardOpensWithAFrontCrewThatCanStartAtOnce([Range(0, BoardCount - 1)] int index)
+        public void EveryBoardOpensWithACrewThatCanStart([Range(0, BoardCount - 1)] int index)
         {
             var model = new GameModel(_rules);
             model.Start(_boards[index]);
@@ -75,7 +75,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void TheFirstRopeAndTheFirstCoverOfABoardAreInSightFromTheStart([Range(0, BoardCount - 1)] int index)
+        public void FirstRopeAndCoverAreInSightAtStart([Range(0, BoardCount - 1)] int index)
         {
             List<(CrewSpec Crew, int Depth)> crews = _boards[index].Columns.SelectMany(column => column.Select((crew, depth) => (Crew: crew, Depth: depth))).ToList();
 
@@ -91,7 +91,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void EachLessonComesOnTheBoardThatIntroducesItsIdea()
+        public void EachLessonComesWithItsIdea()
         {
             Lesson[] lessons = Enumerable.Range(0, _boards.Count).Select(index => Lessons.For(index, _boards)).ToArray();
 

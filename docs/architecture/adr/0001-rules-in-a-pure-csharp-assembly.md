@@ -5,9 +5,11 @@ date: 2026-11-26
 
 # Keep the rules in a C# assembly with no engine references
 
+Recorded at 1.0, after the decision was taken.
+
 ## Context and Problem Statement
 
-The rules decide everything that can be won or lost: the boards, the columns of crews, the places, the crabs and the pebbles they carry, the helpers, the coins, the saves and the tutorial. The same taps at the same moments, with the same seed, must give the same board, and the rules must be testable without entering Play Mode. Where should they live?
+The rules decide everything that can be won or lost: the boards, the columns of crews, the slots, the crabs and the pebbles they carry, the helpers, the coins, the saves and the tutorial. The same taps at the same moments, with the same seed, must give the same board, and the rules must be testable without entering Play Mode. Where should they live?
 
 ## Considered Options
 

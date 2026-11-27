@@ -143,7 +143,6 @@ namespace Chromacolony.Tests.PlayMode
             yield return null;
         }
 
-        // The elements under the named ones that take the pointer, apart from the buttons and what lies inside a button.
         public List<string> PointerTakersOutsideButtons(params string[] names)
         {
             var takers = new List<string>();

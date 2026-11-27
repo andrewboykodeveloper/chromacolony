@@ -8,7 +8,7 @@ namespace Chromacolony.Tests.EditMode
     public sealed class MosaicTests
     {
         [Test]
-        public void TheEdgeIsInReachAndTheCoreIsNot()
+        public void EdgeIsInReachAndTheCoreIsNot()
         {
             Mosaic mosaic = MosaicOf("RRR", "RYR", "RRR");
 
@@ -31,7 +31,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ThePebbleNearestTheCastleIsTakenFirst()
+        public void PebbleNearestTheCastleIsTakenFirst()
         {
             Mosaic mosaic = MosaicOf("RRR", "RRR", "RRR");
 
@@ -41,7 +41,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AnInnerGapOpensOnceAWayToItIsCleared()
+        public void InnerGapOpensOnceAWayToItIsCleared()
         {
             Mosaic mosaic = MosaicOf("RRRRR", "R.Y.R", "R...R", "RRRRR");
 
@@ -51,7 +51,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void APebbleOutOfReachCannotBeTaken()
+        public void PebbleOutOfReachCannotBeTaken()
         {
             Mosaic mosaic = MosaicOf("RRR", "RYR", "RRR");
 
@@ -59,7 +59,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ACopyChangesIndependentlyOfItsOriginal()
+        public void CopyChangesIndependentlyOfItsOriginal()
         {
             Mosaic mosaic = MosaicOf("RRR", "RYR", "RRR");
             Mosaic copy = mosaic.Copy();

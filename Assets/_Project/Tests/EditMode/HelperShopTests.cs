@@ -14,7 +14,7 @@ namespace Chromacolony.Tests.EditMode
         private const string Ring = "board ring\nRRR\nRYR\nRRR\n= R4 R4\n= Y1\n";
 
         [Test]
-        public void AHelperIsUsableWhenTheBoardAllowsItAndThePlayerHasItInStock()
+        public void UsableWhenAllowedAndInStock()
         {
             Prices prices = PricesWithStock(1);
             HelperShop shop = Shop(Start(), Progress.New(prices), prices);
@@ -25,7 +25,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AHelperOutOfStockIsUsableOnlyWithTheCoinsForIt()
+        public void OutOfStockNeedsTheCoins()
         {
             Prices prices = PricesWithStock(0);
             Progress progress = Progress.New(prices);
@@ -39,7 +39,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AStuckBoardOffersAHelperOnlyWhenThePlayerCanTakeOne()
+        public void StuckBoardOffersWhatThePlayerCanTake()
         {
             Prices prices = PricesWithStock(0);
             Progress progress = Progress.New(prices);
@@ -57,7 +57,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void TheExtraSlotIsPaidFromTheStockAndAdded()
+        public void ExtraSlotIsPaidFromTheStockAndAdded()
         {
             Prices prices = PricesWithStock(1);
             Progress progress = Progress.New(prices);
@@ -74,7 +74,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AHelperOutOfStockIsPaidWithCoins()
+        public void HelperOutOfStockIsPaidWithCoins()
         {
             Prices prices = PricesWithStock(0);
             Progress progress = Progress.New(prices);
@@ -91,7 +91,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AHelperTheBoardDoesNotAllowTakesNothing()
+        public void DisallowedHelperTakesNothing()
         {
             Prices prices = PricesWithStock(2);
             Progress progress = Progress.New(prices);
@@ -106,7 +106,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AHelperThePlayerCannotPayForTakesNothing()
+        public void UnaffordableHelperTakesNothing()
         {
             Prices prices = PricesWithStock(0);
             GameModel model = Start();
@@ -122,7 +122,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void TakingTheBackHelperStartsAPickAndTakesNothingYet()
+        public void BackStartsAPickAndTakesNothingYet()
         {
             Prices prices = PricesWithStock(1);
             Progress progress = Progress.New(prices);
@@ -141,7 +141,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void APickedCrewGoesBackAndIsPaidThen()
+        public void PickedCrewGoesBackAndIsPaidThen()
         {
             Prices prices = PricesWithStock(1);
             Progress progress = Progress.New(prices);
@@ -162,7 +162,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void APickOfAnEmptySlotCostsNothingAndEndsThePick()
+        public void PickingAnEmptySlotEndsThePickFree()
         {
             Prices prices = PricesWithStock(1);
             Progress progress = Progress.New(prices);
@@ -182,7 +182,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ABackWithoutAPickTakesNothing()
+        public void BackWithoutAPickTakesNothing()
         {
             Prices prices = PricesWithStock(1);
             Progress progress = Progress.New(prices);
@@ -197,7 +197,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ABoardThatEndsStartsOrIsLeftCallsThePickOff()
+        public void EndStartOrLeaveCallsThePickOff()
         {
             Prices prices = PricesWithStock(1);
             GameModel model = Start();
@@ -226,7 +226,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ASlotOrABackThatFreesAStuckBoardIsSeenWithTheBoardInPlay()
+        public void ChangedAfterUnstickSeesTheBoardInPlay()
         {
             Prices prices = PricesWithStock(1);
             GameModel model = Start();
@@ -258,7 +258,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void TheShopSaysWhenTheBoardMovesOn()
+        public void ShopSaysWhenTheBoardMovesOn()
         {
             Prices prices = PricesWithStock(1);
             GameModel model = Start();

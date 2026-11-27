@@ -10,7 +10,7 @@ namespace Chromacolony.Tests.EditMode
         private const string TemplatePage = "Assets/WebGLTemplates/Chromacolony/index.html";
 
         [Test]
-        public void TheWebTemplateSyncsThePersistentDataPath()
+        public void WebTemplateSyncsThePersistentDataPath()
         {
             Assert.That(PlayerSettings.WebGL.template, Is.EqualTo("PROJECT:" + Template));
             Assert.That(File.Exists(TemplatePage), Is.True, $"no {TemplatePage}");

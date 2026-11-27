@@ -8,7 +8,7 @@ namespace Chromacolony.Tests.EditMode
     public sealed class BoardTextTests
     {
         [Test]
-        public void ABoardIsReadWithItsMosaicAndItsQueue()
+        public void BoardIsReadWithItsMosaicAndItsQueue()
         {
             IReadOnlyList<BoardSpec> boards = BoardText.Parse("# a comment\nboard ring\nRRR\nRYR\nRRR\n= R8\n= ?Y1\n");
 
@@ -53,7 +53,7 @@ namespace Chromacolony.Tests.EditMode
         [TestCase("board x\n= R1\nR\n", TestName = "{m}(a row after the queue)")]
         [TestCase("board x\n...\n=\n", TestName = "{m}(no pebbles, so an empty column)")]
         [TestCase("board x\nRY\n= R1 Y1\n=\n", TestName = "{m}(a column without crews)")]
-        public void ABoardThatDoesNotAddUpIsRejected(string text)
+        public void BoardThatDoesNotAddUpIsRejected(string text)
         {
             Assert.Throws<FormatException>(() => BoardText.Parse(text));
         }

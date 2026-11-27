@@ -32,7 +32,7 @@ namespace Chromacolony.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator AMouseClickIsOnePressWithYDown()
+        public IEnumerator MouseClickIsOnePressWithYDown()
         {
             Mouse mouse = InputSystem.AddDevice<Mouse>();
             try
@@ -57,7 +57,7 @@ namespace Chromacolony.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator ATouchIsAPressToo()
+        public IEnumerator TouchIsAPressToo()
         {
             Touchscreen screen = InputSystem.AddDevice<Touchscreen>();
             try
@@ -81,7 +81,7 @@ namespace Chromacolony.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator TheBackKeyCountsOnAKeyboardThatIsNotCurrent()
+        public IEnumerator BackKeyCountsOnAnyKeyboard()
         {
             Keyboard back = InputSystem.AddDevice<Keyboard>();
             Keyboard other = InputSystem.AddDevice<Keyboard>();

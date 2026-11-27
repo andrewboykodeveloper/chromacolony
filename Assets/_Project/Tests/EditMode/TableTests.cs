@@ -8,7 +8,7 @@ namespace Chromacolony.Tests.EditMode
     public sealed class TableTests
     {
         [Test]
-        public void CsvReadsQuotedFieldsWithCommasQuotesAndLineBreaks()
+        public void CsvReadsQuotedFields()
         {
             List<List<string>> rows = Csv.Parse("key,en\nbuy,\"{0}, for \"\"{1}\"\"\"\nnote,\"two\nlines\"\n");
 
@@ -34,7 +34,7 @@ namespace Chromacolony.Tests.EditMode
 
         [Test]
         [SetCulture("de-DE")]
-        public void ConfigValuesAreReadWithTheInvariantCulture()
+        public void ConfigIsReadInTheInvariantCulture()
         {
             var config = new ConfigTable("key,value\nslots,5\ncrab_interval,0.2\ncolor,E8584A\n");
 
@@ -44,7 +44,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AMissingConfigKeyFailsLoudly()
+        public void MissingConfigKeyFailsLoudly()
         {
             var config = new ConfigTable("key,value\nslots,5\n");
 
@@ -52,7 +52,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AMissingTextFallsBackToTheFirstLanguageAndAMissingKeyShowsItself()
+        public void MissingTextsFallBackOrShowTheirKey()
         {
             var text = new Localization("key,en,ru\ntitle,Chromacolony,Хромоколония\nplay,Play,\n", "ru");
 
@@ -63,7 +63,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AnUnknownLanguageFallsBackToTheFirstOne()
+        public void UnknownLanguageFallsBackToTheFirstOne()
         {
             var text = new Localization("key,en,ru\nboard,Board {0},Доска {0}\n", "de");
 
@@ -72,7 +72,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void TheTextsChangeTheirLanguageInPlace()
+        public void TextsChangeTheirLanguageInPlace()
         {
             var text = new Localization("key,en,ru\nboard,Board {0},Доска {0}\n", "en");
 

@@ -30,7 +30,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ABoardIsTakenByItsIndexRoundTheList()
+        public void BoardIsTakenByItsIndexRoundTheList()
         {
             _session.Start(3);
 
@@ -49,7 +49,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AWinPaysItsCoinsAndSaysSo()
+        public void WinPaysItsCoinsAndSaysSo()
         {
             _session.Start(0);
             Win();
@@ -64,7 +64,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void TheLastBoardsWinFinishesTheGame()
+        public void LastBoardsWinFinishesTheGame()
         {
             _session.Start(1);
             Win();
@@ -75,7 +75,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AStuckBoardPaysNothing()
+        public void StuckBoardPaysNothing()
         {
             var model = new GameModel(new Rules(1, 0.25f));
             var session = new BoardSession(model, BoardText.Parse(Ring), _progress, _prices);
@@ -104,7 +104,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void TheFirstTapEndsTheFirstLesson()
+        public void FirstTapEndsTheFirstLesson()
         {
             int changes = 0;
             _session.TutorialChanged += () => changes++;
@@ -117,7 +117,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AnExtraSlotChangesWhatTheLessonShows()
+        public void ExtraSlotRaisesTutorialChanged()
         {
             int changes = 0;
             _session.TutorialChanged += () => changes++;
@@ -130,7 +130,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void TheOpeningRevealsTeachNothing()
+        public void OpeningRevealsTeachNothing()
         {
             BoardSpec ring = BoardText.Parse(Ring)[0];
             var model = new GameModel(new Rules(5, 0.25f));
