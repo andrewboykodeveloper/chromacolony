@@ -78,7 +78,7 @@ The interface is one layout, `UI/Main.uxml`, and one style sheet, `UI/Theme.uss`
 - `ScreenHost` shows one screen and at most one dialog by toggling the `hidden` class.
   - The screens are `menu` and `game`.
   - The dialogs are `pause`, `settings`, `buy`, `note` (for no coins) and `result`.
-- A dialog fades in by its `open` class, added 16 ms after the dialog shows: a transition runs only from a style the dialog has already been drawn with.
+- A dialog fades in by its `open` class, added on the panel's second scheduler update after the dialog shows, so that the panel styles the shown dialog without it first.
 - Element names are kept in `UiNames` and class names in `UiClasses`. An EditMode test checks both against the layout and the style sheet.
 
 ## Views and pooling
@@ -115,7 +115,7 @@ A bad board, a bad number or a missing config key throws at start. A missing tex
 - A file from a newer version is kept, untouched.
 - Every problem is logged.
 
-`FileSaveStorage` writes to a temporary file and then replaces the old one. The web page keeps the saves folder in the browser's storage.
+`FileSaveStorage` writes into the folder that `SaveFolder` names, to a temporary file that then replaces the old one. The web page keeps the saves folder in the browser's storage.
 
 ## Tests
 
@@ -125,4 +125,4 @@ A bad board, a bad number or a missing config key throws at start. A missing tex
   - It taps the columns, and presses over a button, through a virtual mouse. It presses Escape on a virtual keyboard.
   - It covers the menu, a won board, the lessons, the pause, the helpers and the settings.
   - It also covers switching the game object off and on, and destroying the game.
-- **Isolation:** the PlayMode tests set the player's saves aside while they run, and mute the listener.
+- **Isolation:** the PlayMode tests save in a folder of their own under the temporary cache, where `SaveFolder` points the game, and mute the listener.
