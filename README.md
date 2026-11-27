@@ -10,7 +10,7 @@ A puzzle game that runs in the browser, laid out for a phone held upright. Crews
 
 ## Status
 
-Version 1.0.0: twenty boards, in English and Russian. Three helpers ease a hard board: an extra slot for the board, a shuffle of the queue, and a crew sent back to the queue. They come from a small stock, and then for coins won on boards. The changes are in the [changelog](CHANGELOG.md).
+Version 1.0.1: twenty boards, in English and Russian. Three helpers ease a hard board: an extra slot for the board, a shuffle of the queue, and a crew sent back to the queue. They come from a small stock, and then for coins won on boards. The changes are in the [changelog](CHANGELOG.md).
 
 ## How it is built
 
