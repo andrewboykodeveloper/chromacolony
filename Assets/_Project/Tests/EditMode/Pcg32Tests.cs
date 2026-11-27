@@ -20,7 +20,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void TheSameSeedGivesTheSameNumbers()
+        public void SameSeedGivesTheSameNumbers()
         {
             var a = new Pcg32(42);
             var b = new Pcg32(42);
@@ -32,7 +32,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ARandomRangeStaysWithinItsBounds()
+        public void RandomRangeStaysWithinItsBounds()
         {
             var random = new Pcg32(7);
 

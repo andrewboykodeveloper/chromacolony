@@ -26,7 +26,7 @@ namespace Chromacolony.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator ADialogClosedBeforeItFadesInStaysClosed()
+        public IEnumerator DialogClosedBeforeItFadesInStaysClosed()
         {
             VisualElement dialog = AddDialog(out ScreenHost screens);
 

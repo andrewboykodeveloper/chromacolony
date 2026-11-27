@@ -11,7 +11,7 @@ namespace Chromacolony.Tests.EditMode
         private const string Ring = "board ring\nRRR\nRYR\nRRR\n= R8\n= Y1\n";
 
         [Test]
-        public void AnExtraSlotLetsAStuckBoardPlayOn()
+        public void ExtraSlotLetsAStuckBoardPlayOn()
         {
             GameModel model = Start(Ring, slots: 1);
             model.TrySend(1);
@@ -33,7 +33,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AStuckBoardOffersTheHelpersThatFreeASlotButNoShuffle()
+        public void StuckBoardOffersSlotAndBackNotShuffle()
         {
             GameModel model = Start("board ring\nRRR\nRYR\nRRR\n= R4 R4\n= Y1\n", slots: 1);
             Assert.That(model.CanUse(Helper.Shuffle), Is.True);
@@ -50,7 +50,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AStuckBoardStaysStuckWhenAskedToShuffle()
+        public void StuckBoardStaysStuckWhenAskedToShuffle()
         {
             GameModel model = Start("board ring\nRRR\nRYR\nRRR\n= R4 R4\n= Y1\n", slots: 1);
             model.TrySend(1);
@@ -66,7 +66,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ABoardGetsOneExtraSlotAtMost()
+        public void BoardGetsOneExtraSlotAtMost()
         {
             GameModel model = Start(Ring, slots: 5);
 
@@ -78,7 +78,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void BackFreesTheSlotOfAWaitingCrewAndUnsticksTheBoard()
+        public void BackFreesASlotAndUnsticksTheBoard()
         {
             GameModel model = Start(Ring, slots: 1);
             model.TrySend(1);
@@ -98,7 +98,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void BackReturnsACrewToTheFrontOfItsColumnWithTheCrabsItHasLeft()
+        public void BackReturnsACrewWithItsCrabsLeft()
         {
             GameModel model = Start(Ring, slots: 5);
             model.TrySend(0);
@@ -114,7 +114,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void BackAfterAShuffleReturnsACrewToTheColumnItWasSentFrom()
+        public void ShuffledCrewGoesBackToItsNewColumn()
         {
             GameModel model = Start("board s\nRRYY\n= R1 Y1\n= R1 Y1\n", slots: 5);
             // Crews 0 and 1 start in column 0, crews 2 and 3 in column 1; these draws swap the two front crews.
@@ -129,7 +129,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void BackCutsTheRopeOfACrewWhosePartnerHasGone()
+        public void BackCutsARopeWhosePartnerHasGone()
         {
             GameModel model = Start("board rope\nRRYY\n= R2~1\n= Y2~1\n", slots: 5);
 
@@ -153,7 +153,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AShuffleMovesTheCrewsButNotTheRopes()
+        public void ShuffleMovesTheCrewsButNotTheRopes()
         {
             GameModel model = Start("board s\nRRRRYYYYOOOOKK\n= R2 Y2 O2 K1~1\n= R2 Y2 O2 K1~1\n", slots: 5);
             string before = Order(model);
@@ -167,7 +167,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AShuffleUncoversACrewThatComesToTheFront()
+        public void ShuffleUncoversACrewThatComesToTheFront()
         {
             GameModel model = Start("board s\nRRRRRRYYYY\n= R2 ?Y2 ?Y2\n= R2 ?R2\n", slots: 5);
             List<int> covered = Enumerable.Range(0, model.ColumnCount).SelectMany(c => model.Column(c)).Where(crew => crew.Hidden).Select(crew => crew.Id).ToList();

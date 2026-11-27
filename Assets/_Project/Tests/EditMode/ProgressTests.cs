@@ -8,7 +8,7 @@ namespace Chromacolony.Tests.EditMode
         private readonly Prices _prices = new Prices(coinsPerWin: 20, startStock: 2, slot: 30, shuffle: 20, back: 25);
 
         [Test]
-        public void ANewPlayerHasTheStartStockAndNoCoins()
+        public void NewPlayerHasTheStartStockAndNoCoins()
         {
             Progress progress = Progress.New(_prices);
 
@@ -18,7 +18,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ANewPlayerHearsEverythingInTheDeviceLanguage()
+        public void NewPlayerHearsAllInTheDeviceLanguage()
         {
             Progress progress = Progress.New(_prices);
 
@@ -29,7 +29,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AHelperComesFromTheStockFirstAndThenForCoins()
+        public void HelperComesFromStockThenForCoins()
         {
             Progress progress = Progress.New(_prices);
 
@@ -48,7 +48,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AWinPaysAndLeadsToTheNextBoardAndAfterTheLastBackToTheFirst()
+        public void WinPaysAndWrapsAfterTheLastBoard()
         {
             Progress progress = Progress.New(_prices);
 
@@ -81,7 +81,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void TheSettingsSurviveTheirText()
+        public void SettingsSurviveTheirText()
         {
             Progress progress = Progress.New(_prices);
             progress.Language = "ru";
@@ -98,7 +98,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AnOlderSaveWithOneSoundSwitchCarriesItOverToTheMusicAndTheVoice()
+        public void OldSoundSwitchSetsMusicAndVoice()
         {
             Progress quiet = Progress.FromText("board=3\nsound=0\n", _prices, 20);
             Assert.That(quiet.Music, Is.False);
@@ -114,7 +114,7 @@ namespace Chromacolony.Tests.EditMode
         [TestCase("language=")]
         [TestCase("language=RU")]
         [TestCase("language=english")]
-        public void ALanguageThatIsNotACodeFallsBackToTheDeviceLanguage(string line)
+        public void BadLanguageCodeFallsBackToTheDevice(string line)
         {
             Assert.That(Progress.FromText(line + "\n", _prices, 20).Language, Is.Empty);
         }
@@ -122,7 +122,7 @@ namespace Chromacolony.Tests.EditMode
         [TestCase((string)null)]
         [TestCase("")]
         [TestCase("garbage\n=\ncoins=x\nboard=99\n")]
-        public void AMissingOrBrokenSaveStartsANewPlayer(string text)
+        public void MissingOrBrokenSaveStartsANewPlayer(string text)
         {
             Progress progress = Progress.FromText(text, _prices, 20);
 

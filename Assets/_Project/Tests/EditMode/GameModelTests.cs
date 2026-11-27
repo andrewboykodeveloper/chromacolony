@@ -19,7 +19,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ASentCrewTakesASlotAndLeavesItsColumn()
+        public void SentCrewTakesASlotAndLeavesItsColumn()
         {
             GameModel model = Start(Ring);
 
@@ -47,7 +47,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ACrewWithNothingInReachWaitsUntilAWayOpens()
+        public void CrewWaitsUntilAWayOpens()
         {
             GameModel model = Start(Ring);
 
@@ -67,7 +67,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AnEmptyMosaicIsAWin()
+        public void EmptyMosaicIsAWin()
         {
             GameModel model = Start(Ring);
 
@@ -82,7 +82,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void SlotsFullOfWaitingCrewsWithNoCrewAbleToComeInAreADeadEnd()
+        public void FullSlotsWithNoWayInAreStuck()
         {
             GameModel model = Start(Ring, slots: 1);
 
@@ -97,7 +97,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AFreeSlotKeepsTheBoardGoing()
+        public void FreeSlotKeepsTheBoardGoing()
         {
             GameModel model = Start(Ring, slots: 2);
 
@@ -108,7 +108,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ASendWithoutAFreeSlotIsRefused()
+        public void SendWithoutAFreeSlotIsRefused()
         {
             GameModel model = Start(Ring, slots: 1);
             model.TrySend(1);
@@ -120,7 +120,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ASendFromAnEmptyColumnIsRefused()
+        public void SendFromAnEmptyColumnIsRefused()
         {
             GameModel model = Start(Ring);
             model.TrySend(0);
@@ -154,7 +154,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ACoveredCrewShowsItsColourWhenItReachesTheFront()
+        public void CoveredCrewShowsItsColourAtTheFront()
         {
             GameModel model = Start("board cover\nRRRY\n= R3 ?Y1\n");
             Assert.That(model.Column(0)[1].Hidden, Is.True);
@@ -196,7 +196,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ACopyPlaysOnWithoutChangingItsOriginal()
+        public void CopyPlaysOnWithoutChangingItsOriginal()
         {
             GameModel model = Start(Ring);
             model.TrySend(0);

@@ -55,7 +55,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ASaveIsWrittenWithAVersionLineAndReadBackWithoutIt()
+        public void SaveRoundTripsUnderAVersionLine()
         {
             var storage = new MemorySaveStorage();
             var saves = new SaveStore(storage, 2, _problems.Add);
@@ -68,7 +68,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AnOlderSaveIsMigratedOneVersionAtATime()
+        public void OlderSaveIsMigratedOneVersionAtATime()
         {
             var storage = new MemorySaveStorage();
             storage.Write(Key, "v1\nboard=3\n");
@@ -81,7 +81,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AFileWithoutAVersionLineIsSetAsideAndTheGameStartsAfresh()
+        public void UnversionedFileIsSetAside()
         {
             var storage = new MemorySaveStorage();
             storage.Write(Key, "not a save");
@@ -96,7 +96,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ADifferentUnreadableFileGoesToTheNextFreeName()
+        public void AnotherUnreadableFileTakesTheNextName()
         {
             var storage = new MemorySaveStorage();
             storage.Write(Key + ".unreadable", "an older copy");
@@ -110,7 +110,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void TheSameUnreadableFileIsSetAsideOnce()
+        public void SameUnreadableFileIsSetAsideOnce()
         {
             var storage = new MemorySaveStorage();
             storage.Write(Key, "not a save");
@@ -124,7 +124,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AFileThatCannotBeSetAsideIsNotWrittenOver()
+        public void FileThatCannotBeSetAsideIsNotWrittenOver()
         {
             var storage = new FailingStorage(key => false, key => key != Key);
             storage.Write(Key, "not a save");
@@ -138,7 +138,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ASaveFromANewerVersionIsNotWrittenOver()
+        public void SaveFromANewerVersionIsNotWrittenOver()
         {
             var storage = new MemorySaveStorage();
             storage.Write(Key, "v9\nboard=3\n");
@@ -152,7 +152,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ASaveWithoutAMigrationIsNotWrittenOver()
+        public void SaveWithoutAMigrationIsNotWrittenOver()
         {
             var storage = new MemorySaveStorage();
             storage.Write(Key, "v1\nboard=3\n");
@@ -166,7 +166,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void ASaveWhoseMigrationFailsIsNotWrittenOver()
+        public void SaveWhoseMigrationFailsIsNotWrittenOver()
         {
             var storage = new MemorySaveStorage();
             storage.Write(Key, "v1\nboard=3\n");
@@ -180,7 +180,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AStorageThatFailsToReadNeitherThrowsNorIsWrittenOver()
+        public void FailedReadNeitherThrowsNorOverwrites()
         {
             var storage = new FailingStorage(key => true, key => false);
             var saves = new SaveStore(storage, 1, _problems.Add);
@@ -193,7 +193,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void AWriteThatKeepsFailingIsReportedOnceUntilAWriteSucceeds()
+        public void FailingWriteIsReportedOnceUntilASuccess()
         {
             bool full = true;
             var storage = new FailingStorage(key => false, key => full);

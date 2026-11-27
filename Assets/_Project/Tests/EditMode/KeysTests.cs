@@ -27,7 +27,7 @@ namespace Chromacolony.Tests.EditMode
         private static readonly Regex s_styleAsset = new Regex(@"\burl\(""([^""]+)""\)");
 
         [Test]
-        public void EveryTextKeyHasItsTextInEveryLanguageWithTheSamePlaceholders()
+        public void EveryTextIsTranslatedWithItsPlaceholders()
         {
             List<List<string>> rows = Rows(LocalizationGuid);
             List<string> languages = rows[0].Skip(1).ToList();
@@ -83,7 +83,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void TheLocalizationTableHasAColumnForEveryLanguageAndNoOther()
+        public void LocalizationHasOneColumnPerLanguage()
         {
             List<string> columns = Rows(LocalizationGuid)[0].Skip(1).ToList();
 
@@ -91,7 +91,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void TheConfigTableHasOneRowForEveryConfigKeyAndNoOther()
+        public void ConfigHasOneRowPerKey()
         {
             List<string> keys = Constants(typeof(ConfigKeys));
             List<string> rows = Rows(ConfigGuid).Skip(1).Select(row => row[0]).ToList();
@@ -119,7 +119,7 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
-        public void EverySlotOfTheContentHoldsAnAsset()
+        public void EveryContentFieldHoldsAnAsset()
         {
             using var content = new SerializedObject(Asset<GameContent>(ContentGuid));
             var empty = new List<string>();
@@ -132,11 +132,11 @@ namespace Chromacolony.Tests.EditMode
                 }
             }
 
-            Assert.That(empty, Is.Empty, "slots of the content asset with nothing in them");
+            Assert.That(empty, Is.Empty, "fields of the content asset with nothing in them");
         }
 
         [Test]
-        public void EverySoundMusicTrackAndVoiceLineIsAClipOfTheContent()
+        public void EveryAudioKeyIsAClipOfTheContent()
         {
             GameContent content = Asset<GameContent>(ContentGuid);
             var problems = new List<string>();
@@ -188,7 +188,7 @@ namespace Chromacolony.Tests.EditMode
 
         [TestCase(StyleSheetGuid)]
         [TestCase(LayoutGuid)]
-        public void TheUiNamesItsAssetsByRelativePath(string guid)
+        public void UiAssetsAreNamedByRelativePath(string guid)
         {
             string text = File.ReadAllText(AssetDatabase.GUIDToAssetPath(guid));
 

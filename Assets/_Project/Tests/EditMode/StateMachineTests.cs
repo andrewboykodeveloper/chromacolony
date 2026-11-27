@@ -7,7 +7,7 @@ namespace Chromacolony.Tests.EditMode
     public sealed class StateMachineTests
     {
         [Test]
-        public void AStateMachineAllowsOnlyTheTransitionsItWasGiven()
+        public void AllowsOnlyItsTransitions()
         {
             StateMachine<GamePhase> machine = new StateMachine<GamePhase>(GamePhase.Menu).Allow(GamePhase.Menu, GamePhase.Playing);
 
