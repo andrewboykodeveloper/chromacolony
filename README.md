@@ -1,6 +1,6 @@
 # Chromacolony
 
-A puzzle game that runs in the browser, laid out for a phone held upright. Crews of crabs wait in columns of buckets under a mosaic, one colour to a bucket. Tap a column and the crew at its front takes one of five slots; its crabs then carry the pebbles of their colour home, one at a time. A board is done when every pebble is home, and then the picture puts itself together again.
+A puzzle game for the browser, laid out for a phone held upright. Tested in Chrome on Windows and on an Android phone. Crews of crabs wait in columns of buckets under a mosaic, one colour to a bucket. Tap a column and the crew at its front takes one of five slots; its crabs then carry the pebbles of their colour home, one at a time. A board is done when every pebble is home, and then the picture puts itself together again.
 
 ![A tap sends a crew to a slot, its crabs carry the pebbles home, and the picture puts itself together again](docs/media/play.gif)
 
@@ -14,7 +14,7 @@ Version 1.0.1: twenty boards, in English and Russian. Three helpers ease a hard 
 
 ## How it is built
 
-- **The rules are plain C#** in an assembly of their own that cannot reference the engine. They cover the board, the crews, the crabs, the helpers, the coins, the saves and the tutorial. Time enters only through a fixed-step tick and chance only through a seeded generator, so the same taps at the same ticks, with the same seed, give the same board. EditMode tests run the rules in milliseconds.
+- **The rules are plain C#** in an assembly of their own that cannot reference the engine. They cover the board, the crews, the crabs, the helpers, the coins, the saves and the tutorial. Time enters only through a fixed-step tick, and chance only through a seeded generator that the shuffle helper draws from. For a given seed, the same taps at the same ticks give the same board. The game seeds the generator from the clock and the EditMode tests seed it with fixed numbers, so a test can replay a board and check how it ends.
 - **The Unity side shows the rules and passes the taps in.** One composition root builds the game and wires it by hand. The model raises C# events, and the views and the presenters follow them.
 - **The interface is UI Toolkit:** one layout and one style sheet.
 - **The data is in text files:** two CSV tables, for the numbers and the texts, and one file for the boards.
@@ -108,7 +108,7 @@ docs/
 
 ## History
 
-The game began as a quick prototype. The first commit imports it as it was, and the pull requests after it are the pass that brought it to a maintainable release.
+The game began as a prototype. The first commit imports it, and the pull requests after it are the pass that brought it to a maintainable release.
 
 The history follows git-flow, with `--no-ff` merges. Every commit after the first, apart from the merges, follows Conventional Commits.
 

@@ -5,7 +5,7 @@ date: 2026-11-26
 
 # Keep the rules in a C# assembly with no engine references
 
-Recorded at 1.0, after the decision was taken.
+Recorded at 1.0, after the decision was taken. The test times were added at 1.0.1.
 
 ## Context and Problem Statement
 
@@ -29,6 +29,6 @@ In the MonoBehaviours, the rules would need a scene and frames to test. In the g
 
 ### Consequences
 
-- Good: EditMode tests run the rules in milliseconds, including a solver over every shipped board and a replay that must end at the same tick with the same outcome.
+- Good: EditMode tests run the rules without a scene, including a solver over every shipped board and a replay that must end at the same tick with the same outcome. At 1.0.1 the whole EditMode suite, 270 tests, ran in about half a second, and the solver's twenty boards took about 0.1 s of that. Neither time includes the editor's start-up.
 - Good: the compiler rejects an engine type in the rules.
 - Bad: values cross the boundary as plain types, such as a colour index instead of a `Color`, so the views translate them.
