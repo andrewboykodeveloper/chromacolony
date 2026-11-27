@@ -6,6 +6,19 @@ namespace Chromacolony.Tests.EditMode
 {
     public sealed class Pcg32Tests
     {
+        // The first outputs of the reference pcg32-demo, seeded with pcg32_srandom_r(42, 54).
+        [Test]
+        public void MatchesTheReferenceImplementation()
+        {
+            var random = new Pcg32(42, 54);
+            uint[] expected = { 0xa15c02b7, 0x7b47f409, 0xba1d3330, 0x83d2f293, 0xbfa4784b, 0xcbed606e };
+
+            foreach (uint value in expected)
+            {
+                Assert.That(random.NextUInt(), Is.EqualTo(value));
+            }
+        }
+
         [Test]
         public void TheSameSeedGivesTheSameNumbers()
         {
