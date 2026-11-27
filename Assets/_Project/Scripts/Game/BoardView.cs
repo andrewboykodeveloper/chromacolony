@@ -17,6 +17,30 @@ namespace Chromacolony.Game
         private const float TrayAlpha = 0.55f;
 
         private const float PointerTurn = 32f;
+        private const float PointerBucketShare = 0.7f;
+        private const float PointerNodRate = 4f;
+        private const float PointerNod = 0.14f;
+        private const float PointerRestX = 0.78f;
+        private const float PointerRestY = 0.5f;
+
+        private const float NestSlotShare = 0.62f;
+
+        private const float CrabCells = 1.25f;
+        private const float CrabMinSize = 0.5f;
+        private const float CrabMaxSize = 0.85f;
+
+        private const float LiftTwinkleCells = 1.1f;
+        private const float LiftTwinkleMin = 0.4f;
+        private const float LiftTwinkleMax = 0.8f;
+
+        // Crabs come home in a stream, and one puff at a time is enough for it.
+        private const float PuffGapSeconds = 0.12f;
+        private const float PuffSize = 0.55f;
+
+        private const float DancerMaxSize = 1.05f;
+        private const float DancerSlotShare = 0.7f;
+        private const float DanceSpotLift = 0.12f;
+        private const float DanceEndsEarlySeconds = 0.2f;
 
         private readonly GameModel _model;
         private readonly Material _spriteMaterial;
@@ -66,15 +90,16 @@ namespace Chromacolony.Game
 
             _crabs.Lifted = at =>
             {
-                _effects.Twinkle(at, _layout == null ? 0.5f : Mathf.Clamp(_layout.Cell * 1.1f, 0.4f, 0.8f), Gold);
+                float twinkle = Mathf.Clamp(_layout.Cell * LiftTwinkleCells, LiftTwinkleMin, LiftTwinkleMax);
+                _effects.Twinkle(at, twinkle, Gold);
                 Sound?.Invoke(Sounds.Pick(_picks++));
             };
             _crabs.Entered = at =>
             {
-                if (_time - _lastPuff > 0.12f)
+                if (_time - _lastPuff > PuffGapSeconds)
                 {
                     _lastPuff = _time;
-                    _effects.Puff(at, 0.55f);
+                    _effects.Puff(at, PuffSize);
                 }
             };
             model.SlotAdded += OnSlotAdded;
@@ -172,10 +197,11 @@ namespace Chromacolony.Game
             for (int i = 0; i < dancers.Length; i++)
             {
                 dancers[i] = _colors[colors[i % colors.Count]];
-                spots[i] = _layout.SlotAt(i) + new Vector2(0f, 0.12f);
+                spots[i] = _layout.SlotAt(i) + new Vector2(0f, DanceSpotLift);
             }
 
-            _crabs.Dance(_layout.Gate, dancers, spots, Mathf.Min(1.05f, _layout.SlotSize * 0.7f), CelebrateSeconds - 0.2f);
+            _crabs.Dance(_layout.Gate, dancers, spots, Mathf.Min(DancerMaxSize, _layout.SlotSize * DancerSlotShare),
+                CelebrateSeconds - DanceEndsEarlySeconds);
             Sound?.Invoke(SoundKeys.Win);
         }
 
@@ -210,7 +236,7 @@ namespace Chromacolony.Game
             if (_pointer == null)
             {
                 _pointer = SpriteRenderers.Create(_root.transform, _pointerSprite, _spriteMaterial, "Pointer", SortingOrder.Pointer);
-                _pointer.transform.localScale = SpriteRenderers.HeightScale(_pointerSprite, _layout.BucketSize * 0.7f);
+                _pointer.transform.localScale = SpriteRenderers.HeightScale(_pointerSprite, _layout.BucketSize * PointerBucketShare);
 
                 _pointer.transform.localRotation = Quaternion.Euler(0f, 0f, PointerTurn);
             }
@@ -247,8 +273,8 @@ namespace Chromacolony.Game
 
             _pointerTime += dt;
             var toward = new Vector3(-Mathf.Cos(PointerTurn * Mathf.Deg2Rad), -Mathf.Sin(PointerTurn * Mathf.Deg2Rad), 0f);
-            float nod = Mathf.Abs(Mathf.Sin(_pointerTime * 4f)) * _layout.BucketSize * 0.14f;
-            var rest = new Vector3(_layout.BucketSize * 0.78f, _layout.BucketSize * 0.5f, 0f);
+            float nod = Mathf.Abs(Mathf.Sin(_pointerTime * PointerNodRate)) * _layout.BucketSize * PointerNod;
+            var rest = new Vector3(_layout.BucketSize * PointerRestX, _layout.BucketSize * PointerRestY, 0f);
             _pointer.transform.position = front + rest + toward * nod;
         }
 
@@ -284,7 +310,7 @@ namespace Chromacolony.Game
         private void AddNest(int slot)
         {
             SpriteRenderer nest = SpriteRenderers.Create(_root.transform, _slot, _spriteMaterial, "Slot " + slot, SortingOrder.Slot);
-            SpriteRenderers.Place(nest, _layout.SlotAt(slot), SpriteRenderers.HeightScale(_slot, _layout.SlotSize * 0.62f));
+            SpriteRenderers.Place(nest, _layout.SlotAt(slot), SpriteRenderers.HeightScale(_slot, _layout.SlotSize * NestSlotShare));
             _nests.Add(nest);
         }
 
@@ -294,7 +320,7 @@ namespace Chromacolony.Game
             AddNest(added.Slot);
             for (int s = 0; s < _nests.Count; s++)
             {
-                SpriteRenderers.Place(_nests[s], _layout.SlotAt(s), SpriteRenderers.HeightScale(_slot, _layout.SlotSize * 0.62f));
+                SpriteRenderers.Place(_nests[s], _layout.SlotAt(s), SpriteRenderers.HeightScale(_slot, _layout.SlotSize * NestSlotShare));
             }
 
             _crews.Relayout(_layout);
@@ -305,7 +331,7 @@ namespace Chromacolony.Game
             SpriteRenderer pebble = _mosaic.Take(sent.Cell);
             if (pebble != null)
             {
-                float size = Mathf.Clamp(_layout.Cell * 1.25f, 0.5f, 0.85f);
+                float size = Mathf.Clamp(_layout.Cell * CrabCells, CrabMinSize, CrabMaxSize);
                 _crabs.Send(_layout.SlotAt(sent.Slot), pebble, _layout.Gate, _colors[sent.Crew.Color], size);
             }
 

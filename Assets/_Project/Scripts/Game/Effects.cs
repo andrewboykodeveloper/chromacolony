@@ -22,6 +22,29 @@ namespace Chromacolony.Game
             public float Age;
         }
 
+        // Spins are in degrees per second.
+        private const float PuffSpinSpread = 60f;
+        private const float PuffRiseSpeed = 0.6f;
+        private const float PuffSizeFrom = 0.5f;
+        private const float PuffSizeTo = 1.25f;
+        private const float PuffLife = 0.45f;
+        private const float PuffAlpha = 0.8f;
+
+        private const float SparkleAngleJitter = 0.6f;
+        private const float SparkleReachMin = 0.7f;
+        private const float SparkleReachSpread = 0.6f;
+        private const float SparkleSizeMin = 0.28f;
+        private const float SparkleSizeSpread = 0.18f;
+        private const float SparkleSizeTo = 0.4f;
+        private const float SparkleLife = 0.55f;
+        private const float SparkleSpinSpread = 220f;
+
+        private const float TwinkleSizeFrom = 0.2f;
+        private const float TwinkleLife = 0.35f;
+        private const float TwinkleSpin = 90f;
+
+        private const float FadeInShare = 0.2f;
+
         private readonly Transform _holder;
         private readonly Material _material;
         private readonly IRandom _random;
@@ -41,20 +64,23 @@ namespace Chromacolony.Game
 
         public void Puff(Vector2 at, float size)
         {
-            float spin = (_random.Value() - 0.5f) * 60f;
-            Spawn(_puff, at, way: new Vector2(0f, size * 0.6f), sizeFrom: size * 0.5f, sizeTo: size * 1.25f, life: 0.45f, alpha: 0.8f,
-                spin: spin, tint: Color.white);
+            float spin = (_random.Value() - 0.5f) * PuffSpinSpread;
+            Spawn(_puff, at, way: new Vector2(0f, size * PuffRiseSpeed), sizeFrom: size * PuffSizeFrom, sizeTo: size * PuffSizeTo,
+                life: PuffLife, alpha: PuffAlpha, spin: spin, tint: Color.white);
         }
 
         public void Sparkles(Vector2 at, float radius, int count, Color tint)
         {
             for (int i = 0; i < count; i++)
             {
-                float angle = (i + _random.Value() * 0.6f) / count * Mathf.PI * 2f;
-                Vector2 way = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius * (0.7f + 0.6f * _random.Value());
-                float size = radius * (0.28f + 0.18f * _random.Value());
-                Spawn(_sparkle, at, way: way * 2f / 0.55f, sizeFrom: size, sizeTo: size * 0.4f, life: 0.55f, alpha: 1f,
-                    spin: 220f * (_random.Value() - 0.5f), tint: tint);
+                float angle = (i + _random.Value() * SparkleAngleJitter) / count * Mathf.PI * 2f;
+                var direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+                Vector2 reach = direction * radius * (SparkleReachMin + SparkleReachSpread * _random.Value());
+                float size = radius * (SparkleSizeMin + SparkleSizeSpread * _random.Value());
+
+                // A particle moves by its way times half its life in all, so this way ends the sparkle at its reach.
+                Spawn(_sparkle, at, way: reach * 2f / SparkleLife, sizeFrom: size, sizeTo: size * SparkleSizeTo, life: SparkleLife,
+                    alpha: 1f, spin: SparkleSpinSpread * (_random.Value() - 0.5f), tint: tint);
             }
         }
 
@@ -65,7 +91,8 @@ namespace Chromacolony.Game
 
         public void Twinkle(Vector2 at, float size, Color tint)
         {
-            Spawn(_sparkle, at, way: Vector2.zero, sizeFrom: size * 0.2f, sizeTo: size, life: 0.35f, alpha: 1f, spin: 90f, tint: tint);
+            Spawn(_sparkle, at, way: Vector2.zero, sizeFrom: size * TwinkleSizeFrom, sizeTo: size, life: TwinkleLife, alpha: 1f,
+                spin: TwinkleSpin, tint: tint);
         }
 
         public void Update(float dt)
@@ -82,7 +109,7 @@ namespace Chromacolony.Game
                 transform.localScale = SpriteRenderers.HeightScale(particle.Renderer.sprite, size);
                 transform.localRotation = Quaternion.Euler(0f, 0f, particle.Spin * particle.Age);
                 Color tint = particle.Tint;
-                tint.a = particle.Alpha * (t < 0.2f ? t / 0.2f : 1f - (t - 0.2f) / 0.8f);
+                tint.a = particle.Alpha * (t < FadeInShare ? t / FadeInShare : (1f - t) / (1f - FadeInShare));
                 particle.Renderer.color = tint;
                 if (t >= 1f)
                 {

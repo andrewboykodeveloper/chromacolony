@@ -48,8 +48,44 @@ namespace Chromacolony.Game
 
         private const float Glide = 12f;
         private const float LeaveSeconds = 0.3f;
+
         private const float ShakeSeconds = 0.35f;
+        private const float ShakeRate = 60f;
+        private const float ShakeWidth = 0.1f;
+
         private const float PopSeconds = 0.3f;
+        private const float PopGrowth = 0.25f;
+
+        private const float LabelDrop = 0.12f;
+        private const float MoreLabelX = 0.48f;
+        private const float MoreLabelY = 0.34f;
+
+        private const float RopeThickness = 0.22f;
+        private const float HandleHeight = 0.36f;
+
+        private const float DoneSparkleWhiteness = 0.8f;
+        private const float DoneSparkleReach = 0.9f;
+        private const int DoneSparkles = 7;
+
+        private const float SitterHeight = 0.42f;
+        private const float SitterBobRate = 2.4f;
+        private const float SitterBob = 0.05f;
+        private const float SitterOnRim = 0.5f;
+        private const float SitterSwayRate = 1.3f;
+        private const float SitterSwayDegrees = 9f;
+
+        // Neighbouring sitters sway out of step.
+        private const float SitterSwayOffset = 2f;
+
+        private const float SignHeight = 0.28f;
+        private const float SignX = 0.33f;
+        private const float SignY = 0.22f;
+
+        private const float WaitingSaturation = 0.95f;
+        private const float WaitingValue = 0.88f;
+
+        // Guards a division by a sprite's or a scale's size.
+        private const float MinExtent = 0.0001f;
 
         private readonly GameModel _model;
         private readonly Material _crewMaterial;
@@ -244,7 +280,7 @@ namespace Chromacolony.Game
                 crew.Place = Vector3.Lerp(crew.Place, crew.Target, glide);
                 crew.Shake = Mathf.Max(0f, crew.Shake - dt);
                 crew.Pop = Mathf.Max(0f, crew.Pop - dt);
-                float wiggle = crew.Shake > 0f ? Mathf.Sin(crew.Shake * 60f) * 0.1f * crew.Shake / ShakeSeconds : 0f;
+                float wiggle = crew.Shake > 0f ? Mathf.Sin(crew.Shake * ShakeRate) * ShakeWidth * crew.Shake / ShakeSeconds : 0f;
                 transform.position = crew.Place + new Vector3(wiggle, 0f, 0f);
                 if (crew.Leaving)
                 {
@@ -259,12 +295,12 @@ namespace Chromacolony.Game
                 else
                 {
                     crew.Size = Vector3.Lerp(crew.Size, crew.Scale, glide);
-                    float bump = crew.Pop > 0f ? 1f + 0.25f * Mathf.Sin(crew.Pop / PopSeconds * Mathf.PI) : 1f;
+                    float bump = crew.Pop > 0f ? 1f + PopGrowth * Mathf.Sin(crew.Pop / PopSeconds * Mathf.PI) : 1f;
                     transform.localScale = crew.Size * bump;
                 }
 
                 crew.Label = Mathf.Lerp(crew.Label, crew.LabelTarget, glide);
-                Vector3 label = transform.position + new Vector3(0f, -_layout.BucketSize * 0.12f * crew.Label, 0f);
+                Vector3 label = transform.position + new Vector3(0f, -_layout.BucketSize * LabelDrop * crew.Label, 0f);
                 _labels.PlaceCount(crew.Crew.Id, label, crew.Label, !crew.Leaving && crew.Visible);
                 Sit(crew, time);
             }
@@ -276,7 +312,8 @@ namespace Chromacolony.Game
             for (int c = 0; c < _model.ColumnCount; c++)
             {
                 int hidden = _model.Column(c).Count - BoardLayout.VisibleDepth;
-                _labels.ShowMore(c, hidden, _layout.QueueAt(c, BoardLayout.VisibleDepth - 1) + new Vector2(back * 0.48f, -back * 0.34f));
+                Vector2 corner = _layout.QueueAt(c, BoardLayout.VisibleDepth - 1) + new Vector2(back * MoreLabelX, -back * MoreLabelY);
+                _labels.ShowMore(c, hidden, corner);
             }
         }
 
@@ -306,15 +343,15 @@ namespace Chromacolony.Game
             }
 
             // The rope hangs from the buckets' handles, which grow and shrink with the buckets.
-            var handles = new Vector3(0f, _layout.BucketSize * 0.36f, 0f);
-            float bucketScale = Mathf.Max(SpriteRenderers.HeightScale(_bucket, _layout.BucketSize).y, 0.0001f);
+            var handles = new Vector3(0f, _layout.BucketSize * HandleHeight, 0f);
+            float bucketScale = Mathf.Max(SpriteRenderers.HeightScale(_bucket, _layout.BucketSize).y, MinExtent);
             Transform partner = _crews[rope.B].Renderer.transform;
             Vector3 from = a.Renderer.transform.position + handles * a.Renderer.transform.localScale.y / bucketScale;
             Vector3 to = partner.position + handles * partner.localScale.y / bucketScale;
             Vector3 middle = (from + to) / 2f;
             float length = Vector3.Distance(from, to);
-            float width = Mathf.Max(_rope.bounds.size.x, 0.0001f);
-            float thick = _layout.BucketSize * 0.22f / Mathf.Max(_rope.bounds.size.y, 0.0001f);
+            float width = Mathf.Max(_rope.bounds.size.x, MinExtent);
+            float thick = _layout.BucketSize * RopeThickness / Mathf.Max(_rope.bounds.size.y, MinExtent);
             rope.Renderer.transform.position = middle;
             rope.Renderer.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(to.y - from.y, to.x - from.x) * Mathf.Rad2Deg);
             rope.Renderer.transform.localScale = new Vector3(length / width, thick, 1f);
@@ -407,8 +444,8 @@ namespace Chromacolony.Game
                 visual.Leaving = true;
                 visual.Left = LeaveSeconds;
                 _sound(SoundKeys.Done);
-                Color sparkle = Color.Lerp(_colors[done.Crew.Color], Color.white, 0.8f);
-                _effects.Sparkles(visual.Renderer.transform.position, _layout.BucketSize * 0.9f, 7, sparkle);
+                Color sparkle = Color.Lerp(_colors[done.Crew.Color], Color.white, DoneSparkleWhiteness);
+                _effects.Sparkles(visual.Renderer.transform.position, _layout.BucketSize * DoneSparkleReach, DoneSparkles, sparkle);
             }
         }
 
@@ -433,11 +470,12 @@ namespace Chromacolony.Game
 
             crew.Sitter.enabled = true;
             crew.Sitter.color = _colors[crew.Crew.Color];
-            float bob = Mathf.Abs(Mathf.Sin(time * 2.4f + crew.Crew.Id)) * _layout.BucketSize * 0.05f;
-            Vector3 top = crew.Renderer.transform.position + new Vector3(0f, _layout.BucketSize * 0.5f + bob, 0f);
+            float bob = Mathf.Abs(Mathf.Sin(time * SitterBobRate + crew.Crew.Id)) * _layout.BucketSize * SitterBob;
+            Vector3 top = crew.Renderer.transform.position + new Vector3(0f, _layout.BucketSize * SitterOnRim + bob, 0f);
             crew.Sitter.transform.position = top;
-            crew.Sitter.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(time * 1.3f + crew.Crew.Id * 2f) * 9f);
-            crew.Sitter.transform.localScale = SpriteRenderers.HeightScale(_sitterSprite, _layout.BucketSize * 0.42f);
+            float sway = Mathf.Sin(time * SitterSwayRate + crew.Crew.Id * SitterSwayOffset) * SitterSwayDegrees;
+            crew.Sitter.transform.localRotation = Quaternion.Euler(0f, 0f, sway);
+            crew.Sitter.transform.localScale = SpriteRenderers.HeightScale(_sitterSprite, _layout.BucketSize * SitterHeight);
         }
 
         private void Dress(Crew crew)
@@ -464,8 +502,8 @@ namespace Chromacolony.Game
         {
             SpriteRenderer sign = SpriteRenderers.Create(bucket, _signs.For(color), _spriteMaterial, "Sign", 0);
             Vector3 size = _bucket.bounds.size;
-            sign.transform.localPosition = new Vector3(-size.x * 0.33f, size.y * 0.22f, 0f);
-            float scale = size.y * 0.28f;
+            sign.transform.localPosition = new Vector3(-size.x * SignX, size.y * SignY, 0f);
+            float scale = size.y * SignHeight;
             sign.transform.localScale = new Vector3(scale, scale, 1f);
             return sign;
         }
@@ -486,7 +524,7 @@ namespace Chromacolony.Game
             if (crew.Waiting)
             {
                 Color.RGBToHSV(color, out float h, out float s, out float v);
-                color = Color.HSVToRGB(h, s * 0.95f, v * 0.88f);
+                color = Color.HSVToRGB(h, s * WaitingSaturation, v * WaitingValue);
             }
 
             visual.Renderer.color = color;

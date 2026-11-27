@@ -47,30 +47,31 @@ namespace Chromacolony.Game
 
             public void Stride()
             {
-                for (int i = 0; i < 6; i++)
+                for (int i = 0; i < Rig.Legs.Count; i++)
                 {
-                    float tripod = (i + i / 3) % 2 == 0 ? 0f : Mathf.PI;
-                    float swing = Mathf.Sin(Phase + tripod) * 22f;
-                    Rig.Legs[i].localRotation = Quaternion.Euler(0f, 0f, -10f + swing - 12f * (i % 3));
+                    float tripod = (i + i / LegsPerSide) % 2 == 0 ? 0f : Mathf.PI;
+                    float swing = Mathf.Sin(Phase + tripod) * LegSwingDegrees;
+                    Rig.Legs[i].localRotation = Quaternion.Euler(0f, 0f, LegRestDegrees + swing - LegSpreadDegrees * (i % LegsPerSide));
                 }
 
-                Body.localPosition = new Vector3(0f, Mathf.Abs(Mathf.Sin(Phase)) * 0.04f, 0f);
-                Body.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(Phase) * 4f);
+                Body.localPosition = new Vector3(0f, Mathf.Abs(Mathf.Sin(Phase)) * BodyBob, 0f);
+                Body.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(Phase) * BodyRockDegrees);
                 Root.localScale = new Vector3(Size * Facing, Size, 1f);
             }
 
             public void Pose(float raise)
             {
-                float wave = Mathf.Sin(Phase * 0.5f) * 6f * (1f - raise);
-                Rig.Claws[0].localRotation = Quaternion.Euler(0f, 0f, 35f - 45f * raise + wave);
-                Rig.Claws[1].localRotation = Quaternion.Euler(0f, 0f, 35f - 45f * raise - wave);
+                float wave = Mathf.Sin(Phase * ClawWavePerStride) * ClawWaveDegrees * (1f - raise);
+                float claw = ClawRestDegrees - ClawRaiseDegrees * raise;
+                Rig.Claws[0].localRotation = Quaternion.Euler(0f, 0f, claw + wave);
+                Rig.Claws[1].localRotation = Quaternion.Euler(0f, 0f, claw - wave);
             }
 
             public void Wave(float beat)
             {
-                float swing = Mathf.Sin(beat) * 28f;
-                Rig.Claws[0].localRotation = Quaternion.Euler(0f, 0f, -12f + swing);
-                Rig.Claws[1].localRotation = Quaternion.Euler(0f, 0f, -12f - swing);
+                float swing = Mathf.Sin(beat) * DanceClawSwingDegrees;
+                Rig.Claws[0].localRotation = Quaternion.Euler(0f, 0f, DanceClawDegrees + swing);
+                Rig.Claws[1].localRotation = Quaternion.Euler(0f, 0f, DanceClawDegrees - swing);
             }
 
             public void Take(int order, float height)
@@ -86,7 +87,7 @@ namespace Chromacolony.Game
 
             public void Lift(float lift)
             {
-                Pebble.transform.localPosition = Vector3.Lerp(_pebbleFrom, new Vector3(0f, 0.62f, 0f), lift);
+                Pebble.transform.localPosition = Vector3.Lerp(_pebbleFrom, new Vector3(0f, CarryY, 0f), lift);
                 Pebble.transform.localScale = Vector3.Lerp(_pebbleScaleFrom, _pebbleScale, lift);
             }
 
@@ -110,8 +111,47 @@ namespace Chromacolony.Game
         private const float EnterSeconds = 0.25f;
 
         private const float PebbleHeight = 0.36f;
+        private const float CarryY = 0.62f;
 
         private const float StarSize = 2.9f;
+
+        private const int LegsPerSide = 3;
+        private const float LegRestDegrees = -10f;
+        private const float LegSpreadDegrees = 12f;
+        private const float LegSwingDegrees = 22f;
+        private const float BodyBob = 0.04f;
+        private const float BodyRockDegrees = 4f;
+        private const float ClawRestDegrees = 35f;
+        private const float ClawRaiseDegrees = 45f;
+        private const float ClawWaveDegrees = 6f;
+        private const float ClawWavePerStride = 0.5f;
+        private const float WalkingRaise = 0.3f;
+
+        // Crabs set off one after another, and the lanes keep them from walking in a single file.
+        private const int Lanes = 5;
+        private const int LaneStride = 7;
+        private const float LaneWidth = 0.16f;
+        private const float GateLaneShare = 0.6f;
+        private const float SendPhaseStep = 1.7f;
+
+        private const float DanceStaggerSeconds = 0.07f;
+        private const float DancePhaseStep = 0.9f;
+        private const float DanceGrowSeconds = 0.15f;
+        private const float DanceShrinkSeconds = 0.2f;
+        private const float DanceWalkSeconds = 0.35f;
+        private const float DanceBeatRate = 7f;
+        private const float DanceSwayPerBeat = 0.5f;
+        private const float DanceSway = 0.12f;
+        private const float DanceStrideRate = 9f;
+        private const float DanceHop = 0.16f;
+        private const float DanceClawDegrees = -12f;
+        private const float DanceClawSwingDegrees = 28f;
+
+        private const float TurnDeadZone = 0.01f;
+
+        // Guard the divisions by a distance and by a size.
+        private const float MinDistance = 0.0001f;
+        private const float MinSize = 0.01f;
 
         private readonly Transform _holder;
         private readonly CrabRig _prefab;
@@ -176,8 +216,8 @@ namespace Chromacolony.Game
                 crab.Facing = i % 2 == 0 ? 1f : -1f;
                 crab.Root.localScale = Vector3.zero;
                 crab.Target = spots[i];
-                crab.Time = -i * 0.07f;
-                crab.Phase = i * 0.9f;
+                crab.Time = -i * DanceStaggerSeconds;
+                crab.Phase = i * DancePhaseStep;
                 crab.Paint(colors[i]);
                 _dancing.Add(crab);
             }
@@ -188,17 +228,17 @@ namespace Chromacolony.Game
             Crab crab = _pool.Count > 0 ? _pool.Pop() : Make();
             crab.Root.gameObject.SetActive(true);
 
-            float lane = ((_sent * 7) % 5 - 2) * size * 0.16f;
+            float lane = ((_sent * LaneStride) % Lanes - Lanes / 2) * size * LaneWidth;
             crab.Root.position = from + new Vector2(lane, 0f);
             crab.Size = size;
             crab.Facing = 1f;
             crab.Root.localScale = new Vector3(size, size, 1f);
             crab.Target = pebble.transform.position;
-            crab.Gate = gate + new Vector2(lane * 0.6f, 0f);
+            crab.Gate = gate + new Vector2(lane * GateLaneShare, 0f);
             crab.Pebble = pebble;
             crab.Leg = Leg.Out;
             crab.Time = 0f;
-            crab.Phase = _sent++ * 1.7f % (Mathf.PI * 2f);
+            crab.Phase = _sent++ * SendPhaseStep % (Mathf.PI * 2f);
             crab.Paint(color);
             _walking.Add(crab);
         }
@@ -207,7 +247,7 @@ namespace Chromacolony.Game
         {
             if (_star != null && _star.Root.gameObject.activeSelf)
             {
-                Dance(_star, dt, 100f);
+                Dance(_star, dt, endScale: 1f);
             }
 
             for (int i = _walking.Count - 1; i >= 0; i--)
@@ -227,9 +267,10 @@ namespace Chromacolony.Game
             }
 
             _danceLeft -= dt * speed;
+            float endScale = Mathf.Clamp01(_danceLeft / DanceShrinkSeconds);
             foreach (Crab crab in _dancing)
             {
-                Dance(crab, dt * speed, _danceLeft);
+                Dance(crab, dt * speed, endScale);
             }
 
             if (_danceLeft <= 0f)
@@ -275,7 +316,7 @@ namespace Chromacolony.Game
             }
         }
 
-        private static void Dance(Crab crab, float dt, float left)
+        private static void Dance(Crab crab, float dt, float endScale)
         {
             crab.Time += dt;
             if (crab.Time < 0f)
@@ -283,16 +324,16 @@ namespace Chromacolony.Game
                 return;
             }
 
-            float grow = Mathf.Clamp01(crab.Time / 0.15f) * Mathf.Clamp01(left / 0.2f);
-            float walk = Mathf.Clamp01(crab.Time / 0.35f);
-            float beat = crab.Time * 7f + crab.Phase;
-            float sway = Mathf.Sin(beat * 0.5f) * crab.Size * 0.12f;
+            float grow = Mathf.Clamp01(crab.Time / DanceGrowSeconds) * endScale;
+            float walk = Mathf.Clamp01(crab.Time / DanceWalkSeconds);
+            float beat = crab.Time * DanceBeatRate + crab.Phase;
+            float sway = Mathf.Sin(beat * DanceSwayPerBeat) * crab.Size * DanceSway;
             var at = Vector2.Lerp(crab.Gate, crab.Target, walk * walk * (3f - 2f * walk));
             crab.Root.position = at + new Vector2(sway * walk, 0f);
-            crab.Facing = Mathf.Cos(beat * 0.5f) < 0f ? -1f : 1f;
-            crab.Phase += dt * 9f;
+            crab.Facing = Mathf.Cos(beat * DanceSwayPerBeat) < 0f ? -1f : 1f;
+            crab.Phase += dt * DanceStrideRate;
             crab.Stride();
-            crab.Body.localPosition = new Vector3(0f, Mathf.Abs(Mathf.Sin(beat)) * 0.16f, 0f);
+            crab.Body.localPosition = new Vector3(0f, Mathf.Abs(Mathf.Sin(beat)) * DanceHop, 0f);
             crab.Wave(beat);
             crab.Root.localScale = new Vector3(crab.Size * crab.Facing, crab.Size, 1f) * grow;
         }
@@ -303,7 +344,7 @@ namespace Chromacolony.Game
             switch (crab.Leg)
             {
                 case Leg.Out:
-                    crab.Pose(0.3f);
+                    crab.Pose(WalkingRaise);
                     if (Walk(crab, crab.Target, step))
                     {
                         crab.Leg = Leg.Lift;
@@ -316,7 +357,7 @@ namespace Chromacolony.Game
                 case Leg.Lift:
                     crab.Time += dt * speed;
                     float lift = Mathf.Clamp01(crab.Time / LiftSeconds);
-                    crab.Pose(0.3f + 0.7f * lift);
+                    crab.Pose(Mathf.Lerp(WalkingRaise, 1f, lift));
                     crab.Lift(lift);
                     if (lift >= 1f)
                     {
@@ -354,16 +395,16 @@ namespace Chromacolony.Game
             Vector2 way = to - at;
             float distance = way.magnitude;
             float moved = Mathf.Min(step, distance);
-            if (distance > 0.0001f)
+            if (distance > MinDistance)
             {
                 crab.Root.position = at + way / distance * moved;
-                if (Mathf.Abs(way.x) > 0.01f)
+                if (Mathf.Abs(way.x) > TurnDeadZone)
                 {
                     crab.Facing = way.x < 0f ? -1f : 1f;
                 }
             }
 
-            crab.Phase += moved / Mathf.Max(crab.Size, 0.01f) * StepsPerUnit;
+            crab.Phase += moved / Mathf.Max(crab.Size, MinSize) * StepsPerUnit;
             crab.Stride();
             return distance <= step;
         }
