@@ -4,6 +4,10 @@ This file lists the changes a player of Chromacolony can see. The format follows
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-11-27
+
+The same game as 1.0.0: no change a player can see. The code under it was reworked.
+
 ## [1.0.0] - 2026-11-26
 
 The first release: twenty boards in English and Russian, played in a web browser. The changes below are against the game as the first commit imported it.
@@ -21,5 +25,6 @@ The first release: twenty boards in English and Russian, played in a web browser
 - The lesson on the second board still said "Only 5 places" after "+1 place for this board" made it six.
 - A dialog closed right after it opened showed without its fade the next time.
 
-[Unreleased]: https://github.com/andrewboykodeveloper/chromacolony/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/andrewboykodeveloper/chromacolony/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/andrewboykodeveloper/chromacolony/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/andrewboykodeveloper/chromacolony/releases/tag/v1.0.0
