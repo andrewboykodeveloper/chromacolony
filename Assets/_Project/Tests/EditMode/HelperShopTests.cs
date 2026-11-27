@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Chromacolony.Core;
 using NUnit.Framework;
+using UnityEngine.TestTools.Constraints;
+using Is = UnityEngine.TestTools.Constraints.Is;
 
 namespace Chromacolony.Tests.EditMode
 {
@@ -241,6 +243,18 @@ namespace Chromacolony.Tests.EditMode
             shop.TryUse(Helper.Back);
             shop.TryBack(0);
             Assert.That(shuffleUsable, Is.True, "after a crew went back");
+        }
+
+        // The helpers' buttons ask this after every change on the board.
+        [Test]
+        public void UsableMakesNoGarbage()
+        {
+            Prices prices = PricesWithStock(1);
+            HelperShop shop = Shop(Start(slots: 5), Progress.New(prices), prices);
+
+            Assert.That(() => { _ = shop.Usable(Helper.Shuffle); }, Is.Not.AllocatingGCMemory());
+            Assert.That(() => { _ = shop.Usable(Helper.Back); }, Is.Not.AllocatingGCMemory());
+            Assert.That(() => { _ = shop.Usable(Helper.Slot); }, Is.Not.AllocatingGCMemory());
         }
 
         [Test]

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -70,8 +71,7 @@ namespace Chromacolony.Game
         {
             Label count = _counts[crew];
             Vector2 point = WorldToPanel.Point(_camera, world, _panelRoot);
-            count.style.left = point.x;
-            count.style.top = point.y;
+            count.style.translate = new Translate(point.x, point.y);
             count.style.scale = new Scale(new Vector3(scale, scale, 1f));
             count.style.opacity = shown ? 1f : 0f;
         }
@@ -112,7 +112,7 @@ namespace Chromacolony.Game
         {
             while (_numbers.Count <= value)
             {
-                _numbers.Add(_numbers.Count.ToString());
+                _numbers.Add(_numbers.Count.ToString(CultureInfo.InvariantCulture));
             }
 
             return _numbers[value];
@@ -127,7 +127,7 @@ namespace Chromacolony.Game
 
             while (_moreTexts.Count <= hidden)
             {
-                _moreTexts.Add("+" + _moreTexts.Count);
+                _moreTexts.Add("+" + _moreTexts.Count.ToString(CultureInfo.InvariantCulture));
             }
 
             return _moreTexts[hidden];

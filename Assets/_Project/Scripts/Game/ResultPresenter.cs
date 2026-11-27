@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Chromacolony.Core;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -148,7 +149,7 @@ namespace Chromacolony.Game
         {
             if (!_coinFlight.Flying)
             {
-                _coins.text = (_coinsHeld ? _end.CoinsBefore : _progress.Coins).ToString();
+                _coins.text = (_coinsHeld ? _end.CoinsBefore : _progress.Coins).ToString(CultureInfo.InvariantCulture);
             }
         }
 

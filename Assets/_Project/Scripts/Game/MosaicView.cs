@@ -44,6 +44,7 @@ namespace Chromacolony.Game
         private readonly List<Piece> _picture = new List<Piece>();
         private SpriteRenderer[] _pebbles = new SpriteRenderer[0];
         private SpriteRenderer[] _glows = new SpriteRenderer[0];
+        private bool[] _lit = new bool[0];
         private Vector3 _pebbleScale;
         private Transform _root;
         private IReadOnlyList<int> _cells;
@@ -65,6 +66,7 @@ namespace Chromacolony.Game
             _pebbleScale = SpriteRenderers.HeightScale(_pebble, layout.Cell * PebbleFill);
             _pebbles = new SpriteRenderer[board.Width * board.Height];
             _glows = new SpriteRenderer[_pebbles.Length];
+            _lit = new bool[_pebbles.Length];
             for (int cell = 0; cell < _pebbles.Length; cell++)
             {
                 int color = board.Cells[cell];
@@ -94,38 +96,17 @@ namespace Chromacolony.Game
             for (int cell = 0; cell < _pebbles.Length; cell++)
             {
                 SpriteRenderer pebble = _pebbles[cell];
-                SpriteRenderer glow = _glows[cell];
                 bool on = pebble != null && (colorMask & (1 << _cells[cell])) != 0;
-                if (!on)
+                if (on)
                 {
-                    if (glow != null)
-                    {
-                        glow.enabled = false;
-                    }
-
-                    if (pebble != null)
-                    {
-                        pebble.sortingOrder = SortingOrder.Pebble;
-                        pebble.transform.localScale = _pebbleScale;
-                    }
-
-                    continue;
+                    Glow(cell, pebble, breath, layout);
+                }
+                else if (_lit[cell])
+                {
+                    Dim(cell, pebble);
                 }
 
-                if (glow == null)
-                {
-                    glow = SpriteRenderers.Create(_root, _glow, _spriteMaterial, "Glow " + cell, SortingOrder.PebbleGlow);
-                    _glows[cell] = glow;
-                }
-
-                var light = Color.Lerp(_colors[_cells[cell]], Color.white, GlowWhiteness);
-                light.a = GlowAlpha + GlowAlphaBreath * breath;
-                glow.enabled = true;
-                glow.color = light;
-                glow.transform.position = pebble.transform.position;
-                glow.transform.localScale = SpriteRenderers.HeightScale(_glow, layout.Cell * (GlowCells + GlowCellsBreath * breath));
-                pebble.sortingOrder = SortingOrder.PebbleLit;
-                pebble.transform.localScale = _pebbleScale * (1f + LitGrowth * breath);
+                _lit[cell] = on;
             }
         }
 
@@ -179,8 +160,39 @@ namespace Chromacolony.Game
             _picture.Clear();
             _pebbles = new SpriteRenderer[0];
             _glows = new SpriteRenderer[0];
+            _lit = new bool[0];
             _cells = null;
             _root = null;
+        }
+
+        private void Glow(int cell, SpriteRenderer pebble, float breath, BoardLayout layout)
+        {
+            SpriteRenderer glow = _glows[cell];
+            if (glow == null)
+            {
+                glow = SpriteRenderers.Create(_root, _glow, _spriteMaterial, "Glow " + cell, SortingOrder.PebbleGlow);
+                _glows[cell] = glow;
+            }
+
+            var light = Color.Lerp(_colors[_cells[cell]], Color.white, GlowWhiteness);
+            light.a = GlowAlpha + GlowAlphaBreath * breath;
+            glow.enabled = true;
+            glow.color = light;
+            glow.transform.position = pebble.transform.position;
+            glow.transform.localScale = SpriteRenderers.HeightScale(_glow, layout.Cell * (GlowCells + GlowCellsBreath * breath));
+            pebble.sortingOrder = SortingOrder.PebbleLit;
+            pebble.transform.localScale = _pebbleScale * (1f + LitGrowth * breath);
+        }
+
+        // A dark pebble is set back once, when it goes dark, so the pebbles that stay dark cost nothing each frame.
+        private void Dim(int cell, SpriteRenderer pebble)
+        {
+            _glows[cell].enabled = false;
+            if (pebble != null)
+            {
+                pebble.sortingOrder = SortingOrder.Pebble;
+                pebble.transform.localScale = _pebbleScale;
+            }
         }
     }
 }

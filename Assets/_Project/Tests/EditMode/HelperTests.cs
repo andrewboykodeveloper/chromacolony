@@ -141,6 +141,18 @@ namespace Chromacolony.Tests.EditMode
         }
 
         [Test]
+        public void ShuffleNeedsTwoCrewsWithoutARope()
+        {
+            GameModel model = Start("board s\nRRYYOO\n= R2~1 O2\n= Y2~1\n", slots: 5);
+            Assert.That(model.CanUse(Helper.Shuffle), Is.False, "one crew has no rope");
+
+            model.TrySend(0);
+            model.Back(0);
+
+            Assert.That(model.CanUse(Helper.Shuffle), Is.True, "the crew sent back has lost its rope");
+        }
+
+        [Test]
         public void AShuffleMovesTheCrewsButNotTheRopes()
         {
             GameModel model = Start("board s\nRRRRYYYYOOOOKK\n= R2 Y2 O2 K1~1\n= R2 Y2 O2 K1~1\n", slots: 5);

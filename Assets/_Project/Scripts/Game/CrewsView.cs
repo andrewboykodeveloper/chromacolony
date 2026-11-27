@@ -88,7 +88,7 @@ namespace Chromacolony.Game
             model.QueueShuffled += Requeue;
             model.CrewBack += OnCrewBack;
             model.CrewSent += OnCrewSent;
-            model.CrewWaiting += e => Tint(e.Crew);
+            model.CrewWaiting += OnCrewWaiting;
             model.CrewDone += OnCrewDone;
             model.CrewRevealed += OnRevealed;
         }
@@ -177,6 +177,13 @@ namespace Chromacolony.Game
 
         public void Dispose()
         {
+            _model.SendRefused -= OnRefused;
+            _model.QueueShuffled -= Requeue;
+            _model.CrewBack -= OnCrewBack;
+            _model.CrewSent -= OnCrewSent;
+            _model.CrewWaiting -= OnCrewWaiting;
+            _model.CrewDone -= OnCrewDone;
+            _model.CrewRevealed -= OnRevealed;
             _signs.Dispose();
         }
 
@@ -461,6 +468,11 @@ namespace Chromacolony.Game
             float scale = size.y * 0.28f;
             sign.transform.localScale = new Vector3(scale, scale, 1f);
             return sign;
+        }
+
+        private void OnCrewWaiting(CrewWaiting waiting)
+        {
+            Tint(waiting.Crew);
         }
 
         private void Tint(Crew crew)

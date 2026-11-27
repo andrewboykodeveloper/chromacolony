@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Chromacolony.Core;
 using UnityEngine.UIElements;
 
@@ -79,7 +80,8 @@ namespace Chromacolony.Game
             {
                 var helper = (Helper)h;
                 int stock = _shop.Stock(helper);
-                _badges[h].text = stock > 0 ? stock.ToString() : _shop.Price(helper).ToString();
+                int shown = stock > 0 ? stock : _shop.Price(helper);
+                _badges[h].text = shown.ToString(CultureInfo.InvariantCulture);
                 _badges[h].EnableInClassList(UiClasses.Price, stock == 0);
                 _buttons[h].EnableInClassList(UiClasses.Off, !_shop.Usable(helper));
             }
